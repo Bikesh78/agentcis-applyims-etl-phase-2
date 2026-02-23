@@ -14,15 +14,23 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.ts": ["prettier --write", "eslint"]
+    "*.ts": [
+      "prettier --write",
+      "eslint"
+    ]
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.2.1"
+    "config": "^4.4.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "joi": "^18.0.2",
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
+    "@types/config": "^3.3.5",
     "@types/express": "^5.0.6",
     "@types/node": "^25.3.0",
     "@typescript-eslint/eslint-plugin": "^8.56.0",

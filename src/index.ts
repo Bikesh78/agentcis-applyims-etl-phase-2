@@ -1,7 +1,32 @@
+import 'dotenv/config';
 import app from './app';
+import { getConfig } from './config/index.js';
 
-const PORT = process.env.PORT || 3000;
+let server: ReturnType<typeof app.listen> | null = null;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+async function startServer(): Promise<void> {
+  try {
+    const config = getConfig();
+    server = app.listen(config.port, () => {
+      console.log(`Server is running on port ${config.port} in ${config.nodeEnv} mode`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+async function shutdown(): Promise<void> {
+  console.log('Shutting down...');
+  if (server) {
+    server.close(() => {
+      console.log('HTTP server closed');
+    });
+  }
+  process.exit(0);
+}
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+
+startServer();

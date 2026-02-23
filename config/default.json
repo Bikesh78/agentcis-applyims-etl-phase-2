@@ -1,0 +1,21 @@
+{
+  "nodeEnv": "development",
+  "port": 4000,
+  "agentcisDb": {
+    "host": "localhost",
+    "port": 3306,
+    "username": "root",
+    "database": "agentcis_v2",
+    "type":"mysql"
+  },
+  "applyimsDb": {
+    "host": "localhost",
+    "port": 1569,
+    "username": "root",
+    "database": "tenant_f04d5701-203d-4bea-aeb0-b3f7f5c43dd4",
+    "type":"postgres"
+  },
+  "applyimsApi": {
+    "url": "http://localhost:3000"
+  }
+}
