@@ -1,0 +1,1 @@
+echo "Running pre-commit checks..." && npx lint-staged --verbose && echo "✅ Pre-commit checks passed!" || (echo "❌ Pre-commit checks failed!" && exit 1)
