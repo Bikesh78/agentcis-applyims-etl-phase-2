@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import app from './app';
+import app from './app.js';
 import { getConfig } from './config/index.js';
 
 let server: ReturnType<typeof app.listen> | null = null;
