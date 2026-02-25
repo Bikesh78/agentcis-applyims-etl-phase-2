@@ -1,3 +1,6 @@
 {
-  "nodeEnv": "production"
+  "nodeEnv": "production",
+  "logger":{
+    "logLevel":"error",
+  }
 }

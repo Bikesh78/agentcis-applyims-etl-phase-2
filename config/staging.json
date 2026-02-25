@@ -1,3 +1,6 @@
 {
-  "nodeEnv": "staging"
+  "nodeEnv": "staging",
+  "logger":{
+    "logLevel":"error",
+  }
 }

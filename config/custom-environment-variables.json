@@ -19,4 +19,9 @@
   },
   "applyimsApi": {
     "url": "APPLYIMS_API_URL"
-  }}
+  },
+  "logger":{
+    "logLevel":"LOG_LEVEL",
+    "logDir":"LOG_DIR"
+  }
+}

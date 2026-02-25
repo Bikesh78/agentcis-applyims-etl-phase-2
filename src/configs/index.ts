@@ -1,7 +1,8 @@
-import config from 'config';
 import Joi from 'joi';
 import { DatabaseConfig, databaseConfigSchema } from './database.config.js';
 import { ApiConfig, apiConfigSchema } from './api.config.js';
+import { LoggerConfig, loggerConfigSchema } from './logger.config.js';
+import config from 'config';
 
 export interface AppConfig {
   nodeEnv: string;
@@ -10,7 +11,7 @@ export interface AppConfig {
   applyimsDb: DatabaseConfig;
   applyimsApi: ApiConfig;
   // migration: MigrationConfig;
-  // logger: LoggerConfig;
+  logger: LoggerConfig;
 }
 
 const appConfigSchema = Joi.object<AppConfig>({
@@ -25,18 +26,12 @@ const appConfigSchema = Joi.object<AppConfig>({
   agentcisDb: databaseConfigSchema.required().messages({
     'any.required': 'AgentCIS database configuration is required',
   }),
-  applyimsDb: databaseConfigSchema.required().messages({
-    'any.required': 'ApplyIMS database configuration is required',
-  }),
-  applyimsApi: apiConfigSchema.required().messages({
-    'any.required': 'ApplyIMS API configuration is required',
-  }),
+  applyimsDb: databaseConfigSchema.required(),
+  applyimsApi: apiConfigSchema.required(),
   // migration: migrationConfigSchema.required().messages({
   //   'any.required': 'Migration configuration is required',
   // }),
-  // logger: loggerConfigSchema.required().messages({
-  //   'any.required': 'Logger configuration is required',
-  // }),
+  logger: loggerConfigSchema.required(),
 });
 
 let validatedConfig: AppConfig | null = null;
@@ -53,7 +48,7 @@ export function loadConfig(): AppConfig {
     applyimsDb: config.get('applyimsDb'),
     applyimsApi: config.get('applyimsApi'),
     // migration: config.get('migration'),
-    // logger: config.get('logger'),
+    logger: config.get('logger'),
   };
 
   const { error, value } = appConfigSchema.validate(rawConfig, {

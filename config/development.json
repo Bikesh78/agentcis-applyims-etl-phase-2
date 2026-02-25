@@ -19,5 +19,9 @@
   },
   "applyimsApi": {
     "url": "http://localhost:3000"
+  },
+  "logger":{
+    "logLevel":"info",
+    "logDir":"./logs"
   }
 }
