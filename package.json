@@ -11,7 +11,11 @@
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write src/**/*",
-    "prepare": "husky"
+    "prepare": "husky",
+    "migration:generate": "npx tsx node_modules/typeorm/cli.js -d src/data-source.ts migration:generate",
+    "migration:run": "npx tsx node_modules/typeorm/cli.js -d src/data-source.ts migration:run",
+    "migration:revert": "npx tsx node_modules/typeorm/cli.js -d src/data-source.ts migration:revert",
+    "migration:show": "npx tsx node_modules/typeorm/cli.js -d src/data-source.ts migration:show"
   },
   "lint-staged": {
     "*.ts": [
@@ -24,15 +28,21 @@
   "license": "ISC",
   "dependencies": {
     "config": "^4.4.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "joi": "^18.0.2",
+    "mysql2": "^3.18.1",
+    "pg": "^8.19.0",
+    "pg-query-stream": "^4.13.0",
+    "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.28",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@types/config": "^3.3.5",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.3.0",
     "@typescript-eslint/eslint-plugin": "^8.56.0",

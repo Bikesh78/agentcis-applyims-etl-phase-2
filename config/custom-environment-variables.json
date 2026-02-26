@@ -7,15 +7,15 @@
     "username": "AGENTCIS_DB_USER",
     "password": "AGENTCIS_DB_PASSWORD",
     "database": "AGENTCIS_DB_NAME",
-    "type":"AGENTCIS_DB_TYPE"
+    "type": "AGENTCIS_DB_TYPE"
   },
-  "applyimsDb": {
-    "host": "APPLYIMS_DB_HOST",
-    "port": "APPLYIMS_DB_PORT",
-    "username": "APPLYIMS_DB_USER",
-    "password": "APPLYIMS_DB_PASSWORD",
-    "database": "APPLYIMS_DB_NAME",
-    "type":"APPLYIMS_DB_TYPE"
+  "etlDb": {
+    "host": "ETL_DB_HOST",
+    "port": "ETL_DB_PORT",
+    "username": "ETL_DB_USER",
+    "password": "ETL_DB_PASSWORD",
+    "database": "ETL_DB_NAME",
+    "type":"ETL_DB_TYPE"
   },
   "applyimsApi": {
     "url": "APPLYIMS_API_URL"

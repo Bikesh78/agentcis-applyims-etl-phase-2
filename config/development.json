@@ -5,16 +5,14 @@
     "host": "localhost",
     "port": 3306,
     "username": "root",
-    "password": "root",
     "database": "agentcis_v2",
     "type": "mysql"
   },
-  "applyimsDb": {
+  "etlDb": {
     "host": "localhost",
     "port": 1569,
-    "username": "root",
-    "password": "root",
-    "database": "tenant_f04d5701-203d-4bea-aeb0-b3f7f5c43dd4",
+    "username": "postgres",
+    "database": "etl_tracking",
     "type": "postgres"
   },
   "applyimsApi": {

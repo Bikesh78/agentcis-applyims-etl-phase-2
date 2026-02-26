@@ -8,7 +8,7 @@ export interface AppConfig {
   nodeEnv: string;
   port: number;
   agentcisDb: DatabaseConfig;
-  applyimsDb: DatabaseConfig;
+  etlDb: DatabaseConfig;
   applyimsApi: ApiConfig;
   // migration: MigrationConfig;
   logger: LoggerConfig;
@@ -26,7 +26,7 @@ const appConfigSchema = Joi.object<AppConfig>({
   agentcisDb: databaseConfigSchema.required().messages({
     'any.required': 'AgentCIS database configuration is required',
   }),
-  applyimsDb: databaseConfigSchema.required(),
+  etlDb: databaseConfigSchema.required(),
   applyimsApi: apiConfigSchema.required(),
   // migration: migrationConfigSchema.required().messages({
   //   'any.required': 'Migration configuration is required',
@@ -45,7 +45,7 @@ export function loadConfig(): AppConfig {
     nodeEnv: config.get('nodeEnv'),
     port: config.get('port'),
     agentcisDb: config.get('agentcisDb'),
-    applyimsDb: config.get('applyimsDb'),
+    etlDb: config.get('etlDb'),
     applyimsApi: config.get('applyimsApi'),
     // migration: config.get('migration'),
     logger: config.get('logger'),
