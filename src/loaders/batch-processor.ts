@@ -1,6 +1,6 @@
 import pLimit from 'p-limit';
 import { ApplyIMSApiClient, BulkResponse } from './api-client.js';
-import { MappingRepository, EntityType } from '../repositories/mapping.repository.js';
+import { MappingRepository, EntityUnionType } from '../repositories/mapping.repository.js';
 import { ErrorRecoveryManager, ErrorCategory } from './error-recovery.js';
 import { Logger } from '../utils/logger.js';
 
@@ -40,7 +40,7 @@ export class BatchProcessor {
 
   async processBatch<T extends { agentcisClientId: string; id?: string }>(
     items: T[],
-    entityType: EntityType,
+    entityType: EntityUnionType,
     apiMethod: (batch: T[]) => Promise<BulkResponse>,
     migrationId: string
   ): Promise<ProcessResult> {
@@ -107,7 +107,7 @@ export class BatchProcessor {
 
   async processWithConcurrency<T extends { agentcisClientId: string; id?: string }>(
     items: T[],
-    entityType: EntityType,
+    entityType: EntityUnionType,
     apiMethod: (batch: T[]) => Promise<BulkResponse>,
     maxConcurrent: number = 5,
     migrationId: string
@@ -140,7 +140,7 @@ export class BatchProcessor {
 
   private async processSingleChunk<T extends { agentcisClientId: string; id?: string }>(
     chunk: T[],
-    entityType: EntityType,
+    entityType: EntityUnionType,
     apiMethod: (batch: T[]) => Promise<BulkResponse>,
     batchIndex: number,
     migrationId: string
@@ -194,7 +194,7 @@ export class BatchProcessor {
   private async executeWithRetry<T>(
     apiMethod: (batch: T[]) => Promise<BulkResponse>,
     chunk: T[],
-    entityType: EntityType
+    entityType: EntityUnionType
   ): Promise<BulkResponse> {
     let lastError: Error | null = null;
 

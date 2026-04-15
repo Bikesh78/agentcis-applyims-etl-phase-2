@@ -1,18 +1,20 @@
 import { DataSource } from 'typeorm';
 import { IdResolver } from './utils/id-resolver.js';
+import { BaseTransformer } from './base.transformer.js';
 import { isUuid } from './utils/validators.js';
 import { FieldMapper } from './utils/field-mappers.js';
-import { logger } from 'utils/logger.js';
-import { Attachment, AttachmentableType } from 'entities/agentcis/attachments.entity.js';
-import { ApplyIMSMedia, SubjectType } from 'entities/applyims/media.entity.js';
-import { MappingRepository } from 'repositories/mapping.repository.js';
+import { Attachment, AttachmentableType } from '../entities/agentcis/attachments.entity.js';
+import { ApplyIMSMedia, SubjectType } from '../entities/applyims/media.entity.js';
+import { MappingRepository } from '../repositories/mapping.repository.js';
 
-export class AttachmentTransformer {
+export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSMedia> {
   constructor(
-    private idResolver: IdResolver,
+    idResolver: IdResolver,
     private fieldMapper: FieldMapper,
     private mappingRepo: MappingRepository
-  ) {}
+  ) {
+    super(idResolver);
+  }
 
   static create(idResolver: IdResolver, etlDb: DataSource): AttachmentTransformer {
     const fieldMapper = new FieldMapper();
@@ -20,17 +22,12 @@ export class AttachmentTransformer {
     return new AttachmentTransformer(idResolver, fieldMapper, mappingRepo);
   }
 
-  async transform(source: Attachment): Promise<ApplyIMSMedia> {
+  protected async transformImpl(source: Attachment, id: string): Promise<ApplyIMSMedia> {
     const supportedTypes: AttachmentableType[] = ['application_stage', 'client'];
 
     if (!supportedTypes.includes(source.attachmentableType)) {
-      logger.warn(
-        `Skipping attachment ${source.id} - unsupported attachmentableType: ${source.attachmentableType}`
-      );
       throw new Error(`Unsupported attachmentableType: ${source.attachmentableType}`);
     }
-
-    const id = crypto.randomUUID();
 
     const subjectId = await this.resolveSubjectId(
       source.attachmentableType,
@@ -38,12 +35,7 @@ export class AttachmentTransformer {
     );
     const createdBy = source.uploader ? await this.idResolver.resolveUserId(source.uploader) : null;
 
-    // const stageId =
-    //   source.attachmentableType === 'application_stage'
-    //     ? await this.idResolver.resolveWorkflowStagesId(source.attachmentableId)
-    //     : null;
-
-    const transformed: ApplyIMSMedia = {
+    return {
       id,
       name: source.originalName,
       path: await this.resolvePath(source),
@@ -59,12 +51,17 @@ export class AttachmentTransformer {
       mimetype: this.mapMimeType(source.type),
       subjectId,
       bucketFileName: this.getBucketFileName(source.originalName, source.createdAt),
-
-      stageId: null, // Unable to resolve this as it's not possible to pinpoint which application stage this document belongs to
+      stageId: null,
     };
+  }
 
-    this.validate(transformed);
-    return transformed;
+  protected validate(target: ApplyIMSMedia): void {
+    if (!isUuid(target.id)) {
+      throw new Error(`Invalid UUID: ${target.id}`);
+    }
+    if (target.subjectId && !isUuid(target.subjectId)) {
+      throw new Error(`Invalid subjectId: ${target.subjectId}`);
+    }
   }
 
   private async resolveSubjectId(
@@ -74,7 +71,6 @@ export class AttachmentTransformer {
     switch (attachmentableType) {
       case 'application_stage':
         return await this.idResolver.resolveApplicationId(attachmentableId);
-      // return null
       case 'client':
         return await this.idResolver.resolveContactId(attachmentableId);
       default:
@@ -139,20 +135,5 @@ export class AttachmentTransformer {
     };
 
     return mimeTypeMap[extension.toLowerCase()] ?? 'application/octet-stream';
-  }
-
-  private extractExtension(fileName: string | null): string | null {
-    if (!fileName) return null;
-    const parts = fileName.split('.');
-    return parts.length > 1 ? (parts.pop() ?? null) : null;
-  }
-
-  private validate(media: ApplyIMSMedia): void {
-    if (!isUuid(media.id)) {
-      throw new Error(`Invalid UUID: ${media.id}`);
-    }
-    if (media.subjectId && !isUuid(media.subjectId)) {
-      throw new Error(`Invalid subjectId: ${media.subjectId}`);
-    }
   }
 }

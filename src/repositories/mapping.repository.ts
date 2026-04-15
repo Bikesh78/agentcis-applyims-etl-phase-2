@@ -9,14 +9,14 @@ export interface MappingData {
   branchId?: string;
 }
 
-export type EntityType = 'contacts' | 'applications' | 'deals';
+export type EntityUnionType = 'contacts' | 'applications' | 'deals';
 
 export class MappingRepository {
   constructor(private readonly etlDb: DataSource) {}
 
   async storeMapping(
     migrationId: string,
-    entityType: EntityType,
+    entityType: EntityUnionType,
     data: MappingData
   ): Promise<void> {
     switch (entityType) {
@@ -70,7 +70,7 @@ export class MappingRepository {
   }
 
   async storeBatchMappings(
-    entityType: EntityType,
+    entityType: EntityUnionType,
     migrationId: string,
     mappings: MappingData[]
   ): Promise<void> {
@@ -94,7 +94,7 @@ export class MappingRepository {
     }
   }
 
-  private getTableName(entityType: EntityType): string {
+  private getTableName(entityType: EntityUnionType): string {
     const tableMap: Record<string, string> = {
       contacts: 'temp_mapped_contacts',
       applications: 'temp_mapped_applications',
@@ -104,7 +104,7 @@ export class MappingRepository {
   }
 
   private formatMappingData(
-    entityType: EntityType,
+    entityType: EntityUnionType,
     migrationId: string,
     data: MappingData
   ): Partial<TempMappedContact | TempMappedApplication> {

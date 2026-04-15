@@ -1,19 +1,19 @@
 import { FieldMapper } from './utils/field-mappers.js';
 import { IdResolver } from './utils/id-resolver.js';
-import { AgentcisFirstPointOfContact, Clients } from 'entities/agentcis/clients.entity.js';
-import { ApplyIMSContact } from 'entities/applyims/contact.entity.js';
+import { BaseTransformer } from './base.transformer.js';
+import { AgentcisFirstPointOfContact, Clients } from '../entities/agentcis/clients.entity.js';
+import { ApplyIMSContact } from '../entities/applyims/contact.entity.js';
 import { isEmail, isUuid } from './utils/validators.js';
-import { Logger } from 'utils/logger.js';
 
-export class ContactTransformer {
+export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact> {
   constructor(
-    private idResolver: IdResolver,
-    private fieldMapper: FieldMapper,
-    private logger: Logger
-  ) {}
+    idResolver: IdResolver,
+    private fieldMapper: FieldMapper
+  ) {
+    super(idResolver);
+  }
 
-  async transform(source: Clients): Promise<ApplyIMSContact> {
-    const id = crypto.randomUUID();
+  protected async transformImpl(source: Clients, id: string): Promise<ApplyIMSContact> {
     const branchId = await this.idResolver.resolveBranchId(source.branchId);
     const assigneeId = await this.idResolver.resolveUserId(source.assignedTo);
     const archivedBy = await this.idResolver.resolveUserId(source.archivedBy);
@@ -23,9 +23,9 @@ export class ContactTransformer {
       throw new Error(`Cannot resolve BranchId ${source.branchId}`);
     }
 
-    const transformed: ApplyIMSContact = {
+    return {
       ...source,
-      id: id,
+      id,
       agentcisClientId: `EEVS-` + source.id,
       agentcisInternalId: source.id,
       firstName: this.fieldMapper.cleanName(source.firstName)!,
@@ -45,25 +45,22 @@ export class ContactTransformer {
       nationality: null,
       country: null,
     };
+  }
 
-    this.validate(transformed);
-    return transformed;
+  protected validate(target: ApplyIMSContact): void {
+    if (!target.firstName || !target.lastName) {
+      throw new Error('FirstName and LastName are required');
+    }
+    if (!isEmail(target.email)) {
+      throw new Error(`Invalid email: ${target.email}`);
+    }
+    if (!isUuid(target.id)) {
+      throw new Error(`Invalid UUID: ${target.id}`);
+    }
   }
 
   private mapSource(source: AgentcisFirstPointOfContact | null): string | null {
     if (source === 'In Person') return 'Office-Visit';
     return source;
-  }
-
-  private validate(contact: ApplyIMSContact): void {
-    if (!contact.firstName || !contact.lastName) {
-      throw new Error('FirstName and LastName are required');
-    }
-    if (!isEmail(contact.email)) {
-      throw new Error(`Invalid email: ${contact.email}`);
-    }
-    if (!isUuid(contact.id)) {
-      throw new Error(`Invalid UUID: ${contact.id}`);
-    }
   }
 }

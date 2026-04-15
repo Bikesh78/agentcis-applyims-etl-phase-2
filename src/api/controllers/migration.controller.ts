@@ -4,16 +4,16 @@ import { MigrationOrchestrator } from '../../orchestrators/migration.orchestrato
 import { CheckpointService } from '../../services/checkpoint.service.js';
 import { logger } from '../../utils/logger.js';
 import { MigrationConfig } from 'configs/migration.config.js';
+import { EntityUnionType } from 'repositories/mapping.repository.js';
 
 interface MigrationRequest {
-  entities: string[];
+  entities: EntityUnionType[];
   dateRange: {
     start: Date;
     end: Date;
   };
   batchSize: number;
   parallelism: number;
-
 }
 
 export const startMigrationSchema = Joi.object<MigrationRequest>({
@@ -34,13 +34,13 @@ export class MigrationController {
   constructor(
     private orchestrator: MigrationOrchestrator,
     private checkpointService: CheckpointService
-  ) { }
+  ) {}
 
   async startMigration(req: CustomRequest, res: Response): Promise<void> {
-    console.log('in here')
+    console.log('in here');
     try {
       const { error, value } = startMigrationSchema.validate(req.body);
-      console.log('error', error)
+      console.log('error', error);
       if (error) {
         res.status(400).json({
           status: 'error',

@@ -36,7 +36,7 @@ export class ErrorRecoveryManager {
       },
       sourceData: sourceData ? sourceData : undefined,
     });
-    // console.log('error')
+    console.log('error', error);
 
     this.logger.error('Migration error logged', {
       migrationId,

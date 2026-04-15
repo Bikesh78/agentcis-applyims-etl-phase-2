@@ -7,6 +7,7 @@ export class ContactExtractor extends BaseExtractor<Clients> {
     super(dataSource, 'Clients', config);
   }
   async extractBatch(offset: number, limit: number): Promise<Clients[]> {
+    console.log('contact extract', offset);
     return await this.dataSource
       .getRepository(Clients)
       .createQueryBuilder('clients')

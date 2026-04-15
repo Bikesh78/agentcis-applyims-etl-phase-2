@@ -1,13 +1,15 @@
 import { IdResolver } from './utils/id-resolver.js';
+import { BaseTransformer } from './base.transformer.js';
 import { isUuid } from './utils/validators.js';
-import { OfficeVisits } from 'entities/agentcis/office-visits.entity.js';
-import { ApplyIMSOfficeVisit } from 'entities/applyims/office-visit.entity.js';
+import { OfficeVisits } from '../entities/agentcis/office-visits.entity.js';
+import { ApplyIMSOfficeVisit } from '../entities/applyims/office-visit.entity.js';
 
-export class OfficeVisitTransformer {
-  constructor(private idResolver: IdResolver) {}
+export class OfficeVisitTransformer extends BaseTransformer<OfficeVisits, ApplyIMSOfficeVisit> {
+  constructor(idResolver: IdResolver) {
+    super(idResolver);
+  }
 
-  async transform(source: OfficeVisits): Promise<ApplyIMSOfficeVisit> {
-    const id = crypto.randomUUID();
+  protected async transformImpl(source: OfficeVisits, id: string): Promise<ApplyIMSOfficeVisit> {
     const contactId = await this.idResolver.resolveContactId(source.contactId);
     const assigneeId = source.assigneeId
       ? await this.idResolver.resolveUserId(source.assigneeId)
@@ -38,7 +40,7 @@ export class OfficeVisitTransformer {
       throw new Error(`Cannot resolve session end for ${source.id}`);
     }
 
-    const transformed: ApplyIMSOfficeVisit = {
+    return {
       id,
       contactId,
       assigneeId,
@@ -51,20 +53,17 @@ export class OfficeVisitTransformer {
       sessionEnd,
       status: 'Completed',
     };
-
-    this.validate(transformed);
-    return transformed;
   }
 
-  private validate(officeVisit: ApplyIMSOfficeVisit): void {
-    if (!isUuid(officeVisit.id)) {
-      throw new Error(`Invalid uuid: ${officeVisit.id}`);
+  protected validate(target: ApplyIMSOfficeVisit): void {
+    if (!isUuid(target.id)) {
+      throw new Error(`Invalid uuid: ${target.id}`);
     }
-    if (!isUuid(officeVisit.contactId)) {
-      throw new Error(`Invalid contactId: ${officeVisit.contactId}`);
+    if (!isUuid(target.contactId)) {
+      throw new Error(`Invalid contactId: ${target.contactId}`);
     }
-    if (!isUuid(officeVisit.createdBy)) {
-      throw new Error(`Invalid userId: ${officeVisit.createdBy}`);
+    if (!isUuid(target.createdBy)) {
+      throw new Error(`Invalid userId: ${target.createdBy}`);
     }
   }
 }

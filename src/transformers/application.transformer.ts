@@ -1,19 +1,21 @@
 import { IdResolver } from './utils/id-resolver.js';
+import { BaseTransformer } from './base.transformer.js';
 import { isDate, isUuid } from './utils/validators.js';
-import { AgentcisApplicationType, Applications } from 'entities/agentcis/applications.entity.js';
+import { AgentcisApplicationType, Applications } from '../entities/agentcis/applications.entity.js';
 import {
   AgentPartner,
   ApplyIMSApplication,
   ApplyimsApplicationStatus,
   ApplyimsStatusRemarks,
-} from 'entities/applyims/application.entity.js';
-import { Referrers } from 'entities/agentcis/referrers.entity.js';
+} from '../entities/applyims/application.entity.js';
+import { Referrers } from '../entities/agentcis/referrers.entity.js';
 
-export class ApplicationTransformer {
-  constructor(private idResolver: IdResolver) {}
+export class ApplicationTransformer extends BaseTransformer<Applications, ApplyIMSApplication> {
+  constructor(idResolver: IdResolver) {
+    super(idResolver);
+  }
 
-  async transform(source: Applications): Promise<ApplyIMSApplication> {
-    const id = crypto.randomUUID();
+  protected async transformImpl(source: Applications, id: string): Promise<ApplyIMSApplication> {
     const contactId = await this.idResolver.resolveContactId(source.clientId);
     const branchId = await this.idResolver.resolveBranchId(source.addedByBranchId);
     const createdBy = await this.idResolver.resolveUserId(source.creatorId);
@@ -58,15 +60,13 @@ export class ApplicationTransformer {
       ? this.extractIntakeYearAndMonth(source.appliedIntakeDate)
       : undefined;
 
-    const transformed: ApplyIMSApplication = {
+    return {
       id,
       agentcisApplicationId: source.id,
       contactId,
       productId,
       institutionId,
       institutionBranchId,
-      // productType: source.products.name,
-      // productSubType: source.products.name,
       workflowId,
       createdBy,
       status: this.mapStatus(source.status),
@@ -84,17 +84,21 @@ export class ApplicationTransformer {
       agentPartner: agentId ? this.getAgentPartner(source.referrers, agentId) : {},
       assignees,
       ...this.extractDiscountAndRemarks(source),
-
-      // TODO: update these fields once requirements are clear
       dealId: '',
       productType: '',
       productSubType: '',
       productFeeAmount: 0,
       productFeeCurrency: '',
     };
+  }
 
-    this.validate(transformed);
-    return transformed;
+  protected validate(target: ApplyIMSApplication): void {
+    if (!isUuid(target.id)) {
+      throw new Error(`Invalid UUID: ${target.id}`);
+    }
+    if (!isUuid(target.contactId)) {
+      throw new Error(`Invalid ContactID: ${target.contactId}`);
+    }
   }
 
   private getAgentPartner(referrer: Referrers | null, applyimsId: string): AgentPartner {
@@ -131,7 +135,9 @@ export class ApplicationTransformer {
     return { intakeYear, intakeMonth };
   }
 
-  private mapDiscontinuedStatusRemarks(discontinuedReason: string | null) {
+  private mapDiscontinuedStatusRemarks(
+    discontinuedReason: string | null
+  ): ApplyimsStatusRemarks | null {
     if (!discontinuedReason) return null;
 
     const reasonMap: Record<string, string> = {
@@ -148,13 +154,12 @@ export class ApplicationTransformer {
     };
     const reason = reasonMap[discontinuedReason];
 
-    const result: ApplyimsStatusRemarks = {
+    return {
       discontinue: {
         reason,
         remarks: 'Migrated from Agentcis',
       },
     };
-    return result;
   }
 
   private extractDiscountAndRemarks(source: Applications): { discount: number; remarks: string } {
@@ -175,14 +180,5 @@ export class ApplicationTransformer {
       discount: discountValue,
       remarks: `Total Fees $${totalFees} - Discount $${discountValue} = Final Fee $${finalFee}`,
     };
-  }
-
-  private validate(application: ApplyIMSApplication): void {
-    if (!isUuid(application.id)) {
-      throw new Error(`Invalid UUID: ${application.id}`);
-    }
-    if (!isUuid(application.contactId)) {
-      throw new Error(`Invalid ContactID: ${application.contactId}`);
-    }
   }
 }

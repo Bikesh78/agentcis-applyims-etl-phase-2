@@ -1,16 +1,25 @@
 import { DataSource } from 'typeorm';
 import { BaseExtractor, ExtractorConfig } from '../extractors/base.extractor.js';
 import { ContactExtractor } from '../extractors/contact.extractor.js';
+import { ApplicationExtractor } from '../extractors/application.extractor.js';
 import { ContactTransformer } from '../transformers/contact.transformer.js';
+import { ApplicationTransformer } from '../transformers/application.transformer.js';
 import { IdResolver } from '../transformers/utils/id-resolver.js';
 import { FieldMapper } from '../transformers/utils/field-mappers.js';
 import { BatchProcessor, ProcessResult } from '../loaders/batch-processor.js';
 import { CheckpointService } from '../services/checkpoint.service.js';
-import { ErrorRecoveryManager } from '../loaders/error-recovery.js';
+import { ErrorRecoveryManager, ErrorCategory } from '../loaders/error-recovery.js';
 import { ApplyIMSApiClient, BulkResponse } from '../loaders/api-client.js';
 import { Logger } from '../utils/logger.js';
 import { MigrationJob, MigrationStatus } from '../entities/etlDb/migration-jobs.entity.js';
-import { MigrationConfig } from 'configs/migration.config.js';
+import { MigrationConfig } from '../configs/migration.config.js';
+import { EntityType, SUPPORTED_ENTITIES } from '../constants/entity-types.js';
+import { Clients } from '../entities/agentcis/clients.entity.js';
+import { Applications } from '../entities/agentcis/applications.entity.js';
+import { ApplyIMSContact } from '../entities/applyims/contact.entity.js';
+import { ApplyIMSApplication } from '../entities/applyims/application.entity.js';
+import { ApplyIMSDeal } from '../entities/applyims/deal.entity.js';
+import { EntityUnionType } from 'repositories/mapping.repository.js';
 
 export interface EntityMigrationResult {
   total: number;
@@ -26,10 +35,21 @@ export interface MigrationResult {
   entities: Record<string, EntityMigrationResult>;
 }
 
+type SourceEntity = Clients | Applications;
+type TargetEntity = ApplyIMSContact | ApplyIMSApplication | ApplyIMSDeal;
+
+interface EntityHandlers {
+  extractor: BaseExtractor<SourceEntity>;
+  transformer: { transform: (item: SourceEntity) => Promise<TargetEntity> };
+  apiMethod: (batch: TargetEntity[]) => Promise<BulkResponse>;
+}
+
 export class MigrationOrchestrator {
   private isPaused = false;
   private isCancelled = false;
+  private pausePromise: Promise<void> | null = null;
   private pauseResolve: (() => void) | null = null;
+  private pauseReject: ((reason?: unknown) => void) | null = null;
 
   constructor(
     private agentcisDb: DataSource,
@@ -39,7 +59,7 @@ export class MigrationOrchestrator {
     private checkpointService: CheckpointService,
     private errorRecoveryManager: ErrorRecoveryManager,
     private logger: Logger
-  ) { }
+  ) {}
 
   async runMigration(config: MigrationConfig): Promise<MigrationResult> {
     const startTime = Date.now();
@@ -51,18 +71,25 @@ export class MigrationOrchestrator {
 
     try {
       for (const entityType of config.entities) {
+        if (!SUPPORTED_ENTITIES.includes(entityType as EntityType)) {
+          this.logger.warn(`Skipping unsupported entity: ${entityType}`);
+          continue;
+        }
+
         if (this.isCancelled) {
           this.logger.warn('Migration cancelled');
           break;
         }
 
-        while (this.isPaused) {
+        if (this.isPaused) {
           this.logger.info('Migration paused, waiting...');
-          await this.sleep(1000);
+          await this.createPausePromise();
         }
 
         const result = await this.migrateEntity(config, entityType);
-        console.log('result', result);
+        this.logger.info(
+          `Completed migration for ${entityType}: ${result.successful}/${result.total} successful`
+        );
         results[entityType] = result;
       }
 
@@ -86,9 +113,25 @@ export class MigrationOrchestrator {
     }
   }
 
+  private createPausePromise(): Promise<void> {
+    if (!this.pausePromise) {
+      this.pausePromise = new Promise((resolve, reject) => {
+        this.pauseResolve = resolve;
+        this.pauseReject = reject;
+      });
+    }
+    return this.pausePromise;
+  }
+
+  private clearPausePromise(): void {
+    this.pausePromise = null;
+    this.pauseResolve = null;
+    this.pauseReject = null;
+  }
+
   private async migrateEntity(
     config: MigrationConfig,
-    entityType: string
+    entityType: EntityUnionType
   ): Promise<EntityMigrationResult> {
     this.logger.info(`Migrating ${entityType}`);
 
@@ -98,10 +141,9 @@ export class MigrationOrchestrator {
       endDate: config.dateRange.end,
     };
 
-    const extractor = this.createExtractor(entityType, extractorConfig);
-    const transformer = this.createTransformer(entityType);
+    const handlers = this.getEntityHandlers(entityType, extractorConfig);
 
-    const totalCount = await extractor.getTotalCount();
+    const totalCount = await handlers.extractor.getTotalCount();
     this.logger.info(`Total ${entityType} count: ${totalCount}`);
 
     await this.checkpointService.createCheckpoint({
@@ -119,40 +161,57 @@ export class MigrationOrchestrator {
     let failedCount = 0;
     let skippedCount = 0;
 
-    for await (const batch of extractor.extractAll()) {
+    for await (const batch of handlers.extractor.extractAll()) {
       if (this.isCancelled) break;
 
-      while (this.isPaused) {
-        await this.sleep(1000);
+      if (this.isPaused) {
+        await this.createPausePromise();
       }
 
-      let transformed: any[];
-      try {
-        transformed = await Promise.all(batch.map((item) => transformer.transform(item)));
-      } catch (transformError: any) {
-        this.logger.error(`Transform error for ${entityType} batch`, transformError);
-        await this.errorRecoveryManager.logError(
-          config.migrationId,
-          entityType,
-          String(batch[0]?.id ?? 'unknown'),
-          transformError,
-          'TRANSFORMATION_ERROR' as any,
-          { batch }
-        );
-        skippedCount += batch.length;
+      const transformed: TargetEntity[] = [];
+      const transformResults = await Promise.allSettled(
+        batch.map((item) => handlers.transformer.transform(item))
+      );
+
+      for (let i = 0; i < transformResults.length; i++) {
+        const result = transformResults[i];
+        if (result.status === 'fulfilled') {
+          transformed.push(result.value);
+        } else {
+          const error =
+            result.reason instanceof Error ? result.reason : new Error(String(result.reason));
+          this.logger.error(`Transform error for ${entityType} item`, { error: String(error) });
+          await this.errorRecoveryManager.logError(
+            config.migrationId,
+            entityType,
+            String(batch[i]?.id ?? 'unknown'),
+            error,
+            ErrorCategory.TRANSFORMATION_ERROR,
+            { payload: batch[i] }
+          );
+          skippedCount++;
+        }
+      }
+
+      if (transformed.length === 0) {
         processedCount += batch.length;
+        this.logger.warn(`All transforms failed for ${entityType} batch, skipping batch`);
         continue;
       }
 
-      const apiMethod = this.getApiMethod(entityType);
+      if (transformed.length < batch.length) {
+        processedCount += batch.length;
+      } else {
+        processedCount += transformed.length;
+      }
+
       const result: ProcessResult = await this.batchProcessor.processBatch(
-        transformed,
-        entityType as any,
-        apiMethod,
+        transformed as ApplyIMSContact[],
+        entityType,
+        handlers.apiMethod as (batch: ApplyIMSContact[]) => Promise<BulkResponse>,
         config.migrationId
       );
 
-      processedCount += batch.length;
       successCount += result.successful;
       failedCount += result.failed;
       skippedCount += result.skipped;
@@ -178,25 +237,42 @@ export class MigrationOrchestrator {
     };
   }
 
-  private createExtractor(entityType: string, config: ExtractorConfig): BaseExtractor<any> {
+  private getEntityHandlers(entityType: string, config: ExtractorConfig): EntityHandlers {
     switch (entityType) {
-      case 'contacts':
-        return new ContactExtractor(this.agentcisDb, config);
-      default:
-        throw new Error(`No extractor for entity: ${entityType}`);
-    }
-  }
-
-  private createTransformer(entityType: string): any {
-    switch (entityType) {
-      case 'contacts':
-        return new ContactTransformer(
+      case EntityType.CONTACTS: {
+        console.log('get EntityHandlers');
+        const extractor = new ContactExtractor(this.agentcisDb, config);
+        const transformer = new ContactTransformer(
           this.createIdResolver(),
-          this.createFieldMapper(),
-          this.logger
+          this.createFieldMapper()
         );
+        // console.log('extractor', extractor)
+        // console.log('transformer', transformer)
+        return {
+          extractor: extractor as BaseExtractor<SourceEntity>,
+          transformer: {
+            transform: (item) => transformer.transform(item as Clients) as Promise<TargetEntity>,
+          },
+          apiMethod: (batch) => this.apiClient.bulkCreateContacts(batch as ApplyIMSContact[]),
+        };
+      }
+      case EntityType.APPLICATIONS: {
+        const extractor = new ApplicationExtractor(this.agentcisDb, config);
+        const transformer = new ApplicationTransformer(this.createIdResolver());
+        return {
+          extractor: extractor as BaseExtractor<SourceEntity>,
+          transformer: {
+            transform: (item) =>
+              transformer.transform(item as Applications) as Promise<TargetEntity>,
+          },
+          apiMethod: (batch) =>
+            this.apiClient.bulkCreateApplications(batch as ApplyIMSApplication[]),
+        };
+      }
+      case EntityType.DEALS:
+        throw new Error('Deal entity handler not yet implemented');
       default:
-        throw new Error(`No transformer for entity: ${entityType}`);
+        throw new Error(`No handler for entity: ${entityType}`);
     }
   }
 
@@ -206,19 +282,6 @@ export class MigrationOrchestrator {
 
   private createFieldMapper(): FieldMapper {
     return new FieldMapper();
-  }
-
-  private getApiMethod(entityType: string): (batch: any[]) => Promise<BulkResponse> {
-    switch (entityType) {
-      case 'contacts':
-        return this.apiClient.bulkCreateContacts.bind(this.apiClient);
-      case 'applications':
-        return this.apiClient.bulkCreateApplications.bind(this.apiClient);
-      case 'deals':
-        return this.apiClient.bulkCreateDeals.bind(this.apiClient);
-      default:
-        throw new Error(`No API method for entity: ${entityType}`);
-    }
   }
 
   private async createMigrationJob(config: MigrationConfig): Promise<void> {
@@ -265,16 +328,20 @@ export class MigrationOrchestrator {
 
   async resume(): Promise<void> {
     this.isPaused = false;
+    if (this.pauseResolve) {
+      this.pauseResolve();
+      this.clearPausePromise();
+    }
     this.logger.info('Migration resumed');
   }
 
   async cancel(): Promise<void> {
     this.isCancelled = true;
     this.isPaused = false;
+    if (this.pauseReject) {
+      this.pauseReject(new Error('Migration cancelled'));
+      this.clearPausePromise();
+    }
     this.logger.info('Migration cancelled');
-  }
-
-  private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
