@@ -4,12 +4,13 @@
     "module": "NodeNext",
     "rootDir": "src",
     "outDir": "dist",
-    "baseUrl":"./src/",
+    "baseUrl": "./src/",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false
-  }
+  },
+  "include": ["src/**/*"]
 }

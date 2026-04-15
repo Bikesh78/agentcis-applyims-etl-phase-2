@@ -3,6 +3,22 @@ import Joi from 'joi';
 import 'dotenv/config';
 import config from 'config';
 import { logger } from 'utils/logger.js';
+import { Clients } from 'entities/agentcis/clients.entity.js';
+import { Applications } from 'entities/agentcis/applications.entity.js';
+import { Products } from 'entities/agentcis/products.entity.js';
+import { OfficeVisits } from 'entities/agentcis/office-visits.entity.js';
+import { OfficeVisitsAssignees } from 'entities/agentcis/office-visits-assignees.entity.js';
+import { Attachment } from 'entities/agentcis/attachments.entity.js';
+import { Referrers } from 'entities/agentcis/referrers.entity.js';
+import { GroupProductFees } from 'entities/agentcis/group-product-fees.entity.js';
+import { ApplicationAssignees } from 'entities/agentcis/application-assignees.entity.js';
+import { TempMappedContact } from 'entities/etlDb/temp-mapped-contacts.entity.js';
+import { TempMappedApplication } from 'entities/etlDb/temp-mapped-appplication.entity.js';
+import { TempMappedDeal } from 'entities/etlDb/temp-mapped-deals.entity.js';
+import { MigrationCheckpoint } from 'entities/etlDb/migration-checkpoints.entity.js';
+import { MigrationError } from 'entities/etlDb/migration-errors.entity.js';
+import { MigrationJob } from 'entities/etlDb/migration-jobs.entity.js';
+import { MigrationMetric } from 'entities/etlDb/migration-metrics.entity.js';
 
 export interface DatabaseConfig {
   host: string;
@@ -64,7 +80,7 @@ async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function createAgentcisConnectionOptions() {
+export function createAgentcisConnectionOptions() {
   const dbConfig = getDbConfig().agentcisDb;
 
   return {
@@ -78,6 +94,17 @@ function createAgentcisConnectionOptions() {
     logging: false,
     pool: poolConfig,
     connectTimeout: CONNECTION_TIMEOUT,
+    entities: [
+      Clients,
+      Applications,
+      Products,
+      OfficeVisits,
+      OfficeVisitsAssignees,
+      Attachment,
+      Referrers,
+      GroupProductFees,
+      ApplicationAssignees,
+    ],
   } as DataSourceOptions;
 }
 
@@ -95,6 +122,15 @@ export function createEtlConnectionOptions() {
     pool: poolConfig,
     connectTimeout: CONNECTION_TIMEOUT,
     synchronize: false,
+    entities: [
+      TempMappedContact,
+      TempMappedApplication,
+      TempMappedDeal,
+      MigrationCheckpoint,
+      MigrationError,
+      MigrationJob,
+      MigrationMetric,
+    ],
   } as DataSourceOptions;
 }
 

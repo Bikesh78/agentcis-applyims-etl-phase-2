@@ -1,0 +1,34 @@
+export interface ApplyIMSContact {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  createdBy: string;
+  countryCode?: string;
+  phone: string | null;
+  countryOfPassport: string | null;
+  dateOfBirth: Date | null;
+  source: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  street: string | null;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  postalCode: string | null;
+  assigneeId: string | null;
+  preferredIntake: Date | null;
+  archived: boolean | null;
+  archivedBy: string | null;
+  visaExpiryDate: Date | null;
+  visaType: string | null;
+  branchId: string;
+  passportNo: string | null;
+  // dealName: string | null;
+  // status: 'Client' | 'Lead'; // status will be updated in the applyIms bulk API
+  agentcisClientId: string;
+  agentcisInternalId: number;
+  gender: string | null;
+  nationality: string | null;
+  country: string | null;
+}

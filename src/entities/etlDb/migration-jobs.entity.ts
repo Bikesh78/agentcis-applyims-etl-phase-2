@@ -20,31 +20,31 @@ export enum MigrationStatus {
 
 @Entity('migration_jobs')
 export class MigrationJob {
-  @PrimaryColumn({ type: 'varchar', length: 36 })
+  @PrimaryColumn({ type: 'varchar', length: 36, name: 'id' })
   id: string;
 
-  @Column({ type: 'enum', enum: MigrationStatus })
+  @Column({ type: 'enum', enum: MigrationStatus, name: 'status' })
   status: MigrationStatus;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'jsonb', nullable: true, name: 'config' })
   config?: object;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true, name: 'started_at' })
   startedAt?: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true, name: 'completed_at' })
   completedAt?: Date;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: true, name: 'error_message' })
   errorMessage?: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true, name: 'created_by' })
   createdBy?: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
+  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
   updatedAt: Date;
 
   @OneToMany(() => MigrationCheckpoint, (c) => c.migration)

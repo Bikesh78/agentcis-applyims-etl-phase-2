@@ -3,6 +3,7 @@ import { DatabaseConfig, databaseConfigSchema } from './database.config.js';
 import { ApiConfig, apiConfigSchema } from './api.config.js';
 import { LoggerConfig, loggerConfigSchema } from './logger.config.js';
 import config from 'config';
+import { S3BucketConfig, s3BucketConfigSchema } from './s3-bucket.config.js';
 
 export interface AppConfig {
   nodeEnv: string;
@@ -10,8 +11,8 @@ export interface AppConfig {
   agentcisDb: DatabaseConfig;
   etlDb: DatabaseConfig;
   applyimsApi: ApiConfig;
-  // migration: MigrationConfig;
   logger: LoggerConfig;
+  s3Bucket: S3BucketConfig;
 }
 
 const appConfigSchema = Joi.object<AppConfig>({
@@ -23,14 +24,10 @@ const appConfigSchema = Joi.object<AppConfig>({
     'number.port': 'PORT must be a valid port number',
     'any.required': 'PORT is required',
   }),
-  agentcisDb: databaseConfigSchema.required().messages({
-    'any.required': 'AgentCIS database configuration is required',
-  }),
+  s3Bucket: s3BucketConfigSchema.required(),
+  agentcisDb: databaseConfigSchema.required(),
   etlDb: databaseConfigSchema.required(),
   applyimsApi: apiConfigSchema.required(),
-  // migration: migrationConfigSchema.required().messages({
-  //   'any.required': 'Migration configuration is required',
-  // }),
   logger: loggerConfigSchema.required(),
 });
 
@@ -47,8 +44,8 @@ export function loadConfig(): AppConfig {
     agentcisDb: config.get('agentcisDb'),
     etlDb: config.get('etlDb'),
     applyimsApi: config.get('applyimsApi'),
-    // migration: config.get('migration'),
     logger: config.get('logger'),
+    s3Bucket: config.get('s3Bucket'),
   };
 
   const { error, value } = appConfigSchema.validate(rawConfig, {

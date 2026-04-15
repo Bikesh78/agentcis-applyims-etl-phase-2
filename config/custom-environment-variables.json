@@ -15,13 +15,24 @@
     "username": "ETL_DB_USER",
     "password": "ETL_DB_PASSWORD",
     "database": "ETL_DB_NAME",
-    "type":"ETL_DB_TYPE"
+    "type": "ETL_DB_TYPE"
   },
   "applyimsApi": {
-    "url": "APPLYIMS_API_URL"
+    "url": "APPLYIMS_API_URL",
+    "email": "APPLYIMS_EMAIL",
+    "password": "APPLYIMS_PASSWORD",
+    "timeout": "APPLYIMS_API_TIMEOUT",
+    "rateLimitRps": "RATE_LIMIT_RPS",
+    "domain": "APPLYIMS_API_DOMAIN",
+    "origin": "APPLYIMS_API_ORIGIN"
   },
-  "logger":{
-    "logLevel":"LOG_LEVEL",
-    "logDir":"LOG_DIR"
-  }
+  "logger": {
+    "logLevel": "LOG_LEVEL",
+    "logDir": "LOG_DIR"
+  },
+  "s3Bucket": {
+    "awsBucketTenant": "AWS_BUCKET_TENANT",
+    "awsDestinationBucket": "AWS_DESTINATION_BUCKET",
+    "awsRegion": "AWS_REGION"
+  },
 }

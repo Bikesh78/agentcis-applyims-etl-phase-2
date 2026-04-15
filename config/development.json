@@ -16,7 +16,11 @@
     "type": "postgres"
   },
   "applyimsApi": {
-    "url": "http://localhost:3000"
+    "url": "http://localhost:3000",
+    "timeout": 30000,
+    "rateLimitRps": 60,
+    "domain":"http://localhost",
+    "origin":"http://localhost"
   },
   "logger":{
     "logLevel":"info",
