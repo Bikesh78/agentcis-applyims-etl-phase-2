@@ -45,11 +45,7 @@ interface EntityHandlers {
 }
 
 export class MigrationOrchestrator {
-  private isPaused = false;
   private isCancelled = false;
-  private pausePromise: Promise<void> | null = null;
-  private pauseResolve: (() => void) | null = null;
-  private pauseReject: ((reason?: unknown) => void) | null = null;
 
   constructor(
     private agentcisDb: DataSource,
@@ -81,11 +77,6 @@ export class MigrationOrchestrator {
           break;
         }
 
-        if (this.isPaused) {
-          this.logger.info('Migration paused, waiting...');
-          await this.createPausePromise();
-        }
-
         const result = await this.migrateEntity(config, entityType);
         this.logger.info(
           `Completed migration for ${entityType}: ${result.successful}/${result.total} successful`
@@ -111,22 +102,6 @@ export class MigrationOrchestrator {
       );
       throw error;
     }
-  }
-
-  private createPausePromise(): Promise<void> {
-    if (!this.pausePromise) {
-      this.pausePromise = new Promise((resolve, reject) => {
-        this.pauseResolve = resolve;
-        this.pauseReject = reject;
-      });
-    }
-    return this.pausePromise;
-  }
-
-  private clearPausePromise(): void {
-    this.pausePromise = null;
-    this.pauseResolve = null;
-    this.pauseReject = null;
   }
 
   private async migrateEntity(
@@ -164,10 +139,6 @@ export class MigrationOrchestrator {
 
     for await (const batch of handlers.extractor.extractAll()) {
       if (this.isCancelled) break;
-
-      if (this.isPaused) {
-        await this.createPausePromise();
-      }
 
       const transformed: TargetEntity[] = [];
       const transformResults = await Promise.allSettled(
@@ -319,27 +290,8 @@ export class MigrationOrchestrator {
     }
   }
 
-  async pause(): Promise<void> {
-    this.isPaused = true;
-    this.logger.info('Migration paused');
-  }
-
-  async resume(): Promise<void> {
-    this.isPaused = false;
-    if (this.pauseResolve) {
-      this.pauseResolve();
-      this.clearPausePromise();
-    }
-    this.logger.info('Migration resumed');
-  }
-
   async cancel(): Promise<void> {
     this.isCancelled = true;
-    this.isPaused = false;
-    if (this.pauseReject) {
-      this.pauseReject(new Error('Migration cancelled'));
-      this.clearPausePromise();
-    }
     this.logger.info('Migration cancelled');
   }
 }

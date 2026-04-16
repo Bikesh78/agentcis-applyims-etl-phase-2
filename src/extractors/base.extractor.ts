@@ -34,7 +34,6 @@ export abstract class BaseExtractor<T> {
 
   async *extractAll(): AsyncGenerator<T[], void, unknown> {
     const total = await this.getTotalCount();
-    // const total = 100;
     const batchSize = this.config.batchSize;
     const resumeOffset = await this.getResumeOffset();
 

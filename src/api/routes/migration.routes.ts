@@ -83,12 +83,6 @@ router.get('/:id/status', (req: Request, res: Response) => {
   controller.getMigrationStatus(req, res);
 });
 
-router.post('/:id/pause', (req: Request, res: Response) => {
-  const { orchestrator, checkpointService } = req.services!;
-  const controller = new MigrationController(orchestrator, checkpointService);
-  controller.pauseMigration(req, res);
-});
-
 router.post('/:id/resume', (req: Request, res: Response) => {
   const { orchestrator, checkpointService } = req.services!;
   const controller = new MigrationController(orchestrator, checkpointService);

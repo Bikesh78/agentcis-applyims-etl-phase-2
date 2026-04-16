@@ -123,20 +123,6 @@ export class MigrationController {
     }
   }
 
-  async pauseMigration(req: Request, res: Response): Promise<void> {
-    try {
-      await this.orchestrator!.pause();
-      res.json({ status: 'paused', message: 'Migration paused successfully' });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Internal server error';
-      logger.error('Pause migration error', { error: message });
-      res.status(500).json({
-        status: 'error',
-        message,
-      });
-    }
-  }
-
   async resumeMigration(req: Request, res: Response): Promise<void> {
     try {
       const id = req.params.id as string;
