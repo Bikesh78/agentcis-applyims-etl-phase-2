@@ -64,8 +64,11 @@ export class ApplyIMSApiClient {
         return delay;
       },
       retryCondition: (error: AxiosError) => {
+        const status = error.response?.status;
         return (
-          axiosRetry.isNetworkOrIdempotentRequestError(error) || error.response?.status === 429
+          axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+          status === 429 ||
+          (status !== undefined && status >= 500)
         );
       },
     });

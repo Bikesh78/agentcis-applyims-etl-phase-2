@@ -16,7 +16,6 @@ async function startServer(): Promise<void> {
       logger.info(`Server is running on port ${config.port} in ${config.nodeEnv} mode`);
     });
   } catch (error: unknown) {
-    console.log('error', error);
     const message = error instanceof Error ? error.message : JSON.stringify(error);
     logger.error('Failed to start server:', { message });
     process.exit(1);

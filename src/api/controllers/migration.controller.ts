@@ -30,6 +30,14 @@ interface CustomRequest extends Request {
   body: MigrationRequest;
 }
 
+interface ProgressMetrics {
+  total: number;
+  processed: number;
+  success: number;
+  failed: number;
+  percentage: string;
+}
+
 export class MigrationController {
   constructor(
     private orchestrator: MigrationOrchestrator,
@@ -37,10 +45,8 @@ export class MigrationController {
   ) {}
 
   async startMigration(req: CustomRequest, res: Response): Promise<void> {
-    console.log('in here');
     try {
       const { error, value } = startMigrationSchema.validate(req.body);
-      console.log('error', error);
       if (error) {
         res.status(400).json({
           status: 'error',
@@ -86,7 +92,7 @@ export class MigrationController {
     try {
       const id = req.params.id as string;
 
-      const progress: Record<string, any> = {};
+      const progress: Record<string, ProgressMetrics> = {};
       const entities = ['branches', 'users', 'contacts', 'applications', 'deals'];
 
       for (const entity of entities) {

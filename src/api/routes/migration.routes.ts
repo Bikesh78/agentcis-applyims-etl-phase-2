@@ -37,8 +37,7 @@ function getServices(): Services {
     mappingRepository,
     errorRecoveryManager,
     logger,
-    100,
-    { maxRetries: 3 }
+    100
   );
 
   const orchestrator = new MigrationOrchestrator(
@@ -67,7 +66,6 @@ router.use(dbCheckMiddleware);
 router.use(servicesMiddleware);
 
 router.post('/start', (req: Request, res: Response) => {
-  // console.log('request', JSON.stringify(req))
   const { orchestrator, checkpointService } = req.services!;
   const controller = new MigrationController(orchestrator, checkpointService);
   controller.startMigration(req, res);

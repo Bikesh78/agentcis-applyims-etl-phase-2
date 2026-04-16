@@ -240,14 +240,11 @@ export class MigrationOrchestrator {
   private getEntityHandlers(entityType: string, config: ExtractorConfig): EntityHandlers {
     switch (entityType) {
       case EntityType.CONTACTS: {
-        console.log('get EntityHandlers');
         const extractor = new ContactExtractor(this.agentcisDb, config);
         const transformer = new ContactTransformer(
           this.createIdResolver(),
           this.createFieldMapper()
         );
-        // console.log('extractor', extractor)
-        // console.log('transformer', transformer)
         return {
           extractor: extractor as BaseExtractor<SourceEntity>,
           transformer: {

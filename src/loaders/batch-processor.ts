@@ -16,27 +16,14 @@ export interface ProcessResult {
   }>;
 }
 
-export interface BatchConfig {
-  batchSize?: number;
-  maxConcurrent?: number;
-  maxRetries?: number;
-}
-
 export class BatchProcessor {
-  private readonly maxRetries: number;
-  private readonly retryDelay: number;
-
   constructor(
     private apiClient: ApplyIMSApiClient,
     private mappingRepository: MappingRepository,
     private errorRecoveryManager: ErrorRecoveryManager,
     private logger: Logger,
-    private batchSize: number = 100,
-    config: BatchConfig = {}
-  ) {
-    this.maxRetries = config.maxRetries ?? 3;
-    this.retryDelay = 1000;
-  }
+    private batchSize: number = 100
+  ) {}
 
   async processBatch<T extends { agentcisClientId: string; id?: string }>(
     items: T[],
@@ -60,7 +47,7 @@ export class BatchProcessor {
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       try {
-        const response = await this.executeWithRetry(apiMethod, chunk, entityType);
+        const response = await apiMethod.call(this.apiClient, chunk);
 
         const successCount = response.successful?.length ?? 0;
         const failedCount = response.failed?.length ?? 0;
@@ -153,7 +140,7 @@ export class BatchProcessor {
     };
 
     try {
-      const response = await this.executeWithRetry(apiMethod, chunk, entityType);
+      const response = await apiMethod.call(this.apiClient, chunk);
 
       const successCount = response.successful?.length ?? 0;
       const failedCount = response.failed?.length ?? 0;
@@ -191,38 +178,6 @@ export class BatchProcessor {
     return result;
   }
 
-  private async executeWithRetry<T>(
-    apiMethod: (batch: T[]) => Promise<BulkResponse>,
-    chunk: T[],
-    entityType: EntityUnionType
-  ): Promise<BulkResponse> {
-    let lastError: Error | null = null;
-
-    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
-      try {
-        return await apiMethod.call(this.apiClient, chunk);
-      } catch (error: any) {
-        lastError = error;
-        const category = this.categorizeError(error);
-
-        if (!this.errorRecoveryManager.isRetryable(category)) {
-          throw error;
-        }
-
-        if (attempt < this.maxRetries) {
-          const delay = this.retryDelay * Math.pow(2, attempt - 1);
-          this.logger.warn(
-            `Retry attempt ${attempt}/${this.maxRetries} for ${entityType} after ${delay}ms`,
-            { error: error.message }
-          );
-          await this.sleep(delay);
-        }
-      }
-    }
-
-    throw lastError;
-  }
-
   private async handleError(
     error: any,
     entityType: string,
@@ -245,7 +200,7 @@ export class BatchProcessor {
       });
       results.skipped += chunk.length;
     } else if (this.errorRecoveryManager.isRetryable(category)) {
-      this.logger.error(`Batch ${batchIndex} failed after ${this.maxRetries} retries`, {
+      this.logger.error(`Batch ${batchIndex} failed`, {
         entityType,
         error: error.message,
       });
@@ -289,10 +244,6 @@ export class BatchProcessor {
     }
 
     return ErrorCategory.API_ERROR;
-  }
-
-  private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private chunkArray<T>(array: T[], size: number): T[][] {
