@@ -139,6 +139,7 @@ export class MigrationOrchestrator {
       batchSize: config.batchSize,
       startDate: config.dateRange.start,
       endDate: config.dateRange.end,
+      checkpointId: config.resumeFrom?.checkpointId,
     };
 
     const handlers = this.getEntityHandlers(entityType, extractorConfig);

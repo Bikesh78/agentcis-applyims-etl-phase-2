@@ -1,4 +1,5 @@
-import { DataSource } from 'typeorm';
+import { DataSource, In } from 'typeorm';
+import { MigrationJob, MigrationStatus } from '../entities/etlDb/migration-jobs.entity.js';
 import { MigrationCheckpoint } from '../entities/etlDb/migration-checkpoints.entity.js';
 import { Logger } from '../utils/logger.js';
 
@@ -20,7 +21,25 @@ export class CheckpointService {
     private logger: Logger
   ) {}
 
+  async getMigrationJob(migrationId: string): Promise<MigrationJob | null> {
+    return this.dataSource.getRepository(MigrationJob).findOne({
+      where: { id: migrationId },
+    });
+  }
+
   async createCheckpoint(data: CheckpointData): Promise<void> {
+    const existing = await this.dataSource.getRepository(MigrationCheckpoint).findOne({
+      where: { migrationId: data.migrationId, entityType: data.entityType },
+    });
+
+    if (existing) {
+      this.logger.info(`Checkpoint already exists for ${data.entityType}, skipping creation`, {
+        migrationId: data.migrationId,
+        processedCount: existing.processedCount,
+      });
+      return;
+    }
+
     await this.dataSource.getRepository(MigrationCheckpoint).save({
       migrationId: data.migrationId,
       entityType: data.entityType,
@@ -132,5 +151,62 @@ export class CheckpointService {
       startedAt: cp.startedAt!,
       completedAt: cp.completedAt ?? undefined,
     }));
+  }
+
+  async getIncompleteMigrations(): Promise<
+    Array<{
+      migrationId: string;
+      status: string;
+      config: object | null;
+      startedAt: Date;
+      entities: Array<{
+        entityType: string;
+        totalCount: number;
+        processedCount: number;
+        successCount: number;
+        failedCount: number;
+      }>;
+    }>
+  > {
+    const incompleteStatuses = [
+      MigrationStatus.IN_PROGRESS,
+      MigrationStatus.PAUSED,
+      MigrationStatus.PENDING,
+    ];
+
+    const jobs = await this.dataSource.getRepository(MigrationJob).find({
+      where: { status: In(incompleteStatuses) },
+      order: { startedAt: 'DESC' },
+    });
+
+    const result = [];
+
+    for (const job of jobs) {
+      const checkpoints = await this.getAllCheckpoints(job.id);
+
+      const entities = checkpoints.map((cp) => ({
+        entityType: cp.entityType,
+        totalCount: cp.totalCount,
+        processedCount: cp.processedCount,
+        successCount: cp.successCount,
+        failedCount: cp.failedCount,
+      }));
+
+      const progress = entities.reduce((sum, e) => sum + e.processedCount, 0);
+      const total = entities.reduce((sum, e) => sum + e.totalCount, 0);
+      const isComplete = total > 0 && progress >= total;
+
+      if (!isComplete) {
+        result.push({
+          migrationId: job.id,
+          status: job.status,
+          config: job.config ?? null,
+          startedAt: job.startedAt ?? new Date(),
+          entities,
+        });
+      }
+    }
+
+    return result;
   }
 }

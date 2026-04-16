@@ -71,6 +71,12 @@ router.post('/start', (req: Request, res: Response) => {
   controller.startMigration(req, res);
 });
 
+router.get('/incomplete', (req: Request, res: Response) => {
+  const { checkpointService } = req.services!;
+  const controller = new MigrationController(null, checkpointService);
+  controller.listIncompleteMigrations(req, res);
+});
+
 router.get('/:id/status', (req: Request, res: Response) => {
   const { orchestrator, checkpointService } = req.services!;
   const controller = new MigrationController(orchestrator, checkpointService);

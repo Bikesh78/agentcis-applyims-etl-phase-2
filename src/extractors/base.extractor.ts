@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { logger, Logger } from 'utils/logger.js';
 import { MigrationCheckpoint } from 'entities/etlDb/migration-checkpoints.entity.js';
 
@@ -14,6 +14,7 @@ export abstract class BaseExtractor<T> {
   protected readonly logger: Logger;
   protected readonly config: ExtractorConfig;
   protected readonly entityType: string;
+  private checkPointRepo: Repository<MigrationCheckpoint>;
 
   constructor(
     dataSource: DataSource,
@@ -25,14 +26,15 @@ export abstract class BaseExtractor<T> {
     this.entityType = entityType;
     this.config = config;
     this.logger = loggerInstance ?? logger;
+    this.checkPointRepo = this.dataSource.getRepository(MigrationCheckpoint);
   }
 
   abstract extractBatch(offset: number, limit: number): Promise<T[]>;
   abstract getTotalCount(): Promise<number>;
 
   async *extractAll(): AsyncGenerator<T[], void, unknown> {
-    // const total = await this.getTotalCount();
-    const total = 100;
+    const total = await this.getTotalCount();
+    // const total = 100;
     const batchSize = this.config.batchSize;
     const resumeOffset = await this.getResumeOffset();
 
@@ -59,24 +61,22 @@ export abstract class BaseExtractor<T> {
     }
 
     try {
-      const checkpointIdNum = parseInt(this.config.checkpointId, 10);
-      if (isNaN(checkpointIdNum)) {
-        this.logger.warn('Invalid checkpointId, starting from beginning', {
-          checkpointId: this.config.checkpointId,
-        });
-        return 0;
-      }
-
-      const checkpoint = await this.dataSource.getRepository(MigrationCheckpoint).findOne({
-        where: { id: checkpointIdNum },
+      const checkpoint = await this.checkPointRepo.findOne({
+        where: { migrationId: this.config.checkpointId, entityType: this.entityType },
       });
 
       if (checkpoint?.processedCount) {
         const resumeOffset = checkpoint.processedCount;
         this.logger.info(`Resuming from checkpoint: ${resumeOffset} processed records`, {
           checkpointId: this.config.checkpointId,
+          entityType: this.entityType,
         });
         return resumeOffset;
+      } else {
+        this.logger.warn('Checkpoint not found or no processed count, starting from beginning', {
+          checkpointId: this.config.checkpointId,
+          entityType: this.entityType,
+        });
       }
     } catch (error) {
       this.logger.warn('Failed to load checkpoint, starting from beginning', {

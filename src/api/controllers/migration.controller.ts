@@ -40,7 +40,7 @@ interface ProgressMetrics {
 
 export class MigrationController {
   constructor(
-    private orchestrator: MigrationOrchestrator,
+    private orchestrator: MigrationOrchestrator | null,
     private checkpointService: CheckpointService
   ) {}
 
@@ -69,7 +69,7 @@ export class MigrationController {
         parallelism,
       };
 
-      this.orchestrator.runMigration(migrationConfig).catch((err) => {
+      this.orchestrator!.runMigration(migrationConfig).catch((err) => {
         logger.error('Migration failed', { error: err, migrationId });
       });
 
@@ -125,7 +125,7 @@ export class MigrationController {
 
   async pauseMigration(req: Request, res: Response): Promise<void> {
     try {
-      await this.orchestrator.pause();
+      await this.orchestrator!.pause();
       res.json({ status: 'paused', message: 'Migration paused successfully' });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Internal server error';
@@ -139,8 +139,76 @@ export class MigrationController {
 
   async resumeMigration(req: Request, res: Response): Promise<void> {
     try {
-      await this.orchestrator.resume();
-      res.json({ status: 'resumed', message: 'Migration resumed successfully' });
+      const id = req.params.id as string;
+      const overrideConfig = req.body ?? {};
+
+      const originalJob = await this.checkpointService.getMigrationJob(id);
+      if (!originalJob) {
+        res.status(404).json({
+          status: 'error',
+          message: `Migration job not found: ${id}`,
+        });
+        return;
+      }
+
+      const originalConfig = originalJob.config as MigrationConfig | undefined;
+      const checkpoints = await this.checkpointService.getAllCheckpoints(id);
+
+      const entities = (overrideConfig.entities ??
+        originalConfig?.entities ??
+        []) as EntityUnionType[];
+
+      const mergedConfig: MigrationConfig = {
+        migrationId: id,
+        entities,
+        dateRange: {
+          start: overrideConfig.dateRange?.start
+            ? new Date(overrideConfig.dateRange.start)
+            : originalConfig?.dateRange?.start
+              ? new Date(originalConfig.dateRange.start)
+              : new Date(),
+          end: overrideConfig.dateRange?.end
+            ? new Date(overrideConfig.dateRange.end)
+            : originalConfig?.dateRange?.end
+              ? new Date(originalConfig.dateRange.end)
+              : new Date(),
+        },
+        batchSize: overrideConfig.batchSize ?? originalConfig?.batchSize ?? 100,
+        parallelism: overrideConfig.parallelism ?? originalConfig?.parallelism ?? 5,
+        resumeFrom: {
+          checkpointId: id,
+        },
+      };
+
+      const existingProgress = checkpoints.reduce((sum, cp) => sum + cp.processedCount, 0);
+      const totalCount = checkpoints.reduce((sum, cp) => sum + cp.totalCount, 0);
+
+      if (existingProgress >= totalCount && totalCount > 0) {
+        res.json({
+          status: 'completed',
+          message: 'Migration already completed',
+          migrationId: id,
+          progress: {
+            processed: existingProgress,
+            total: totalCount,
+          },
+        });
+        return;
+      }
+
+      this.orchestrator!.runMigration(mergedConfig).catch((err) => {
+        logger.error('Resume migration failed', { error: err, migrationId: id });
+      });
+
+      res.json({
+        status: 'resumed',
+        migrationId: id,
+        message: 'Migration resumed successfully',
+        progress: {
+          processed: existingProgress,
+          total: totalCount,
+        },
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Internal server error';
       logger.error('Resume migration error', { error: message });
@@ -153,11 +221,29 @@ export class MigrationController {
 
   async cancelMigration(req: Request, res: Response): Promise<void> {
     try {
-      await this.orchestrator.cancel();
+      await this.orchestrator!.cancel();
       res.json({ status: 'cancelled', message: 'Migration cancelled successfully' });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Internal server error';
       logger.error('Cancel migration error', { error: message });
+      res.status(500).json({
+        status: 'error',
+        message,
+      });
+    }
+  }
+
+  async listIncompleteMigrations(req: Request, res: Response): Promise<void> {
+    try {
+      const migrations = await this.checkpointService.getIncompleteMigrations();
+      res.json({
+        status: 'success',
+        count: migrations.length,
+        migrations,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Internal server error';
+      logger.error('List incomplete migrations error', { error: message });
       res.status(500).json({
         status: 'error',
         message,

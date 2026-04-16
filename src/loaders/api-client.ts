@@ -17,20 +17,6 @@ export interface BulkResponse {
   };
 }
 
-// export interface BulkContactResponse {
-//   successful: Array<{ id: string; agentcisContactId: string }>;
-//   failed: Array<{
-//     agentcisContactId: string;
-//     error: string;
-//     code: string;
-//   }>;
-//   summary: {
-//     total: number;
-//     success: number;
-//     failed: number;
-//   };
-// }
-
 export class ApplyIMSApiClient {
   private axiosInstance: AxiosInstance;
   private rateLimiter: RateLimiterMemory;
