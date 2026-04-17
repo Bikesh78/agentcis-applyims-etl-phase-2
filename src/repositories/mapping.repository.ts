@@ -61,14 +61,6 @@ export class MappingRepository {
     );
   }
 
-  async getContactMapping(agentcisId: number): Promise<string | null> {
-    const result = await this.etlDb.getRepository(TempMappedContact).findOne({
-      where: { agentcisContactId: agentcisId },
-      select: ['applyimsContactId'],
-    });
-    return result?.applyimsContactId ?? null;
-  }
-
   async storeBatchMappings(
     entityType: EntityUnionType,
     migrationId: string,
@@ -94,15 +86,6 @@ export class MappingRepository {
     }
   }
 
-  private getTableName(entityType: EntityUnionType): string {
-    const tableMap: Record<string, string> = {
-      contacts: 'temp_mapped_contacts',
-      applications: 'temp_mapped_applications',
-      deals: 'temp_mapped_deals',
-    };
-    return tableMap[entityType];
-  }
-
   private formatMappingData(
     entityType: EntityUnionType,
     migrationId: string,
@@ -126,29 +109,6 @@ export class MappingRepository {
       default:
         throw new Error(`Unsupported entity type: ${entityType}`);
     }
-  }
-
-  async getMapping(entityType: string, agentcisId: string | number): Promise<string | null> {
-    switch (entityType) {
-      case 'contacts':
-        return this.getContactMapping(
-          typeof agentcisId === 'string' ? parseInt(agentcisId) : agentcisId
-        );
-      case 'applications':
-        return this.getApplicationMapping(
-          typeof agentcisId === 'string' ? parseInt(agentcisId) : agentcisId
-        );
-      default:
-        return null;
-    }
-  }
-
-  private async getApplicationMapping(agentcisId: number): Promise<string | null> {
-    const result = await this.etlDb.getRepository(TempMappedApplication).findOne({
-      where: { agentcisApplicationId: agentcisId },
-      select: ['applyimsApplicationId'],
-    });
-    return result?.applyimsApplicationId ?? null;
   }
 
   async getAgentcisClientIdFromApplication(applyimsApplicationId: string): Promise<number | null> {

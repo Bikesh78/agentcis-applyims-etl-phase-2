@@ -93,10 +93,6 @@ async function runTest() {
       );
     }
 
-    console.log('\n8. Checking stored mappings in ETL DB...');
-    const contactsMapping = await mappingRepository.getMapping('contacts', '1');
-    console.log(`Contact 1: ${contactsMapping ? `Mapped to ${contactsMapping}` : 'Not mapped'}`);
-
     console.log('\n=== Test Complete ===');
   } catch (error: any) {
     console.error('\nMigration failed:', error.message);

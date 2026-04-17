@@ -90,18 +90,6 @@ async function runTest() {
   console.log('\n7. BatchProcessor Result:');
   console.log(JSON.stringify(result, null, 2));
 
-  console.log('\n8. Checking stored mappings in ETL DB...');
-  for (const contact of transformedContacts) {
-    const agentcisId =
-      typeof contact.agentcisClientId === 'string'
-        ? contact.agentcisClientId.replace('EEVS-', '')
-        : contact.agentcisClientId;
-    const mapping = await mappingRepository.getMapping('contacts', String(agentcisId));
-    console.log(`Contact ${agentcisId}: ${mapping ? `Mapped to ${mapping}` : 'Not mapped'}`);
-  }
-
-  await agentcisDs.destroy();
-  await etlDs.destroy();
   console.log('\n=== Test Complete ===');
 }
 
