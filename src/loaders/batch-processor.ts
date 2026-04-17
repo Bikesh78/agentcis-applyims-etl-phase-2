@@ -31,7 +31,6 @@ export class BatchProcessor {
     apiMethod: (batch: T[]) => Promise<BulkResponse>,
     migrationId: string
   ): Promise<ProcessResult> {
-    const chunks = this.chunkArray(items, this.batchSize);
     const results: ProcessResult = {
       successful: 0,
       failed: 0,
@@ -39,48 +38,48 @@ export class BatchProcessor {
       errors: [],
     };
 
-    this.logger.info(`Processing ${items.length} ${entityType} in ${chunks.length} batches`, {
+    this.logger.info(`Processing ${items.length} ${entityType}`, {
       batchSize: this.batchSize,
-      totalBatches: chunks.length,
     });
 
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      try {
-        const response = await apiMethod.call(this.apiClient, chunk);
+    try {
+      const response = await apiMethod.call(this.apiClient, items);
 
-        const successCount = response.successful?.length ?? 0;
-        const failedCount = response.failed?.length ?? 0;
+      const successCount = response.successful?.length ?? 0;
+      const failedCount = response.failed?.length ?? 0;
 
-        for (const success of response.successful ?? []) {
-          await this.mappingRepository.storeMapping(migrationId, entityType, {
-            agentcisId: success.internalId,
-            applyimsId: success.id,
-          });
-        }
-
-        results.successful += successCount;
-        results.failed += failedCount;
-
-        if (response.failed) {
-          results.errors.push(
-            ...response.failed.map((f) => ({
-              entityType,
-              entityId: f.internalId,
-              error: f.error,
-              code: f.code || 'RECORD_FAILURE',
-            }))
-          );
-        }
-
-        this.logger.info(`Batch ${i + 1}/${chunks.length} completed for ${entityType}`, {
-          successful: successCount,
-          failed: failedCount,
-          batchSize: chunk.length,
-        });
-      } catch (error: any) {
-        await this.handleError(error, entityType, chunk, i, results, migrationId);
+      if (response.failed.length) {
+        console.log('response ====', response);
       }
+
+      for (const success of response.successful ?? []) {
+        await this.mappingRepository.storeMapping(migrationId, entityType, {
+          agentcisId: success.internalId,
+          applyimsId: success.id,
+        });
+      }
+
+      results.successful += successCount;
+      results.failed += failedCount;
+
+      if (response.failed) {
+        results.errors.push(
+          ...response.failed.map((f) => ({
+            entityType,
+            entityId: f.internalId,
+            error: f.error,
+            code: f.code || 'RECORD_FAILURE',
+          }))
+        );
+      }
+
+      this.logger.info(`Batch completed for ${entityType}`, {
+        successful: successCount,
+        failed: failedCount,
+        batchSize: items.length,
+      });
+    } catch (error: any) {
+      await this.handleError(error, entityType, items, 0, results, migrationId);
     }
 
     this.logger.info(`${entityType} processing complete`, {
