@@ -48,10 +48,6 @@ export class BatchProcessor {
       const successCount = response.successful?.length ?? 0;
       const failedCount = response.failed?.length ?? 0;
 
-      if (response.failed.length) {
-        console.log('response ====', response);
-      }
-
       for (const success of response.successful ?? []) {
         await this.mappingRepository.storeMapping(migrationId, entityType, {
           agentcisId: success.internalId,
@@ -71,6 +67,18 @@ export class BatchProcessor {
             code: f.code || 'RECORD_FAILURE',
           }))
         );
+
+        for (const failedRecord of response.failed) {
+          const error = new Error(failedRecord.error);
+          await this.errorRecoveryManager.logError(
+            migrationId,
+            entityType,
+            String(failedRecord.internalId),
+            error,
+            ErrorCategory.API_ERROR,
+            { failedRecord }
+          );
+        }
       }
 
       this.logger.info(`Batch completed for ${entityType}`, {
