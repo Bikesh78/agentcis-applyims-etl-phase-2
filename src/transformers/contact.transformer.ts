@@ -4,6 +4,7 @@ import { BaseTransformer } from './base.transformer.js';
 import { AgentcisFirstPointOfContact, Clients } from '../entities/agentcis/clients.entity.js';
 import { ApplyIMSContact } from '../entities/applyims/contact.entity.js';
 import { isEmail, isUuid } from './utils/validators.js';
+import { COUNTRIES_MAPS } from 'constants/country-map.js';
 
 export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact> {
   constructor(
@@ -43,7 +44,7 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
       branchId: branchId,
       gender: null,
       nationality: null,
-      country: null,
+      country: source.country ? COUNTRIES_MAPS[source.country] : null,
     };
   }
 

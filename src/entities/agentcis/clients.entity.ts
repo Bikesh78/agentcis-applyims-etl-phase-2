@@ -58,6 +58,9 @@ export class Clients {
   @Column({ name: 'zip_code', type: 'varchar', nullable: true })
   zipCode: string | null;
 
+  @Column({ name: 'country', type: 'int', nullable: true })
+  country: number | null;
+
   @Column({ name: 'assigned_to', type: 'int', nullable: true })
   assignedTo: number | null;
 
@@ -81,7 +84,4 @@ export class Clients {
 
   @Column({ name: 'passport_number', type: 'varchar', nullable: true })
   passportNumber: string | null;
-
-  // @Column({ name: 'status', type: 'varchar', nullable: true, default: 'active' })
-  // status: string | null;
 }
