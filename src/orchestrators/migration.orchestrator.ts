@@ -2,8 +2,10 @@ import { DataSource } from 'typeorm';
 import { BaseExtractor, ExtractorConfig } from '../extractors/base.extractor.js';
 import { ContactExtractor } from '../extractors/contact.extractor.js';
 import { ApplicationExtractor } from '../extractors/application.extractor.js';
+import { DealExtractor } from '../extractors/deal.extractor.js';
 import { ContactTransformer } from '../transformers/contact.transformer.js';
 import { ApplicationTransformer } from '../transformers/application.transformer.js';
+import { DealTransformer } from '../transformers/deal.transformer.js';
 import { IdResolver } from '../transformers/utils/id-resolver.js';
 import { FieldMapper } from '../transformers/utils/field-mappers.js';
 import { BatchProcessor, ProcessResult } from '../loaders/batch-processor.js';
@@ -19,7 +21,12 @@ import { Applications } from '../entities/agentcis/applications.entity.js';
 import { ApplyIMSContact } from '../entities/applyims/contact.entity.js';
 import { ApplyIMSApplication } from '../entities/applyims/application.entity.js';
 import { ApplyIMSDeal } from '../entities/applyims/deal.entity.js';
-import { EntityUnionType } from 'repositories/mapping.repository.js';
+import {
+  EntityUnionType,
+  MappingRepository,
+  DealMappingData,
+} from 'repositories/mapping.repository.js';
+import { TempMappedDeal } from '../entities/etlDb/temp-mapped-deals.entity.js';
 
 export interface EntityMigrationResult {
   total: number;
@@ -54,6 +61,7 @@ export class MigrationOrchestrator {
     private batchProcessor: BatchProcessor,
     private checkpointService: CheckpointService,
     private errorRecoveryManager: ErrorRecoveryManager,
+    private mappingRepository: MappingRepository,
     private logger: Logger
   ) {}
 
@@ -82,6 +90,13 @@ export class MigrationOrchestrator {
           `Completed migration for ${entityType}: ${result.successful}/${result.total} successful`
         );
         results[entityType] = result;
+
+        // if (entityType === EntityType.CONTACTS && config.entities.includes(EntityType.DEALS)) {
+        //   await this.populateDealStaging(config);
+        // }
+        if (entityType === EntityType.CONTACTS) {
+          await this.populateDealStaging(config);
+        }
       }
 
       await this.updateMigrationJob(config.migrationId, MigrationStatus.COMPLETED);
@@ -117,7 +132,7 @@ export class MigrationOrchestrator {
       checkpointId: config.resumeFrom?.checkpointId,
     };
 
-    const handlers = this.getEntityHandlers(entityType, extractorConfig);
+    const handlers = this.getEntityHandlers(entityType, extractorConfig, config.migrationId);
 
     const totalCount = await handlers.extractor.getTotalCount();
     this.logger.info(`Total ${entityType} count: ${totalCount}`);
@@ -209,7 +224,11 @@ export class MigrationOrchestrator {
     };
   }
 
-  private getEntityHandlers(entityType: string, config: ExtractorConfig): EntityHandlers {
+  private getEntityHandlers(
+    entityType: string,
+    config: ExtractorConfig,
+    migrationId: string
+  ): EntityHandlers {
     switch (entityType) {
       case EntityType.CONTACTS: {
         const extractor = new ContactExtractor(this.agentcisDb, config);
@@ -238,11 +257,87 @@ export class MigrationOrchestrator {
             this.apiClient.bulkCreateApplications(batch as ApplyIMSApplication[]),
         };
       }
-      case EntityType.DEALS:
-        throw new Error('Deal entity handler not yet implemented');
+      case EntityType.DEALS: {
+        const extractor = new DealExtractor(this.etlDb, migrationId, config);
+        const transformer = new DealTransformer();
+        return {
+          extractor: extractor as unknown as BaseExtractor<SourceEntity>,
+          transformer: {
+            transform: (item) =>
+              transformer.transform(item as unknown as TempMappedDeal) as Promise<TargetEntity>,
+          },
+          apiMethod: (batch) => this.apiClient.bulkCreateDeals(batch as ApplyIMSDeal[]),
+        };
+      }
       default:
         throw new Error(`No handler for entity: ${entityType}`);
     }
+  }
+
+  private async populateDealStaging(config: MigrationConfig): Promise<void> {
+    this.logger.info('Populating deal staging data from applications');
+
+    // Run the 6-month bucket grouping query against agentcisDb
+    const applications = await this.agentcisDb
+      .createQueryBuilder()
+      .select([
+        't.client_id AS "clientId"',
+        't.added_by_branch_id AS "addedByBranchId"',
+        'MIN(t.created_at) AS "startDate"',
+        'MAX(t.created_at) AS "endDate"',
+        'GROUP_CONCAT(t.id) AS "applicationIds"',
+      ])
+      .from((subQuery) => {
+        return subQuery
+          .select('*')
+          .addSelect('FLOOR((YEAR(created_at) * 12 + MONTH(created_at)) / 6)', 'bucket')
+          .from(Applications, 'app')
+          .where('app.created_at >= :startDate', { startDate: config.dateRange.start })
+          .andWhere('app.created_at <= :endDate', { endDate: config.dateRange.end });
+      }, 't')
+      .groupBy('t.client_id')
+      .addGroupBy('t.added_by_branch_id')
+      .addGroupBy('t.bucket')
+      .orderBy('t.client_id')
+      .addOrderBy('t.added_by_branch_id')
+      .getRawMany();
+
+    const idResolver = this.createIdResolver();
+    const dealRows: DealMappingData[] = [];
+
+    for (const app of applications) {
+      const contactId = await idResolver.resolveContactId(app.clientId);
+      const branchId = await idResolver.resolveBranchId(app.addedByBranchId);
+      const startDate = new Date(app.startDate);
+      const endDate = new Date(app.endDate);
+
+      if (!contactId) {
+        this.logger.warn(
+          `Skipping deal staging for clientId ${app.clientId} — contactId not found`
+        );
+        continue;
+      }
+
+      dealRows.push({
+        dealId: crypto.randomUUID(),
+        contactId,
+        branchId: branchId ?? undefined,
+        applicationId: app.applicationIds ?? null,
+        minimumDate: startDate,
+        maxDate: endDate,
+        dealName: this.generateDealName(startDate, endDate),
+      });
+    }
+
+    await this.mappingRepository.storeDealStagingBatch(config.migrationId, dealRows);
+    this.logger.info(`Populated ${dealRows.length} deal staging rows`);
+  }
+
+  private generateDealName(startDate: Date, endDate: Date): string {
+    const startMonth = startDate.toLocaleString('default', { month: 'short' });
+    const endMonth = endDate.toLocaleString('default', { month: 'short' });
+    const year = startDate.getFullYear();
+    return `Agentcis - ${startMonth}-${endMonth} ${year}`;
   }
 
   private createIdResolver(): IdResolver {

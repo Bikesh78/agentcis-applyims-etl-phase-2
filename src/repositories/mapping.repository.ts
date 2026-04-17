@@ -1,15 +1,26 @@
 import { DataSource } from 'typeorm';
 import { TempMappedContact } from '../entities/etlDb/temp-mapped-contacts.entity.js';
 import { TempMappedApplication } from '../entities/etlDb/temp-mapped-appplication.entity.js';
+import { TempMappedDeal } from '../entities/etlDb/temp-mapped-deals.entity.js';
 
 export interface MappingData {
   agentcisId: string;
   applyimsId: string;
-  dealId?: string;
-  branchId?: string;
+  // dealId?: string;
+  // branchId?: string;
 }
 
 export type EntityUnionType = 'contacts' | 'applications' | 'deals';
+
+export interface DealMappingData {
+  dealId: string;
+  contactId?: string;
+  branchId?: string;
+  applicationId?: string;
+  minimumDate?: Date;
+  maxDate?: Date;
+  dealName?: string;
+}
 
 export class MappingRepository {
   constructor(private readonly etlDb: DataSource) {}
@@ -17,14 +28,17 @@ export class MappingRepository {
   async storeMapping(
     migrationId: string,
     entityType: EntityUnionType,
-    data: MappingData
+    data: MappingData | DealMappingData
   ): Promise<void> {
     switch (entityType) {
       case 'contacts':
-        await this.storeContactMapping(migrationId, data);
+        await this.storeContactMapping(migrationId, data as MappingData);
         break;
       case 'applications':
-        await this.storeApplicationMapping(migrationId, data);
+        await this.storeApplicationMapping(migrationId, data as MappingData);
+        break;
+      case 'deals':
+        // await this.storeDealMapping(migrationId, data as DealMappingData);
         break;
       default:
         throw new Error(`Unsupported entity type: ${entityType}`);
@@ -36,8 +50,8 @@ export class MappingRepository {
       {
         agentcisContactId: parseInt(data.agentcisId),
         applyimsContactId: data.applyimsId,
-        dealId: data.dealId,
-        branchId: data.branchId,
+        // dealId: data.dealId,
+        // branchId: data.branchId,
         migrationId: migrationId,
       },
       {
@@ -96,8 +110,8 @@ export class MappingRepository {
         return {
           agentcisContactId: parseInt(data.agentcisId),
           applyimsContactId: data.applyimsId,
-          dealId: data.dealId,
-          branchId: data.branchId,
+          // dealId: data.dealId,
+          // branchId: data.branchId,
           migrationId: migrationId,
         };
       case 'applications':
@@ -117,5 +131,56 @@ export class MappingRepository {
       select: ['agentcisClientId'],
     });
     return result?.agentcisClientId ?? null;
+  }
+
+  async storeDealMapping(migrationId: string, data: DealMappingData): Promise<void> {
+    await this.etlDb.getRepository(TempMappedDeal).upsert(
+      {
+        dealId: data.dealId,
+        contactId: data.contactId,
+        branchId: data.branchId,
+        applicationId: data.applicationId,
+        minimumDate: data.minimumDate,
+        maxDate: data.maxDate,
+        dealName: data.dealName ?? '',
+        migrationId: migrationId,
+      },
+      {
+        conflictPaths: ['dealId'],
+        skipUpdateIfNoValuesChanged: true,
+      }
+    );
+  }
+
+  async storeDealStagingBatch(migrationId: string, deals: DealMappingData[]): Promise<void> {
+    const rows = deals.map((d) => ({
+      dealId: d.dealId,
+      contactId: d.contactId,
+      branchId: d.branchId,
+      applicationId: d.applicationId,
+      minimumDate: d.minimumDate,
+      maxDate: d.maxDate,
+      dealName: d.dealName ?? '',
+      migrationId,
+    }));
+
+    await this.etlDb.getRepository(TempMappedDeal).upsert(rows, {
+      conflictPaths: ['dealId'],
+      skipUpdateIfNoValuesChanged: true,
+    });
+  }
+
+  async getDealStagingCount(migrationId: string): Promise<number> {
+    return this.etlDb.getRepository(TempMappedDeal).count({
+      where: { migrationId },
+    });
+  }
+
+  async getApplyimsContactId(agentcisClientId: number): Promise<string | null> {
+    const result = await this.etlDb.getRepository(TempMappedContact).findOne({
+      where: { agentcisContactId: agentcisClientId },
+      select: ['applyimsContactId'],
+    });
+    return result?.applyimsContactId ?? null;
   }
 }

@@ -69,7 +69,7 @@ export class IdResolver {
         }),
       ]),
       contacts: new FallbackStrategy([
-        new JsonFileStrategy('../../mapper/contacts.json', logger),
+        // new JsonFileStrategy('../../mapper/contacts.json', logger),
         new DatabaseStrategy({
           dataSource,
           tableName: 'temp_mapped_contacts',

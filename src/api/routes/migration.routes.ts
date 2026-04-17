@@ -47,6 +47,7 @@ function getServices(): Services {
     batchProcessor,
     checkpointService,
     errorRecoveryManager,
+    mappingRepository,
     logger
   );
 

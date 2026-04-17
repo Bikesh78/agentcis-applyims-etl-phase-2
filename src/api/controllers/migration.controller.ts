@@ -22,7 +22,7 @@ export const startMigrationSchema = Joi.object<MigrationRequest>({
     start: Joi.date().required(),
     end: Joi.date().greater(Joi.ref('start')).required(),
   }).required(),
-  batchSize: Joi.number().integer().positive().default(1000),
+  batchSize: Joi.number().integer().positive().default(500),
   parallelism: Joi.number().integer().positive().default(5),
 });
 
