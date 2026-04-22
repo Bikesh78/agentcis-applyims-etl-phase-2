@@ -6,6 +6,7 @@ import {
   FallbackStrategy,
   ResolverStrategy,
 } from './resolver-strategy.js';
+import { EntityType } from 'constants/entity-types.js';
 
 type EntityType =
   | 'branches'
@@ -17,7 +18,8 @@ type EntityType =
   | 'agents'
   | 'institutionBranches'
   | 'institutions'
-  | 'applications';
+  | 'applications'
+  | 'deals';
 
 const ENTITY_TYPES: EntityType[] = [
   'branches',
@@ -30,6 +32,7 @@ const ENTITY_TYPES: EntityType[] = [
   'institutionBranches',
   'institutions',
   'applications',
+  'deals',
 ];
 
 export class IdResolver {
@@ -85,13 +88,24 @@ export class IdResolver {
         outputColumn: 'applyims_application_id',
         logger,
       }),
+      deals: new DatabaseStrategy({
+        dataSource,
+        tableName: 'temp_mapped_deals',
+        inputColumn: 'application_id',
+        outputColumn: 'deal_id',
+        logger,
+      }),
     });
   }
 
   private async resolve(type: EntityType, agentcisId: number): Promise<string | null> {
     const applyimsId = await this.strategies[type].resolve(agentcisId);
     if (!applyimsId) {
-      this.logger.warn(`${type} Id ${agentcisId} not found in mapping`);
+      if (type === 'deals') {
+        this.logger.warn(`Deal Id for application ${agentcisId} not found in mapping`);
+      } else {
+        this.logger.warn(`${type} Id ${agentcisId} not found in mapping`);
+      }
     }
     return applyimsId;
   }
@@ -141,5 +155,9 @@ export class IdResolver {
 
   async resolveApplicationId(agentcisApplicationId: number): Promise<string | null> {
     return this.resolve('applications', agentcisApplicationId);
+  }
+
+  async resolveDealId(agentcisApplicationId: number): Promise<string | null> {
+    return this.resolve('deals', agentcisApplicationId);
   }
 }

@@ -74,7 +74,7 @@ export class DatabaseStrategy<TIn = number, TOut = string> implements ResolverSt
 
     try {
       const rows: Record<string, any>[] = await this.dataSource.query(
-        `SELECT "${this.outputColumn}" FROM "${this.tableName}" WHERE "${this.inputColumn}" = $1 LIMIT 1`,
+        `SELECT "${this.outputColumn}" FROM "${this.tableName}" WHERE "${this.inputColumn}" IN($1) LIMIT 1`,
         [id]
       );
 

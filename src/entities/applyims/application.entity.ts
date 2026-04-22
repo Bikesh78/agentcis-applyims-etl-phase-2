@@ -4,7 +4,7 @@ interface StatusReason {
   reason: string;
   remarks: string;
 }
-export type ApplyimsStatusRemarks = Record<'discontinue', StatusReason>;
+export type ApplyimsStatusRemarks = Partial<Record<'discontinue', StatusReason>>;
 
 export interface AgentPartner {
   subAgentBranchId?: string;

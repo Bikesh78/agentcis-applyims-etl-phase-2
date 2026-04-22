@@ -1,4 +1,5 @@
 import { IdResolver } from './utils/id-resolver.js';
+import { ProductTypeResolver } from './utils/product-type-resolver.js';
 import { BaseTransformer } from './base.transformer.js';
 import { isDate, isUuid } from './utils/validators.js';
 import { AgentcisApplicationType, Applications } from '../entities/agentcis/applications.entity.js';
@@ -11,7 +12,10 @@ import {
 import { Referrers } from '../entities/agentcis/referrers.entity.js';
 
 export class ApplicationTransformer extends BaseTransformer<Applications, ApplyIMSApplication> {
-  constructor(idResolver: IdResolver) {
+  constructor(
+    idResolver: IdResolver,
+    private readonly productTypeResolver: ProductTypeResolver
+  ) {
     super(idResolver);
   }
 
@@ -30,6 +34,7 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
 
     const assigneeIds = source.applicationAssignees?.map((a) => a.assigneeId) ?? [];
     const assignees = await this.idResolver.resolveUserIds(assigneeIds);
+    const dealId = await this.idResolver.resolveDealId(source.id);
 
     if (!contactId) {
       throw new Error(`Cannot resolve contactId ${source.clientId}`);
@@ -55,10 +60,18 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
     if (!institutionId) {
       throw new Error(`Cannot resolve institutionId ${source.products.vendorId}`);
     }
+    if (!dealId) {
+      throw new Error(`Cannor resolve dealId for application ${source.id}`);
+    }
 
     const intakes = source.appliedIntakeDate
       ? this.extractIntakeYearAndMonth(source.appliedIntakeDate)
       : undefined;
+
+    const [productType, productSubType] = await Promise.all([
+      this.productTypeResolver.getProductType(productId),
+      this.productTypeResolver.getProductSubType(productId),
+    ]);
 
     return {
       id,
@@ -79,14 +92,16 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
       partnerClientId: source.applicationId,
       hasAgentPartner: Boolean(source.superAgentId),
       createdAt: source.createdAt,
+      // TODO: Remove the hardcoded value
+      // createdAt: new Date('2026-04-22'),
       updatedAt: source.updatedAt,
       statusRemarks: this.mapDiscontinuedStatusRemarks(source.discontinuedReason),
       agentPartner: agentId ? this.getAgentPartner(source.referrers, agentId) : {},
       assignees,
       ...this.extractDiscountAndRemarks(source),
-      dealId: '',
-      productType: '',
-      productSubType: '',
+      dealId,
+      productType,
+      productSubType,
       productFeeAmount: 0,
       productFeeCurrency: '',
     };
@@ -97,7 +112,10 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
       throw new Error(`Invalid UUID: ${target.id}`);
     }
     if (!isUuid(target.contactId)) {
-      throw new Error(`Invalid ContactID: ${target.contactId}`);
+      throw new Error(`Invalid ContactId: ${target.contactId}`);
+    }
+    if (!isUuid(target.dealId)) {
+      throw new Error(`Invalid DealId: ${target.dealId}`);
     }
   }
 
@@ -135,10 +153,8 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
     return { intakeYear, intakeMonth };
   }
 
-  private mapDiscontinuedStatusRemarks(
-    discontinuedReason: string | null
-  ): ApplyimsStatusRemarks | null {
-    if (!discontinuedReason) return null;
+  private mapDiscontinuedStatusRemarks(discontinuedReason: string | null): ApplyimsStatusRemarks {
+    if (!discontinuedReason) return {};
 
     const reasonMap: Record<string, string> = {
       'Enrolled in Other Application': 'Enrolled into Another Course',

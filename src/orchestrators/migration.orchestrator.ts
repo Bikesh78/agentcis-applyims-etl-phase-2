@@ -7,6 +7,7 @@ import { ContactTransformer } from '../transformers/contact.transformer.js';
 import { ApplicationTransformer } from '../transformers/application.transformer.js';
 import { DealTransformer } from '../transformers/deal.transformer.js';
 import { IdResolver } from '../transformers/utils/id-resolver.js';
+import { ProductTypeResolver } from '../transformers/utils/product-type-resolver.js';
 import { FieldMapper } from '../transformers/utils/field-mappers.js';
 import { BatchProcessor, ProcessResult } from '../loaders/batch-processor.js';
 import { CheckpointService } from '../services/checkpoint.service.js';
@@ -246,7 +247,10 @@ export class MigrationOrchestrator {
       }
       case EntityType.APPLICATIONS: {
         const extractor = new ApplicationExtractor(this.agentcisDb, config);
-        const transformer = new ApplicationTransformer(this.createIdResolver());
+        const transformer = new ApplicationTransformer(
+          this.createIdResolver(),
+          this.createProductTypeResolver()
+        );
         return {
           extractor: extractor as BaseExtractor<SourceEntity>,
           transformer: {
@@ -346,6 +350,10 @@ export class MigrationOrchestrator {
 
   private createFieldMapper(): FieldMapper {
     return new FieldMapper();
+  }
+
+  private createProductTypeResolver(): ProductTypeResolver {
+    return new ProductTypeResolver(this.logger);
   }
 
   private async createMigrationJob(config: MigrationConfig): Promise<void> {
