@@ -91,9 +91,9 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
       processingBranchId: branchId,
       partnerClientId: source.applicationId,
       hasAgentPartner: Boolean(source.superAgentId),
-      createdAt: source.createdAt,
+      // createdAt: source.createdAt,
       // TODO: Remove the hardcoded value
-      // createdAt: new Date('2026-04-22'),
+      createdAt: new Date('2026-04-23'),
       updatedAt: source.updatedAt,
       statusRemarks: this.mapDiscontinuedStatusRemarks(source.discontinuedReason),
       agentPartner: agentId ? this.getAgentPartner(source.referrers, agentId) : {},

@@ -2,6 +2,7 @@ import { Unique, Index, Column, Entity, PrimaryGeneratedColumn, CreateDateColumn
 
 @Entity('temp_mapped_deals')
 @Unique(['dealId'])
+@Unique('uniqueContactApplication', ['contactId', 'applicationId'])
 export class TempMappedDeal {
   @PrimaryGeneratedColumn({ type: 'bigint', name: 'id' })
   id: number;

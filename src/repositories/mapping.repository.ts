@@ -153,21 +153,29 @@ export class MappingRepository {
   }
 
   async storeDealStagingBatch(migrationId: string, deals: DealMappingData[]): Promise<void> {
-    const rows = deals.map((d) => ({
-      dealId: d.dealId,
-      contactId: d.contactId,
-      branchId: d.branchId,
-      applicationId: d.applicationId,
-      minimumDate: d.minimumDate,
-      maxDate: d.maxDate,
-      dealName: d.dealName ?? '',
-      migrationId,
-    }));
+    if (deals.length === 0) {
+      return;
+    }
 
-    await this.etlDb.getRepository(TempMappedDeal).upsert(rows, {
-      conflictPaths: ['dealId'],
-      skipUpdateIfNoValuesChanged: true,
-    });
+    const batchSize = 500;
+    for (let i = 0; i < deals.length; i += batchSize) {
+      const batch = deals.slice(i, i + batchSize);
+      const rows = batch.map((d) => ({
+        dealId: d.dealId,
+        contactId: d.contactId,
+        branchId: d.branchId,
+        applicationId: d.applicationId,
+        minimumDate: d.minimumDate,
+        maxDate: d.maxDate,
+        dealName: d.dealName ?? '',
+        migrationId,
+      }));
+
+      await this.etlDb.getRepository(TempMappedDeal).upsert(rows, {
+        conflictPaths: ['dealId'],
+        skipUpdateIfNoValuesChanged: true,
+      });
+    }
   }
 
   async getDealStagingCount(migrationId: string): Promise<number> {

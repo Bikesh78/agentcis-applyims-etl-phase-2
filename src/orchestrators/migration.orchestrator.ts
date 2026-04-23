@@ -28,6 +28,7 @@ import {
   DealMappingData,
 } from 'repositories/mapping.repository.js';
 import { TempMappedDeal } from '../entities/etlDb/temp-mapped-deals.entity.js';
+import { TempMappedContact } from '../entities/etlDb/temp-mapped-contacts.entity.js';
 
 export interface EntityMigrationResult {
   total: number;
@@ -279,31 +280,50 @@ export class MigrationOrchestrator {
   }
 
   private async populateDealStaging(config: MigrationConfig): Promise<void> {
-    this.logger.info('Populating deal staging data from applications');
+    this.logger.info('Populating deal staging data from migrated contacts');
 
-    // Run the 6-month bucket grouping query against agentcisDb
+    const migratedContacts = await this.etlDb.getRepository(TempMappedContact).find({
+      where: { migrationId: config.migrationId },
+      select: ['agentcisContactId'],
+    });
+
+    if (migratedContacts.length === 0) {
+      this.logger.warn('No migrated contacts found for deal staging');
+      return;
+    }
+
+    const migratedClientIds = migratedContacts.map((c) => c.agentcisContactId);
+
     const applications = await this.agentcisDb
       .createQueryBuilder()
       .select([
         't.client_id AS "clientId"',
         't.added_by_branch_id AS "addedByBranchId"',
         'MIN(t.created_at) AS "startDate"',
-        'MAX(t.created_at) AS "endDate"',
+        'DATE_ADD(MIN(t.first_app_date), INTERVAL (t.bucket + 1) * 6 MONTH) AS "endDate"',
+        't.bucket AS "bucket"',
+        'COUNT(*) AS "total"',
         'GROUP_CONCAT(t.id) AS "applicationIds"',
       ])
       .from((subQuery) => {
         return subQuery
-          .select('*')
-          .addSelect('FLOOR((YEAR(created_at) * 12 + MONTH(created_at)) / 6)', 'bucket')
+          .select('app.*')
+          .addSelect(
+            'MIN(app.created_at) OVER (PARTITION BY app.client_id, app.added_by_branch_id)',
+            'first_app_date'
+          )
+          .addSelect(
+            'FLOOR(TIMESTAMPDIFF(MONTH, MIN(app.created_at) OVER (PARTITION BY app.client_id, app.added_by_branch_id), app.created_at) / 6)',
+            'bucket'
+          )
           .from(Applications, 'app')
-          .where('app.created_at >= :startDate', { startDate: config.dateRange.start })
-          .andWhere('app.created_at <= :endDate', { endDate: config.dateRange.end });
+          .where('app.client_id IN (:...clientIds)', { clientIds: migratedClientIds });
       }, 't')
       .groupBy('t.client_id')
       .addGroupBy('t.added_by_branch_id')
       .addGroupBy('t.bucket')
       .orderBy('t.client_id')
-      .addOrderBy('t.added_by_branch_id')
+      .addOrderBy('t.bucket')
       .getRawMany();
 
     const idResolver = this.createIdResolver();

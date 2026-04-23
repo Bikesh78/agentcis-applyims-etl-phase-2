@@ -6,7 +6,6 @@ import {
   FallbackStrategy,
   ResolverStrategy,
 } from './resolver-strategy.js';
-import { EntityType } from 'constants/entity-types.js';
 
 type EntityType =
   | 'branches'
