@@ -3,6 +3,7 @@ import { BaseTransformer } from './base.transformer.js';
 import { isUuid } from './utils/validators.js';
 import { OfficeVisits } from '../entities/agentcis/office-visits.entity.js';
 import { ApplyIMSOfficeVisit } from '../entities/applyims/office-visit.entity.js';
+import { getConfig } from '../configs/index.js';
 
 export class OfficeVisitTransformer extends BaseTransformer<OfficeVisits, ApplyIMSOfficeVisit> {
   constructor(idResolver: IdResolver) {
@@ -40,8 +41,11 @@ export class OfficeVisitTransformer extends BaseTransformer<OfficeVisits, ApplyI
       throw new Error(`Cannot resolve session end for ${source.id}`);
     }
 
+    const config = getConfig();
+
     return {
       id,
+      agentcisId: source.id,
       contactId,
       assigneeId,
       branchId,
@@ -52,6 +56,7 @@ export class OfficeVisitTransformer extends BaseTransformer<OfficeVisits, ApplyI
       sessionStart,
       sessionEnd,
       status: 'Completed',
+      visitPurposeId: config.visitPurposeId,
     };
   }
 

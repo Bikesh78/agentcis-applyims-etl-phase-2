@@ -93,7 +93,7 @@ export class MigrationController {
       const id = req.params.id as string;
 
       const progress: Record<string, ProgressMetrics> = {};
-      const entities = ['branches', 'users', 'contacts', 'applications', 'deals'];
+      const entities = ['branches', 'users', 'contacts', 'applications', 'deals', 'office-visits'];
 
       for (const entity of entities) {
         const checkpoint = await this.checkpointService.getCheckpoint(id, entity);

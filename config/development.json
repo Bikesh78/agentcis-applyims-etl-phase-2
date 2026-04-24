@@ -25,5 +25,5 @@
   "logger":{
     "logLevel":"info",
     "logDir":"./logs"
-  }
+  },
 }

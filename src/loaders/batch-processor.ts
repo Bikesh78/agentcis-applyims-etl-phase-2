@@ -49,10 +49,17 @@ export class BatchProcessor {
       const failedCount = response.failed?.length ?? 0;
 
       for (const success of response.successful ?? []) {
-        await this.mappingRepository.storeMapping(migrationId, entityType, {
-          agentcisId: success.internalId,
-          applyimsId: success.id,
-        });
+        try {
+          await this.mappingRepository.storeMapping(migrationId, entityType, {
+            agentcisId: success.internalId,
+            applyimsId: success.id,
+          });
+        } catch (err) {
+          this.logger.error(`Failed to store mapping for ${entityType}`, {
+            error: String(err),
+            success,
+          });
+        }
       }
 
       results.successful += successCount;

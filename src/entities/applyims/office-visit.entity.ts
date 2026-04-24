@@ -2,6 +2,7 @@ export type OfficeVisitStatus = 'Pending' | 'Waiting' | 'Attending' | 'Completed
 
 export interface ApplyIMSOfficeVisit {
   id: string;
+  agentcisId: number;
   contactId: string;
   assigneeId: string | null;
   branchId: string;
@@ -12,4 +13,5 @@ export interface ApplyIMSOfficeVisit {
   sessionStart: string;
   sessionEnd: string;
   status: OfficeVisitStatus;
+  visitPurposeId: string;
 }

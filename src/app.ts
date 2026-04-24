@@ -5,12 +5,8 @@ import migrationRoutes from './api/routes/migration.routes.js';
 import monitoringRoutes from './api/routes/monitoring.routes.js';
 import { errorMiddleware } from './api/middleware/error.middleware.js';
 import { loggingMiddleware } from './api/middleware/logging.middleware.js';
-import { IdResolver } from 'transformers/utils/id-resolver.js';
 import { logger } from 'utils/logger.js';
-import { getDatabaseConnection } from 'configs/database.config.js';
 import { getConfig } from 'configs/index.js';
-import { OfficeVisitExtractor } from 'extractors/office-visits.extractor.js';
-import { OfficeVisitTransformer } from 'transformers/office-visit.transformer.js';
 import { S3CopyOptions, S3CopyService } from 'services/s3-copy.service.js';
 
 const app: Application = express();
@@ -37,35 +33,6 @@ app.use('/api/extract-test', async (_req: Request, res: Response) => {
   const result = await s3Service.copyFile(options);
 
   res.json({ message: 'Copied', result });
-});
-
-app.use('/api/office-visit-test', async (_req: Request, res: Response) => {
-  const dbConnection = getDatabaseConnection();
-  if (!dbConnection?.agentcisDb) {
-    throw new Error('Agentcis db not initialized');
-  }
-  const testExtractor = new OfficeVisitExtractor(dbConnection.agentcisDb, {
-    startDate: new Date('2022-01-01'),
-    endDate: new Date('2024-01-01'),
-    batchSize: 100,
-  });
-
-  const batches = await testExtractor.extractBatch(0, 100);
-
-  const resolver = IdResolver.createPhaseResolver(dbConnection.etlDb, logger);
-  const transformer = new OfficeVisitTransformer(resolver);
-
-  const transformedResults = await Promise.all(
-    batches.map(async (visit) => {
-      try {
-        return await transformer.transform(visit);
-      } catch (error) {
-        return { error: (error as Error).message, source: visit };
-      }
-    })
-  );
-
-  res.json({ message: 'Testing office visit extraction', data: transformedResults });
 });
 
 app.use('/api/health', healthRoutes);

@@ -13,6 +13,7 @@ export interface AppConfig {
   applyimsApi: ApiConfig;
   logger: LoggerConfig;
   s3Bucket: S3BucketConfig;
+  visitPurposeId: string;
 }
 
 const appConfigSchema = Joi.object<AppConfig>({
@@ -29,6 +30,10 @@ const appConfigSchema = Joi.object<AppConfig>({
   etlDb: databaseConfigSchema.required(),
   applyimsApi: apiConfigSchema.required(),
   logger: loggerConfigSchema.required(),
+  visitPurposeId: Joi.string().uuid().required().messages({
+    'any.required': 'VISIT_PURPOSE_ID is required',
+    'string.guid': 'VISIT_PURPOSE_ID must be a valid UUID',
+  }),
 });
 
 let validatedConfig: AppConfig | null = null;
@@ -46,6 +51,7 @@ export function loadConfig(): AppConfig {
     applyimsApi: config.get('applyimsApi'),
     logger: config.get('logger'),
     s3Bucket: config.get('s3Bucket'),
+    visitPurposeId: config.get('visitPurposeId'),
   };
 
   const { error, value } = appConfigSchema.validate(rawConfig, {

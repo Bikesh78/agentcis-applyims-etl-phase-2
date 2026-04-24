@@ -2,15 +2,15 @@ import { DataSource } from 'typeorm';
 import { TempMappedContact } from '../entities/etlDb/temp-mapped-contacts.entity.js';
 import { TempMappedApplication } from '../entities/etlDb/temp-mapped-appplication.entity.js';
 import { TempMappedDeal } from '../entities/etlDb/temp-mapped-deals.entity.js';
+import { TempMappedOfficeVisit } from '../entities/etlDb/temp-mapped-office-visits.entity.js';
 
 export interface MappingData {
   agentcisId: string;
   applyimsId: string;
-  // dealId?: string;
   branchId?: string;
 }
 
-export type EntityUnionType = 'contacts' | 'applications' | 'deals' | 'officeVisits';
+export type EntityUnionType = 'contacts' | 'applications' | 'deals' | 'office-visits';
 
 export interface DealMappingData {
   dealId: string;
@@ -40,7 +40,8 @@ export class MappingRepository {
       case 'deals':
         // await this.storeDealMapping(migrationId, data as DealMappingData);
         break;
-      case 'officeVisits':
+      case 'office-visits':
+        await this.storeOfficeVisitMapping(migrationId, data as MappingData);
         break;
       default:
         throw new Error(`Unsupported entity type: ${entityType}`);
@@ -76,6 +77,20 @@ export class MappingRepository {
     );
   }
 
+  async storeOfficeVisitMapping(migrationId: string, data: MappingData): Promise<void> {
+    await this.etlDb.getRepository(TempMappedOfficeVisit).upsert(
+      {
+        agentcisOfficeVisitId: parseInt(data.agentcisId),
+        applyimsOfficeVisitId: data.applyimsId,
+        migrationId: migrationId,
+      },
+      {
+        conflictPaths: ['agentcisOfficeVisitId'],
+        skipUpdateIfNoValuesChanged: true,
+      }
+    );
+  }
+
   async storeBatchMappings(
     entityType: EntityUnionType,
     migrationId: string,
@@ -98,7 +113,11 @@ export class MappingRepository {
         break;
       case 'deals':
         throw new Error('Deal mapping batch insert not implemented');
-      case 'officeVisits':
+      case 'office-visits':
+        await this.etlDb.getRepository(TempMappedOfficeVisit).upsert(data, {
+          conflictPaths: ['agentcisOfficeVisitId'],
+          skipUpdateIfNoValuesChanged: true,
+        });
         break;
     }
   }
@@ -107,7 +126,7 @@ export class MappingRepository {
     entityType: EntityUnionType,
     migrationId: string,
     data: MappingData
-  ): Partial<TempMappedContact | TempMappedApplication> {
+  ): Partial<TempMappedContact | TempMappedApplication | TempMappedOfficeVisit> {
     switch (entityType) {
       case 'contacts':
         return {
@@ -123,8 +142,12 @@ export class MappingRepository {
           applyimsApplicationId: data.applyimsId,
           migrationId: migrationId,
         };
-      case 'officeVisits':
-        return {};
+      case 'office-visits':
+        return {
+          agentcisOfficeVisitId: parseInt(data.agentcisId),
+          applyimsOfficeVisitId: data.applyimsId,
+          migrationId: migrationId,
+        };
       default:
         throw new Error(`Unsupported entity type: ${entityType}`);
     }

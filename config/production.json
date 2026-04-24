@@ -2,5 +2,5 @@
   "nodeEnv": "production",
   "logger":{
     "logLevel":"error",
-  }
+  },
 }

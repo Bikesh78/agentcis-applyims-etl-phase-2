@@ -35,4 +35,5 @@
     "awsDestinationBucket": "AWS_DESTINATION_BUCKET",
     "awsRegion": "AWS_REGION"
   },
+  "visitPurposeId": "VISIT_PURPOSE_ID"
 }
