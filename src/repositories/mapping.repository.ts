@@ -7,10 +7,10 @@ export interface MappingData {
   agentcisId: string;
   applyimsId: string;
   // dealId?: string;
-  // branchId?: string;
+  branchId?: string;
 }
 
-export type EntityUnionType = 'contacts' | 'applications' | 'deals';
+export type EntityUnionType = 'contacts' | 'applications' | 'deals' | 'officeVisits';
 
 export interface DealMappingData {
   dealId: string;
@@ -40,6 +40,8 @@ export class MappingRepository {
       case 'deals':
         // await this.storeDealMapping(migrationId, data as DealMappingData);
         break;
+      case 'officeVisits':
+        break;
       default:
         throw new Error(`Unsupported entity type: ${entityType}`);
     }
@@ -50,8 +52,7 @@ export class MappingRepository {
       {
         agentcisContactId: parseInt(data.agentcisId),
         applyimsContactId: data.applyimsId,
-        // dealId: data.dealId,
-        // branchId: data.branchId,
+        branchId: data.branchId,
         migrationId: migrationId,
       },
       {
@@ -97,6 +98,8 @@ export class MappingRepository {
         break;
       case 'deals':
         throw new Error('Deal mapping batch insert not implemented');
+      case 'officeVisits':
+        break;
     }
   }
 
@@ -120,6 +123,8 @@ export class MappingRepository {
           applyimsApplicationId: data.applyimsId,
           migrationId: migrationId,
         };
+      case 'officeVisits':
+        return {};
       default:
         throw new Error(`Unsupported entity type: ${entityType}`);
     }

@@ -31,6 +31,7 @@ export const ENTITY_API_METHOD_MAP: Partial<Record<EntityType, keyof ApplyIMSApi
   [EntityType.CONTACTS]: 'bulkCreateContacts',
   [EntityType.APPLICATIONS]: 'bulkCreateApplications',
   [EntityType.DEALS]: 'bulkCreateDeals',
+  [EntityType.OFFICE_VISITS]: 'bulkCreateOfficeVisits',
 };
 
 export const SUPPORTED_ENTITIES = Object.values(EntityType);

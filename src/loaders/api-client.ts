@@ -6,6 +6,7 @@ import { ApiConfig } from '../configs/api.config.js';
 import { ApplyIMSContact } from 'entities/applyims/contact.entity.js';
 import { ApplyIMSApplication } from 'entities/applyims/application.entity.js';
 import { ApplyIMSDeal } from 'entities/applyims/deal.entity.js';
+import { ApplyIMSOfficeVisit } from 'entities/applyims/office-visit.entity.js';
 
 export interface BulkResponse {
   successful: Array<{ id: string; internalId: string }>;
@@ -134,6 +135,11 @@ export class ApplyIMSApiClient {
 
   async bulkCreateDeals(deals: ApplyIMSDeal[]): Promise<BulkResponse> {
     const response = await this.axiosInstance.post('/v1/deals/bulk', { deals });
+    return response.data.data;
+  }
+
+  async bulkCreateOfficeVisits(officeVisits: ApplyIMSOfficeVisit[]): Promise<BulkResponse> {
+    const response = await this.axiosInstance.post('/v1/office-visits/bulk', { officeVisits });
     return response.data.data;
   }
 }
