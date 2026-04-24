@@ -316,6 +316,7 @@ export class MigrationOrchestrator {
       .select([
         't.client_id AS "clientId"',
         't.added_by_branch_id AS "addedByBranchId"',
+        't.user_id AS "userId"',
         'MIN(t.created_at) AS "startDate"',
         'DATE_ADD(MIN(t.first_app_date), INTERVAL (t.bucket + 1) * 6 MONTH) AS "endDate"',
         't.bucket AS "bucket"',
@@ -325,6 +326,7 @@ export class MigrationOrchestrator {
       .from((subQuery) => {
         return subQuery
           .select('app.*')
+          .addSelect('c.user_id', 'user_id')
           .addSelect(
             'MIN(app.created_at) OVER (PARTITION BY app.client_id, app.added_by_branch_id)',
             'first_app_date'
@@ -334,11 +336,13 @@ export class MigrationOrchestrator {
             'bucket'
           )
           .from(Applications, 'app')
+          .innerJoin(Clients, 'c', 'c.id = app.client_id')
           .where('app.client_id IN (:...clientIds)', { clientIds: migratedClientIds });
       }, 't')
       .groupBy('t.client_id')
       .addGroupBy('t.added_by_branch_id')
       .addGroupBy('t.bucket')
+      .addGroupBy('t.user_id')
       .orderBy('t.client_id')
       .addOrderBy('t.bucket')
       .getRawMany();
@@ -351,6 +355,7 @@ export class MigrationOrchestrator {
       const branchId = await idResolver.resolveBranchId(app.addedByBranchId);
       const startDate = new Date(app.startDate);
       const endDate = new Date(app.endDate);
+      const userId = app.userId ? await idResolver.resolveUserId(app.userId) : null;
 
       if (!contactId) {
         this.logger.warn(
@@ -367,6 +372,7 @@ export class MigrationOrchestrator {
         minimumDate: startDate,
         maxDate: endDate,
         dealName: this.generateDealName(startDate, endDate),
+        userId: userId ?? undefined,
       });
     }
 

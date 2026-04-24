@@ -20,6 +20,7 @@ export interface DealMappingData {
   minimumDate?: Date;
   maxDate?: Date;
   dealName?: string;
+  userId?: string;
 }
 
 export class MappingRepository {
@@ -171,6 +172,7 @@ export class MappingRepository {
         minimumDate: data.minimumDate,
         maxDate: data.maxDate,
         dealName: data.dealName ?? '',
+        userId: data.userId,
         migrationId: migrationId,
       },
       {
