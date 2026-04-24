@@ -10,7 +10,12 @@ export interface MappingData {
   branchId?: string;
 }
 
-export type EntityUnionType = 'contacts' | 'applications' | 'deals' | 'office-visits';
+export type EntityUnionType =
+  | 'contacts'
+  | 'applications'
+  | 'deals'
+  | 'office-visits'
+  | 'attachments';
 
 export interface DealMappingData {
   dealId: string;

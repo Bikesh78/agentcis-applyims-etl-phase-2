@@ -27,7 +27,7 @@ export class TempMappedDeal {
   maxDate?: Date;
 
   @Column({ type: 'varchar', length: 255, nullable: true, name: 'deal_name' })
-  dealName?: string;
+  dealName: string;
 
   @Column({ type: 'varchar', length: 36, nullable: true, name: 'user_id' })
   userId?: string;

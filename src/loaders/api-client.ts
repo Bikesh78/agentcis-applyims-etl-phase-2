@@ -7,6 +7,7 @@ import { ApplyIMSContact } from 'entities/applyims/contact.entity.js';
 import { ApplyIMSApplication } from 'entities/applyims/application.entity.js';
 import { ApplyIMSDeal } from 'entities/applyims/deal.entity.js';
 import { ApplyIMSOfficeVisit } from 'entities/applyims/office-visit.entity.js';
+import { ApplyIMSMedia } from 'entities/applyims/media.entity.js';
 
 export interface BulkResponse {
   successful: Array<{ id: string; internalId: string }>;
@@ -140,6 +141,11 @@ export class ApplyIMSApiClient {
 
   async bulkCreateOfficeVisits(officeVisits: ApplyIMSOfficeVisit[]): Promise<BulkResponse> {
     const response = await this.axiosInstance.post('/v1/office-visits/bulk', { officeVisits });
+    return response.data.data;
+  }
+
+  async bulkCreateMedia(medias: ApplyIMSMedia[]): Promise<BulkResponse> {
+    const response = await this.axiosInstance.post('/v1/media/bulk', { medias });
     return response.data.data;
   }
 }
