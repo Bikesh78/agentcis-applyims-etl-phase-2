@@ -26,6 +26,7 @@ export class ApplyIMSApiClient {
   private tokenExpiry: Date | null = null;
   private logger: Logger;
   private config: ApiConfig;
+  private authRetryCount = 0;
 
   constructor(config: ApiConfig, logger: Logger) {
     this.config = config;
@@ -81,6 +82,7 @@ export class ApplyIMSApiClient {
 
     this.authToken = response.data.data.access_token;
     this.tokenExpiry = new Date(Date.now() + 3600 * 1000);
+    this.authRetryCount = 0;
 
     this.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${this.authToken}`;
     this.logger.info('Authenticated with ApplyIMS API, token set');
@@ -112,8 +114,18 @@ export class ApplyIMSApiClient {
         return response;
       },
       async (error: AxiosError) => {
+        const maxRetries = this.config.maxAuthRetries ?? 3;
         if (error.response?.status === 401) {
-          this.logger.info('Received 401, re-authenticating...');
+          if (this.authRetryCount >= maxRetries) {
+            this.logger.error(`Max auth retry limit (${maxRetries}) reached. Stopping migration.`);
+            throw new Error(
+              `Authentication failed after ${maxRetries} retries. Please check credentials.`
+            );
+          }
+          this.authRetryCount++;
+          this.logger.info(
+            `Received 401, re-authenticating... (attempt ${this.authRetryCount}/${maxRetries})`
+          );
           await this.authenticate();
           if (error.config) {
             return this.axiosInstance.request(error.config);

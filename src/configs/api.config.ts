@@ -8,6 +8,7 @@ export interface ApiConfig {
   rateLimitRps: number;
   domain: string;
   origin: string;
+  maxAuthRetries: number;
 }
 
 export const apiConfigSchema = Joi.object<ApiConfig>({
@@ -33,5 +34,9 @@ export const apiConfigSchema = Joi.object<ApiConfig>({
   }),
   origin: Joi.string().uri().messages({
     'string.uri': 'Origin must be a valid URI',
+  }),
+  maxAuthRetries: Joi.number().integer().min(0).default(3).messages({
+    'number.integer': 'Max auth retries must be an integer',
+    'number.min': 'Max auth retries must be at least 0',
   }),
 });

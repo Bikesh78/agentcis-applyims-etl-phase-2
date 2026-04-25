@@ -94,6 +94,8 @@ export class MigrationOrchestrator {
 
     await this.createMigrationJob(config);
 
+    await this.validateCredentials();
+
     const results: Record<string, EntityMigrationResult> = {};
 
     try {
@@ -427,6 +429,11 @@ export class MigrationOrchestrator {
 
   private createProductTypeResolver(): ProductTypeResolver {
     return new ProductTypeResolver(this.logger);
+  }
+
+  private async validateCredentials(): Promise<void> {
+    this.logger.info('Validating ApplyIMS API credentials...');
+    await this.apiClient.authenticate();
   }
 
   private async createMigrationJob(config: MigrationConfig): Promise<void> {
