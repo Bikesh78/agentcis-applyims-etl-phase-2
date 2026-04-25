@@ -36,3 +36,12 @@ export const ENTITY_API_METHOD_MAP: Partial<Record<EntityType, keyof ApplyIMSApi
 };
 
 export const SUPPORTED_ENTITIES = Object.values(EntityType);
+
+export const ENTITY_DEPENDENCY_ORDER: EntityType[] = [
+  EntityType.CONTACTS,
+  EntityType.DEALS,
+  EntityType.APPLICATIONS,
+  EntityType.OFFICE_VISITS,
+  EntityType.ATTACHMENTS,
+  EntityType.REFERRERS,
+];

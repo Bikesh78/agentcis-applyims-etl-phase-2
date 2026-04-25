@@ -20,7 +20,11 @@ import { ApplyIMSApiClient, BulkResponse } from '../loaders/api-client.js';
 import { Logger } from '../utils/logger.js';
 import { MigrationJob, MigrationStatus } from '../entities/etlDb/migration-jobs.entity.js';
 import { MigrationConfig } from '../configs/migration.config.js';
-import { EntityType, SUPPORTED_ENTITIES } from '../constants/entity-types.js';
+import {
+  EntityType,
+  ENTITY_DEPENDENCY_ORDER,
+  SUPPORTED_ENTITIES,
+} from '../constants/entity-types.js';
 import { Clients } from '../entities/agentcis/clients.entity.js';
 import { Applications } from '../entities/agentcis/applications.entity.js';
 import { OfficeVisits } from '../entities/agentcis/office-visits.entity.js';
@@ -83,6 +87,10 @@ export class MigrationOrchestrator {
   async runMigration(config: MigrationConfig): Promise<MigrationResult> {
     const startTime = Date.now();
     this.logger.info(`Starting migration ${config.migrationId}`);
+
+    const orderedEntities = this.reorderEntities(config.entities);
+    this.logger.info(`Entity migration order: ${orderedEntities.join(', ')}`);
+    config.entities = orderedEntities;
 
     await this.createMigrationJob(config);
 
@@ -404,8 +412,9 @@ export class MigrationOrchestrator {
   private generateDealName(startDate: Date, endDate: Date): string {
     const startMonth = startDate.toLocaleString('default', { month: 'short' });
     const endMonth = endDate.toLocaleString('default', { month: 'short' });
-    const year = startDate.getFullYear();
-    return `Agentcis - ${startMonth}-${endMonth} ${year}`;
+    const startYear = startDate.getFullYear();
+    const endYear = endDate.getFullYear();
+    return `Agentcis - ${startMonth} ${startYear} - ${endMonth} ${endYear}`;
   }
 
   private createIdResolver(): IdResolver {
@@ -455,6 +464,12 @@ export class MigrationOrchestrator {
       }
       await jobRepo.save(job);
     }
+  }
+
+  private reorderEntities(entities: EntityUnionType[]): EntityUnionType[] {
+    const requestedTypes = new Set<string>(entities);
+    const ordered = ENTITY_DEPENDENCY_ORDER.filter((type) => requestedTypes.has(type));
+    return ordered as EntityUnionType[];
   }
 
   async cancel(): Promise<void> {
