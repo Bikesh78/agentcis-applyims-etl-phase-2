@@ -86,10 +86,14 @@ export class MigrationOrchestrator {
 
   async runMigration(config: MigrationConfig): Promise<MigrationResult> {
     const startTime = Date.now();
-    this.logger.info(`Starting migration ${config.migrationId}`);
+    const { migrationId } = config;
+    this.logger.info('Migration started', { migrationId });
 
     const orderedEntities = this.reorderEntities(config.entities);
-    this.logger.info(`Entity migration order: ${orderedEntities.join(', ')}`);
+    this.logger.info('Entity migration order determined', {
+      migrationId,
+      order: orderedEntities,
+    });
     config.entities = orderedEntities;
 
     await this.createMigrationJob(config);
@@ -101,54 +105,68 @@ export class MigrationOrchestrator {
     try {
       for (const entityType of config.entities) {
         if (!SUPPORTED_ENTITIES.includes(entityType as EntityType)) {
-          this.logger.warn(`Skipping unsupported entity: ${entityType}`);
+          this.logger.warn('Skipping unsupported entity', { migrationId, entityType });
           continue;
         }
 
         if (this.isCancelled) {
-          this.logger.warn('Migration cancelled');
+          this.logger.warn('Migration cancelled', { migrationId });
           break;
         }
 
-        const result = await this.migrateEntity(config, entityType);
-        this.logger.info(
-          `Completed migration for ${entityType}: ${result.successful}/${result.total} successful`
-        );
+        const entityStartTime = Date.now();
+        const result = await this.migrateEntity(config, entityType, entityStartTime);
+        const entityElapsedMs = Date.now() - entityStartTime;
+        this.logger.info('Entity migration completed', {
+          migrationId,
+          entityType,
+          successful: result.successful,
+          total: result.total,
+          elapsedMs: entityElapsedMs,
+        });
         results[entityType] = result;
 
-        // if (entityType === EntityType.CONTACTS && config.entities.includes(EntityType.DEALS)) {
-        //   await this.populateDealStaging(config);
-        // }
         if (entityType === EntityType.CONTACTS) {
           await this.populateDealStaging(config);
         }
       }
 
-      await this.updateMigrationJob(config.migrationId, MigrationStatus.COMPLETED);
-      this.logger.info(`Migration ${config.migrationId} completed`);
-
-      return {
-        migrationId: config.migrationId,
+      await this.updateMigrationJob(migrationId, MigrationStatus.COMPLETED);
+      const totalElapsedMs = Date.now() - startTime;
+      this.logger.info('Migration completed', {
+        migrationId,
         status: Object.values(results).some((r) => r.failed > 0) ? 'partial' : 'completed',
-        duration: Date.now() - startTime,
+        duration: totalElapsedMs,
+        entityResults: Object.fromEntries(
+          Object.entries(results).map(([key, val]) => [
+            key,
+            { successful: val.successful, failed: val.failed, skipped: val.skipped },
+          ])
+        ),
+      });
+      return {
+        migrationId,
+        status: Object.values(results).some((r) => r.failed > 0) ? 'partial' : 'completed',
+        duration: totalElapsedMs,
         entities: results,
       };
     } catch (error) {
-      this.logger.error(`Migration ${config.migrationId} failed`, { error: String(error) });
-      await this.updateMigrationJob(
-        config.migrationId,
-        MigrationStatus.FAILED,
-        (error as Error).message
-      );
+      this.logger.error('Migration failed', {
+        migrationId,
+        error: String(error),
+      });
+      await this.updateMigrationJob(migrationId, MigrationStatus.FAILED, (error as Error).message);
       throw error;
     }
   }
 
   private async migrateEntity(
     config: MigrationConfig,
-    entityType: EntityUnionType
+    entityType: EntityUnionType,
+    entityStartTime: number
   ): Promise<EntityMigrationResult> {
-    this.logger.info(`Migrating ${entityType}`);
+    const { migrationId } = config;
+    this.logger.info('Starting entity migration', { migrationId, entityType });
 
     const extractorConfig: ExtractorConfig = {
       batchSize: config.batchSize,
@@ -157,13 +175,13 @@ export class MigrationOrchestrator {
       checkpointId: config.resumeFrom?.checkpointId,
     };
 
-    const handlers = this.getEntityHandlers(entityType, extractorConfig, config.migrationId);
+    const handlers = this.getEntityHandlers(entityType, extractorConfig, migrationId);
 
     const totalCount = await handlers.extractor.getTotalCount();
-    this.logger.info(`Total ${entityType} count: ${totalCount}`);
+    this.logger.info('Entity count fetched', { migrationId, entityType, totalCount });
 
     await this.checkpointService.createCheckpoint({
-      migrationId: config.migrationId,
+      migrationId,
       entityType,
       totalCount,
       processedCount: 0,
@@ -192,9 +210,14 @@ export class MigrationOrchestrator {
         } else {
           const error =
             result.reason instanceof Error ? result.reason : new Error(String(result.reason));
-          this.logger.error(`Transform error for ${entityType} item`, { error: String(error) });
+          this.logger.error('Transform error for item', {
+            migrationId,
+            entityType,
+            itemId: String(batch[i]?.id ?? 'unknown'),
+            error: String(error),
+          });
           await this.errorRecoveryManager.logError(
-            config.migrationId,
+            migrationId,
             entityType,
             String(batch[i]?.id ?? 'unknown'),
             error,
@@ -207,7 +230,11 @@ export class MigrationOrchestrator {
 
       if (transformed.length === 0) {
         processedCount += batch.length;
-        this.logger.warn(`All transforms failed for ${entityType} batch, skipping batch`);
+        this.logger.warn('All transforms failed for batch, skipping', {
+          migrationId,
+          entityType,
+          batchSize: batch.length,
+        });
         continue;
       }
 
@@ -217,18 +244,20 @@ export class MigrationOrchestrator {
         processedCount += transformed.length;
       }
 
+      const batchStartTime = Date.now();
       const result: ProcessResult = await this.batchProcessor.processBatch(
         transformed as ApplyIMSContact[],
         entityType,
         handlers.apiMethod as (batch: ApplyIMSContact[]) => Promise<BulkResponse>,
-        config.migrationId
+        migrationId
       );
+      const batchElapsedMs = Date.now() - batchStartTime;
 
       successCount += result.successful;
       failedCount += result.failed;
       skippedCount += result.skipped;
 
-      await this.checkpointService.updateCheckpoint(config.migrationId, entityType, {
+      await this.checkpointService.updateCheckpoint(migrationId, entityType, {
         processedCount,
         successCount,
         failedCount,
@@ -236,9 +265,18 @@ export class MigrationOrchestrator {
       });
 
       const percentage = ((processedCount / totalCount) * 100).toFixed(2);
-      this.logger.info(
-        `Progress: ${entityType} - ${processedCount}/${totalCount} (${percentage}%)`
-      );
+      const elapsedMs = Date.now() - entityStartTime;
+      this.logger.progress('Entity progress update', {
+        migrationId,
+        entityType,
+        processedCount,
+        totalCount,
+        percentage,
+        elapsedMs,
+        batchElapsedMs,
+        successful: result.successful,
+        failed: result.failed,
+      });
     }
 
     return {
@@ -328,15 +366,16 @@ export class MigrationOrchestrator {
   }
 
   private async populateDealStaging(config: MigrationConfig): Promise<void> {
-    this.logger.info('Populating deal staging data from migrated contacts');
+    const { migrationId } = config;
+    this.logger.info('Populating deal staging data', { migrationId });
 
     const migratedContacts = await this.etlDb.getRepository(TempMappedContact).find({
-      where: { migrationId: config.migrationId },
+      where: { migrationId },
       select: ['agentcisContactId'],
     });
 
     if (migratedContacts.length === 0) {
-      this.logger.warn('No migrated contacts found for deal staging');
+      this.logger.warn('No migrated contacts found for deal staging', { migrationId });
       return;
     }
 
@@ -389,9 +428,10 @@ export class MigrationOrchestrator {
       const userId = app.userId ? await idResolver.resolveUserId(app.userId) : null;
 
       if (!contactId) {
-        this.logger.warn(
-          `Skipping deal staging for clientId ${app.clientId} — contactId not found`
-        );
+        this.logger.warn('Skipping deal staging - contactId not found', {
+          migrationId,
+          clientId: app.clientId,
+        });
         continue;
       }
 
@@ -407,8 +447,8 @@ export class MigrationOrchestrator {
       });
     }
 
-    await this.mappingRepository.storeDealStagingBatch(config.migrationId, dealRows);
-    this.logger.info(`Populated ${dealRows.length} deal staging rows`);
+    await this.mappingRepository.storeDealStagingBatch(migrationId, dealRows);
+    this.logger.info('Deal staging populated', { migrationId, rowCount: dealRows.length });
   }
 
   private generateDealName(startDate: Date, endDate: Date): string {
@@ -432,14 +472,15 @@ export class MigrationOrchestrator {
   }
 
   private async validateCredentials(): Promise<void> {
-    this.logger.info('Validating ApplyIMS API credentials...');
+    this.logger.info('Validating ApplyIMS API credentials');
     await this.apiClient.authenticate();
   }
 
   private async createMigrationJob(config: MigrationConfig): Promise<void> {
+    const { migrationId } = config;
     const jobRepo = this.etlDb.getRepository(MigrationJob);
     const job = jobRepo.create({
-      id: config.migrationId,
+      id: migrationId,
       status: MigrationStatus.IN_PROGRESS,
       config: {
         entities: config.entities,
@@ -453,7 +494,7 @@ export class MigrationOrchestrator {
       startedAt: new Date(),
     });
     await jobRepo.save(job);
-    this.logger.info(`Migration job created: ${config.migrationId}`);
+    this.logger.info('Migration job created', { migrationId });
   }
 
   private async updateMigrationJob(
@@ -479,8 +520,8 @@ export class MigrationOrchestrator {
     return ordered as EntityUnionType[];
   }
 
-  async cancel(): Promise<void> {
+  async cancel(migrationId?: string): Promise<void> {
     this.isCancelled = true;
-    this.logger.info('Migration cancelled');
+    this.logger.info('Migration cancelled', { migrationId });
   }
 }

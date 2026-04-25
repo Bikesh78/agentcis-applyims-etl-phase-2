@@ -3,17 +3,28 @@ import DailyRotateFile from 'winston-daily-rotate-file';
 import config from 'config';
 import { LoggerConfig } from 'configs/logger.config.js';
 
+export interface LoggerMetadata {
+  migrationId?: string;
+  entityType?: string;
+  [key: string]: any;
+}
+
 export interface Logger {
-  info(message: string, meta?: object): void;
-  error(message: string, meta?: object): void;
-  warn(message: string, meta?: object): void;
-  debug(message: string, meta?: object): void;
+  info(message: string, meta?: LoggerMetadata): void;
+  error(message: string, meta?: LoggerMetadata): void;
+  warn(message: string, meta?: LoggerMetadata): void;
+  debug(message: string, meta?: LoggerMetadata): void;
+  progress(message: string, meta?: LoggerMetadata): void;
 }
 
 const loggerConfig = config.get<LoggerConfig>('logger');
 const { logDir, logLevel } = loggerConfig;
 
-export const logLevels = ['info', 'error', 'warn', 'debug'] as const;
+export const logLevels = ['info', 'error', 'warn', 'debug', 'progress'] as const;
+
+winston.addColors({
+  progress: 'cyan',
+});
 
 const dailyRotateTransport = new DailyRotateFile({
   filename: 'migration-%DATE%.log',
@@ -51,19 +62,29 @@ const winstonLogger = winston.createLogger({
   level: logLevel,
   format,
   transports,
+  levels: {
+    error: 0,
+    warn: 1,
+    progress: 2,
+    info: 3,
+    debug: 4,
+  },
 });
 
 export const logger: Logger = {
-  info: (message: string, meta?: object) => {
+  info: (message: string, meta?: LoggerMetadata) => {
     winstonLogger.info(message, meta);
   },
-  error: (message: string, meta?: object) => {
+  error: (message: string, meta?: LoggerMetadata) => {
     winstonLogger.error(message, meta);
   },
-  warn: (message: string, meta?: object) => {
+  warn: (message: string, meta?: LoggerMetadata) => {
     winstonLogger.warn(message, meta);
   },
-  debug: (message: string, meta?: object) => {
+  debug: (message: string, meta?: LoggerMetadata) => {
     winstonLogger.debug(message, meta);
+  },
+  progress: (message: string, meta?: LoggerMetadata) => {
+    winstonLogger.log('progress', message, meta);
   },
 };
