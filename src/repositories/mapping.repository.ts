@@ -21,7 +21,7 @@ export interface DealMappingData {
   dealId: string;
   contactId?: string;
   branchId?: string;
-  applicationId?: string;
+  applicationId?: number;
   minimumDate?: Date;
   maxDate?: Date;
   dealName?: string;
@@ -207,7 +207,7 @@ export class MappingRepository {
       }));
 
       await this.etlDb.getRepository(TempMappedDeal).upsert(rows, {
-        conflictPaths: ['dealId'],
+        conflictPaths: ['contactId', 'applicationId'],
         skipUpdateIfNoValuesChanged: true,
       });
     }

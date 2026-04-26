@@ -423,9 +423,9 @@ export class MigrationOrchestrator {
     for (const app of applications) {
       const contactId = await idResolver.resolveContactId(app.clientId);
       const branchId = await idResolver.resolveBranchId(app.addedByBranchId);
+      const userId = app.userId ? await idResolver.resolveUserId(app.userId) : null;
       const startDate = new Date(app.startDate);
       const endDate = new Date(app.endDate);
-      const userId = app.userId ? await idResolver.resolveUserId(app.userId) : null;
 
       if (!contactId) {
         this.logger.warn('Skipping deal staging - contactId not found', {
@@ -435,16 +435,21 @@ export class MigrationOrchestrator {
         continue;
       }
 
-      dealRows.push({
-        dealId: crypto.randomUUID(),
-        contactId,
-        branchId: branchId ?? undefined,
-        applicationId: app.applicationIds ?? null,
-        minimumDate: startDate,
-        maxDate: endDate,
-        dealName: this.generateDealName(startDate, endDate),
-        userId: userId ?? undefined,
-      });
+      const dealId = crypto.randomUUID();
+      const applicationIds = (app.applicationIds ?? '').split(',').filter(Boolean);
+
+      for (const appId of applicationIds) {
+        dealRows.push({
+          dealId,
+          contactId,
+          branchId: branchId ?? undefined,
+          applicationId: parseInt(appId, 10),
+          minimumDate: startDate,
+          maxDate: endDate,
+          dealName: this.generateDealName(startDate, endDate),
+          userId: userId ?? undefined,
+        });
+      }
     }
 
     await this.mappingRepository.storeDealStagingBatch(migrationId, dealRows);

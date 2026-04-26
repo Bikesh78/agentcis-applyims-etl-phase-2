@@ -1,7 +1,7 @@
 import { Unique, Index, Column, Entity, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 
 @Entity('temp_mapped_deals')
-@Unique(['dealId'])
+// @Unique(['dealId'])
 @Unique('uniqueContactApplication', ['contactId', 'applicationId'])
 export class TempMappedDeal {
   @PrimaryGeneratedColumn({ type: 'bigint', name: 'id' })
@@ -17,8 +17,8 @@ export class TempMappedDeal {
   @Column({ type: 'varchar', length: 36, nullable: true, name: 'branch_id' })
   branchId?: string;
 
-  @Column({ type: 'text', nullable: true, name: 'application_id' })
-  applicationId?: string;
+  @Column({ type: 'bigint', nullable: true, name: 'application_id' })
+  applicationId?: number;
 
   @Column({ type: 'timestamp', nullable: true, name: 'minimum_date' })
   minimumDate?: Date;
