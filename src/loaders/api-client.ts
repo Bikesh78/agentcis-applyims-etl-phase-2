@@ -23,7 +23,6 @@ export class ApplyIMSApiClient {
   private axiosInstance: AxiosInstance;
   private rateLimiter: RateLimiterMemory;
   private authToken: string | null = null;
-  private tokenExpiry: Date | null = null;
   private logger: Logger;
   private config: ApiConfig;
   private authRetryCount = 0;
@@ -81,25 +80,16 @@ export class ApplyIMSApiClient {
     );
 
     this.authToken = response.data.data.access_token;
-    this.tokenExpiry = new Date(Date.now() + 3600 * 1000);
     this.authRetryCount = 0;
 
     this.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${this.authToken}`;
     this.logger.info('Authenticated with ApplyIMS API, token set');
   }
 
-  private async checkTokenExpiry(): Promise<void> {
-    if (this.tokenExpiry && new Date() >= this.tokenExpiry) {
-      this.logger.info('Token missing or expired, re-authenticating...');
-      await this.authenticate();
-    }
-  }
-
   private setupInterceptors(): void {
     this.axiosInstance.interceptors.request.use(
       async (config: InternalAxiosRequestConfig) => {
         await this.rateLimiter.consume(1);
-        await this.checkTokenExpiry();
         return config;
       },
       (error) => Promise.reject(error)

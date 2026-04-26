@@ -37,6 +37,7 @@ export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSM
 
     return {
       id,
+      agentcisInternalId: source.id,
       name: source.originalName,
       path: await this.resolvePath(source),
       extension: '.' + source.type,

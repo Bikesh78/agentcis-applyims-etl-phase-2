@@ -3,6 +3,7 @@ import { TempMappedContact } from '../entities/etlDb/temp-mapped-contacts.entity
 import { TempMappedApplication } from '../entities/etlDb/temp-mapped-appplication.entity.js';
 import { TempMappedDeal } from '../entities/etlDb/temp-mapped-deals.entity.js';
 import { TempMappedOfficeVisit } from '../entities/etlDb/temp-mapped-office-visits.entity.js';
+import { TempMappedMedia } from '../entities/etlDb/temp-mapped-medias.entity.js';
 
 export interface MappingData {
   agentcisId: string;
@@ -48,6 +49,9 @@ export class MappingRepository {
         break;
       case 'office-visits':
         await this.storeOfficeVisitMapping(migrationId, data as MappingData);
+        break;
+      case 'attachments':
+        await this.storeMediaMapping(migrationId, data as MappingData);
         break;
       default:
         throw new Error(`Unsupported entity type: ${entityType}`);
@@ -97,6 +101,20 @@ export class MappingRepository {
     );
   }
 
+  async storeMediaMapping(migrationId: string, data: MappingData): Promise<void> {
+    await this.etlDb.getRepository(TempMappedMedia).upsert(
+      {
+        agentcisMediaId: parseInt(data.agentcisId),
+        applyimsMediaId: data.applyimsId,
+        migrationId: migrationId,
+      },
+      {
+        conflictPaths: ['agentcisMediaId'],
+        skipUpdateIfNoValuesChanged: true,
+      }
+    );
+  }
+
   async storeBatchMappings(
     entityType: EntityUnionType,
     migrationId: string,
@@ -125,6 +143,12 @@ export class MappingRepository {
           skipUpdateIfNoValuesChanged: true,
         });
         break;
+      case 'attachments':
+        await this.etlDb.getRepository(TempMappedMedia).upsert(data, {
+          conflictPaths: ['agentcisMediaId'],
+          skipUpdateIfNoValuesChanged: true,
+        });
+        break;
     }
   }
 
@@ -132,14 +156,12 @@ export class MappingRepository {
     entityType: EntityUnionType,
     migrationId: string,
     data: MappingData
-  ): Partial<TempMappedContact | TempMappedApplication | TempMappedOfficeVisit> {
+  ): Partial<TempMappedContact | TempMappedApplication | TempMappedOfficeVisit | TempMappedMedia> {
     switch (entityType) {
       case 'contacts':
         return {
           agentcisContactId: parseInt(data.agentcisId),
           applyimsContactId: data.applyimsId,
-          // dealId: data.dealId,
-          // branchId: data.branchId,
           migrationId: migrationId,
         };
       case 'applications':
@@ -152,6 +174,12 @@ export class MappingRepository {
         return {
           agentcisOfficeVisitId: parseInt(data.agentcisId),
           applyimsOfficeVisitId: data.applyimsId,
+          migrationId: migrationId,
+        };
+      case 'attachments':
+        return {
+          agentcisMediaId: parseInt(data.agentcisId),
+          applyimsMediaId: data.applyimsId,
           migrationId: migrationId,
         };
       default:

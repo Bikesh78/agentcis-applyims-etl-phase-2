@@ -16,6 +16,7 @@ import { TempMappedContact } from 'entities/etlDb/temp-mapped-contacts.entity.js
 import { TempMappedApplication } from 'entities/etlDb/temp-mapped-appplication.entity.js';
 import { TempMappedDeal } from 'entities/etlDb/temp-mapped-deals.entity.js';
 import { TempMappedOfficeVisit } from 'entities/etlDb/temp-mapped-office-visits.entity.js';
+import { TempMappedMedia } from 'entities/etlDb/temp-mapped-medias.entity.js';
 import { MigrationCheckpoint } from 'entities/etlDb/migration-checkpoints.entity.js';
 import { MigrationError } from 'entities/etlDb/migration-errors.entity.js';
 import { MigrationJob } from 'entities/etlDb/migration-jobs.entity.js';
@@ -128,6 +129,7 @@ export function createEtlConnectionOptions() {
       TempMappedApplication,
       TempMappedDeal,
       TempMappedOfficeVisit,
+      TempMappedMedia,
       MigrationCheckpoint,
       MigrationError,
       MigrationJob,

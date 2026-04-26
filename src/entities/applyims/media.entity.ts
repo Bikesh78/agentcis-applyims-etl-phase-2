@@ -4,6 +4,7 @@ export type SubjectType = 'ContactMedia' | 'ApplicationMedia';
 
 export interface ApplyIMSMedia {
   id: string;
+  agentcisInternalId?: number;
   name: string | null;
   path: string | null;
   size: number;
@@ -18,7 +19,5 @@ export interface ApplyIMSMedia {
   bucketFileName: string;
   createdAt: Date | null;
   updatedAt: Date | null;
-  // syncId: string | null;
   stageId: string | null;
-  // isDeletedFromApplication: boolean;
 }
