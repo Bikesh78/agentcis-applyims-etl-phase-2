@@ -38,13 +38,6 @@ export class S3CopyService {
       destinationKey: options.destinationKey,
     });
 
-    this.logger.info('Copying file in S3', {
-      sourceBucket: options.sourceBucket,
-      sourceKey: options.sourceKey,
-      destinationBucket: options.destinationBucket,
-      destinationKey: options.destinationKey,
-    });
-
     const result = await this.s3Client.send(new CopyObjectCommand(params));
 
     this.logger.info('File copied successfully', {
@@ -52,29 +45,5 @@ export class S3CopyService {
     });
 
     return result;
-  }
-
-  async copyMultiple(
-    files: S3CopyOptions[],
-    onProgress?: (completed: number, total: number) => void
-  ): Promise<{ successful: number; failed: number }> {
-    let successful = 0;
-    let failed = 0;
-
-    for (let i = 0; i < files.length; i++) {
-      try {
-        await this.copyFile(files[i]);
-        successful++;
-      } catch (error) {
-        failed++;
-        this.logger.error('Failed to copy file', {
-          error,
-          sourceKey: files[i].sourceKey,
-        });
-      }
-      onProgress?.(i + 1, files.length);
-    }
-
-    return { successful, failed };
   }
 }

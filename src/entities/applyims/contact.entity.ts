@@ -24,8 +24,6 @@ export interface ApplyIMSContact {
   visaType: string | null;
   branchId: string;
   passportNo: string | null;
-  // dealName: string | null;
-  // status: 'Client' | 'Lead'; // status will be updated in the applyIms bulk API
   agentcisClientId: string;
   agentcisInternalId: number;
   gender: string | null;

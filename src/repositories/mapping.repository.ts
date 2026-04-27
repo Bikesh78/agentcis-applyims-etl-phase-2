@@ -47,7 +47,6 @@ export class MappingRepository {
         await this.storeApplicationMapping(migrationId, data as MappingData);
         break;
       case 'deals':
-        // await this.storeDealMapping(migrationId, data as DealMappingData);
         break;
       case 'office-visits':
         await this.storeOfficeVisitMapping(migrationId, data as MappingData);

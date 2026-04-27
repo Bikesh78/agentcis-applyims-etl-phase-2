@@ -23,7 +23,6 @@ export class ErrorRecoveryManager {
     category: ErrorCategory,
     sourceData?: any
   ): Promise<void> {
-    // console.log('log error ====', error)
     await this.dataSource.getRepository(MigrationError).save({
       migrationId,
       entityType,

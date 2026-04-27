@@ -1,7 +1,6 @@
 import { Unique, Index, Column, Entity, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 
 @Entity('temp_mapped_deals')
-// @Unique(['dealId'])
 @Unique('uniqueContactApplication', ['contactId', 'applicationId'])
 export class TempMappedDeal {
   @PrimaryGeneratedColumn({ type: 'bigint', name: 'id' })

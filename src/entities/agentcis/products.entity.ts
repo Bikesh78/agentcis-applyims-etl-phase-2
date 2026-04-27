@@ -14,7 +14,4 @@ export class Products {
 
   @Column({ name: 'vendor_id', type: 'int' })
   vendorId: number;
-
-  // @Column({ name: 'name', type: 'string' })
-  // name: number;
 }
