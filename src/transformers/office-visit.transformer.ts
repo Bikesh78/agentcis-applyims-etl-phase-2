@@ -18,12 +18,10 @@ export class OfficeVisitTransformer extends BaseTransformer<OfficeVisits, ApplyI
     const branchId = await this.idResolver.resolveBranchId(source.officeId);
     const createdBy = await this.idResolver.resolveUserId(source.userId);
 
-    const sessionStart = source.officeVisitAssignees.find((item) =>
-      Boolean(item.attendedOn)
-    )?.attendedOn;
-    const sessionEnd = source.officeVisitAssignees.find((item) =>
-      Boolean(item.completedOn)
-    )?.completedOn;
+    const sessionStart =
+      source.officeVisitAssignees.find((item) => Boolean(item.attendedOn))?.attendedOn || null;
+    const sessionEnd =
+      source.officeVisitAssignees.find((item) => Boolean(item.completedOn))?.completedOn || null;
 
     if (!contactId) {
       throw new Error(`Cannot resolve contactId ${source.contactId}`);
@@ -33,12 +31,6 @@ export class OfficeVisitTransformer extends BaseTransformer<OfficeVisits, ApplyI
     }
     if (!createdBy) {
       throw new Error(`Cannot resolve userId ${source.userId}`);
-    }
-    if (!sessionStart) {
-      throw new Error(`Cannot resolve session start for ${source.id}`);
-    }
-    if (!sessionEnd) {
-      throw new Error(`Cannot resolve session end for ${source.id}`);
     }
 
     const config = getConfig();
@@ -55,7 +47,7 @@ export class OfficeVisitTransformer extends BaseTransformer<OfficeVisits, ApplyI
       sessionNotes: source.visitPurpose,
       sessionStart,
       sessionEnd,
-      status: 'Completed',
+      status: sessionStart && sessionEnd ? 'Completed' : 'Unattended',
       visitPurposeId: config.visitPurposeId,
     };
   }

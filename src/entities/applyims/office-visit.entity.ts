@@ -10,8 +10,8 @@ export interface ApplyIMSOfficeVisit {
   createdAt: Date;
   updatedAt: Date;
   sessionNotes: string | null;
-  sessionStart: string;
-  sessionEnd: string;
+  sessionStart: string | null;
+  sessionEnd: string | null;
   status: OfficeVisitStatus;
   visitPurposeId: string;
 }
