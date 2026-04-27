@@ -16,6 +16,18 @@ export class TempMappedMedia {
   @Column({ type: 'varchar', length: 36, nullable: true, name: 'migration_id' })
   migrationId?: string;
 
+  @Column({ type: 'boolean', default: false, name: 's3_copied' })
+  s3Copied: boolean;
+
+  @Column({ type: 'varchar', length: 500, nullable: true, name: 's3_copy_error' })
+  s3CopyError?: string;
+
+  @Column({ type: 'varchar', length: 500, nullable: true, name: 'source_s3_key' })
+  sourceS3Key?: string;
+
+  @Column({ type: 'varchar', length: 500, nullable: true, name: 'destination_s3_key' })
+  destinationS3Key?: string;
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 }

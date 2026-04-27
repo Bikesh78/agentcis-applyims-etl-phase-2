@@ -20,4 +20,6 @@ export interface ApplyIMSMedia {
   createdAt: Date | null;
   updatedAt: Date | null;
   stageId: string | null;
+  sourceS3Key?: string;
+  destinationS3Key?: string;
 }

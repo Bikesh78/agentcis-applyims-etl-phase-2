@@ -35,11 +35,15 @@ export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSM
     );
     const createdBy = source.uploader ? await this.idResolver.resolveUserId(source.uploader) : null;
 
+    const destinationPath = await this.resolvePath(source);
+    const bucketFileName = this.getBucketFileName(source.originalName, source.createdAt);
+    const destinationS3Key = `${destinationPath}/${bucketFileName}`;
+
     return {
       id,
       agentcisInternalId: source.id,
       name: source.originalName,
-      path: await this.resolvePath(source),
+      path: destinationPath,
       extension: '.' + source.type,
       subjectType: this.mapSubjectType(source.attachmentableType),
       size: source.fileSize,
@@ -51,8 +55,10 @@ export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSM
       createdBy,
       mimetype: this.mapMimeType(source.type),
       subjectId,
-      bucketFileName: this.getBucketFileName(source.originalName, source.createdAt),
+      bucketFileName,
       stageId: null,
+      sourceS3Key: source.path,
+      destinationS3Key,
     };
   }
 

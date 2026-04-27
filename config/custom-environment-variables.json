@@ -32,6 +32,7 @@
   },
   "s3Bucket": {
     "awsBucketTenant": "AWS_BUCKET_TENANT",
+    "awsSourceBucket": "AWS_SOURCE_BUCKET",
     "awsDestinationBucket": "AWS_DESTINATION_BUCKET",
     "awsRegion": "AWS_REGION"
   },

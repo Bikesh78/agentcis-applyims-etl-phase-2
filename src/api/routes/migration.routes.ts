@@ -11,6 +11,7 @@ import { MigrationController } from '../controllers/migration.controller.js';
 import { getConfig } from '../../configs/index.js';
 import { dbCheckMiddleware } from '../middleware/db-check.middleware.js';
 import { Services } from '../../types/express.extensions.js';
+import { S3CopyService } from '../../services/s3-copy.service.js';
 
 let services: Services | null = null;
 
@@ -31,6 +32,7 @@ function getServices(): Services {
   const mappingRepository = new MappingRepository(dbConnections.etlDb);
   const errorRecoveryManager = new ErrorRecoveryManager(dbConnections.etlDb, logger);
   const checkpointService = new CheckpointService(dbConnections.etlDb, logger);
+  const s3CopyService = new S3CopyService(config.s3Bucket.awsRegion, logger);
 
   const batchProcessor = new BatchProcessor(
     apiClient,
@@ -48,6 +50,8 @@ function getServices(): Services {
     checkpointService,
     errorRecoveryManager,
     mappingRepository,
+    s3CopyService,
+    config.s3Bucket,
     logger
   );
 

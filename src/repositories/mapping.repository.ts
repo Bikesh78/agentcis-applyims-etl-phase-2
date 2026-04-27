@@ -9,6 +9,8 @@ export interface MappingData {
   agentcisId: string;
   applyimsId: string;
   branchId?: string;
+  sourceS3Key?: string;
+  destinationS3Key?: string;
 }
 
 export type EntityUnionType =
@@ -107,12 +109,41 @@ export class MappingRepository {
         agentcisMediaId: parseInt(data.agentcisId),
         applyimsMediaId: data.applyimsId,
         migrationId: migrationId,
+        sourceS3Key: data.sourceS3Key,
+        destinationS3Key: data.destinationS3Key,
+        s3Copied: false,
       },
       {
         conflictPaths: ['agentcisMediaId'],
         skipUpdateIfNoValuesChanged: true,
       }
     );
+  }
+
+  async updateMediaS3Status(
+    agentcisMediaId: number,
+    s3Copied: boolean,
+    s3CopyError?: string
+  ): Promise<void> {
+    await this.etlDb
+      .getRepository(TempMappedMedia)
+      .update({ agentcisMediaId }, { s3Copied, s3CopyError });
+  }
+
+  async updateMediaS3Keys(
+    agentcisMediaId: number,
+    sourceS3Key: string,
+    destinationS3Key: string
+  ): Promise<void> {
+    await this.etlDb
+      .getRepository(TempMappedMedia)
+      .update({ agentcisMediaId }, { sourceS3Key, destinationS3Key });
+  }
+
+  async getUncopiedMedias(migrationId: string): Promise<TempMappedMedia[]> {
+    return this.etlDb.getRepository(TempMappedMedia).find({
+      where: { migrationId, s3Copied: false },
+    });
   }
 
   async storeBatchMappings(

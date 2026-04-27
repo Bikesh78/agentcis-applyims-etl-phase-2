@@ -41,6 +41,8 @@ import {
 } from 'repositories/mapping.repository.js';
 import { TempMappedDeal } from '../entities/etlDb/temp-mapped-deals.entity.js';
 import { TempMappedContact } from '../entities/etlDb/temp-mapped-contacts.entity.js';
+import { S3CopyService } from '../services/s3-copy.service.js';
+import { S3BucketConfig } from '../configs/s3-bucket.config.js';
 
 export interface EntityMigrationResult {
   total: number;
@@ -81,6 +83,8 @@ export class MigrationOrchestrator {
     private checkpointService: CheckpointService,
     private errorRecoveryManager: ErrorRecoveryManager,
     private mappingRepository: MappingRepository,
+    private s3CopyService: S3CopyService,
+    private s3BucketConfig: S3BucketConfig,
     private logger: Logger
   ) {}
 
@@ -128,6 +132,10 @@ export class MigrationOrchestrator {
 
         if (entityType === EntityType.CONTACTS) {
           await this.populateDealStaging(config);
+        }
+
+        if (entityType === EntityType.ATTACHMENTS) {
+          await this.copyS3FilesForMedias(config.migrationId);
         }
       }
 
@@ -252,6 +260,26 @@ export class MigrationOrchestrator {
         migrationId
       );
       const batchElapsedMs = Date.now() - batchStartTime;
+
+      if (entityType === EntityType.ATTACHMENTS) {
+        for (const media of transformed as ApplyIMSMedia[]) {
+          if (media.agentcisInternalId && media.sourceS3Key && media.destinationS3Key) {
+            try {
+              await this.mappingRepository.updateMediaS3Keys(
+                media.agentcisInternalId,
+                media.sourceS3Key,
+                media.destinationS3Key
+              );
+            } catch (err) {
+              this.logger.error('Failed to update S3 keys for media', {
+                migrationId,
+                mediaId: media.agentcisInternalId,
+                error: String(err),
+              });
+            }
+          }
+        }
+      }
 
       successCount += result.successful;
       failedCount += result.failed;
@@ -523,6 +551,62 @@ export class MigrationOrchestrator {
     const requestedTypes = new Set<string>(entities);
     const ordered = ENTITY_DEPENDENCY_ORDER.filter((type) => requestedTypes.has(type));
     return ordered as EntityUnionType[];
+  }
+
+  private async copyS3FilesForMedias(migrationId: string): Promise<void> {
+    this.logger.info('Starting S3 file copy for medias', { migrationId });
+
+    const medias = await this.mappingRepository.getUncopiedMedias(migrationId);
+    this.logger.info('Found medias to copy', { migrationId, count: medias.length });
+
+    let copied = 0;
+    let failed = 0;
+
+    for (const media of medias) {
+      if (!media.sourceS3Key || !media.destinationS3Key) {
+        this.logger.warn('Missing S3 keys for media', {
+          migrationId,
+          mediaId: media.agentcisMediaId,
+          sourceKey: media.sourceS3Key,
+          destKey: media.destinationS3Key,
+        });
+        await this.mappingRepository.updateMediaS3Status(
+          media.agentcisMediaId,
+          false,
+          'Missing S3 keys'
+        );
+        failed++;
+        continue;
+      }
+
+      try {
+        await this.s3CopyService.copyFile({
+          sourceBucket: this.s3BucketConfig.awsSourceBucket,
+          sourceKey: media.sourceS3Key,
+          destinationBucket: this.s3BucketConfig.awsDestinationBucket,
+          destinationKey: media.destinationS3Key,
+        });
+
+        await this.mappingRepository.updateMediaS3Status(media.agentcisMediaId, true);
+        copied++;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        this.logger.error('Failed to copy S3 file', {
+          migrationId,
+          mediaId: media.agentcisMediaId,
+          sourceKey: media.sourceS3Key,
+          error: errorMessage,
+        });
+        await this.mappingRepository.updateMediaS3Status(
+          media.agentcisMediaId,
+          false,
+          errorMessage
+        );
+        failed++;
+      }
+    }
+
+    this.logger.info('S3 file copy completed', { migrationId, copied, failed });
   }
 
   async cancel(migrationId?: string): Promise<void> {
