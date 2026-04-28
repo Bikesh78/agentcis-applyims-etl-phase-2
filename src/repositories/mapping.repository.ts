@@ -145,78 +145,6 @@ export class MappingRepository {
     });
   }
 
-  async storeBatchMappings(
-    entityType: EntityUnionType,
-    migrationId: string,
-    mappings: MappingData[]
-  ): Promise<void> {
-    const data = mappings.map((m) => this.formatMappingData(entityType, migrationId, m));
-
-    switch (entityType) {
-      case 'contacts':
-        await this.etlDb.getRepository(TempMappedContact).upsert(data, {
-          conflictPaths: ['agentcisContactId'],
-          skipUpdateIfNoValuesChanged: true,
-        });
-        break;
-      case 'applications':
-        await this.etlDb.getRepository(TempMappedApplication).upsert(data, {
-          conflictPaths: ['agentcisApplicationId'],
-          skipUpdateIfNoValuesChanged: true,
-        });
-        break;
-      case 'deals':
-        throw new Error('Deal mapping batch insert not implemented');
-      case 'office-visits':
-        await this.etlDb.getRepository(TempMappedOfficeVisit).upsert(data, {
-          conflictPaths: ['agentcisOfficeVisitId'],
-          skipUpdateIfNoValuesChanged: true,
-        });
-        break;
-      case 'attachments':
-        await this.etlDb.getRepository(TempMappedMedia).upsert(data, {
-          conflictPaths: ['agentcisMediaId'],
-          skipUpdateIfNoValuesChanged: true,
-        });
-        break;
-    }
-  }
-
-  private formatMappingData(
-    entityType: EntityUnionType,
-    migrationId: string,
-    data: MappingData
-  ): Partial<TempMappedContact | TempMappedApplication | TempMappedOfficeVisit | TempMappedMedia> {
-    switch (entityType) {
-      case 'contacts':
-        return {
-          agentcisContactId: parseInt(data.agentcisId),
-          applyimsContactId: data.applyimsId,
-          migrationId: migrationId,
-        };
-      case 'applications':
-        return {
-          agentcisApplicationId: parseInt(data.agentcisId),
-          applyimsApplicationId: data.applyimsId,
-          migrationId: migrationId,
-        };
-      case 'office-visits':
-        return {
-          agentcisOfficeVisitId: parseInt(data.agentcisId),
-          applyimsOfficeVisitId: data.applyimsId,
-          migrationId: migrationId,
-        };
-      case 'attachments':
-        return {
-          agentcisMediaId: parseInt(data.agentcisId),
-          applyimsMediaId: data.applyimsId,
-          migrationId: migrationId,
-        };
-      default:
-        throw new Error(`Unsupported entity type: ${entityType}`);
-    }
-  }
-
   async getAgentcisClientIdFromApplication(applyimsApplicationId: string): Promise<number | null> {
     const result = await this.etlDb.getRepository(TempMappedApplication).findOne({
       where: { applyimsApplicationId },
@@ -225,25 +153,25 @@ export class MappingRepository {
     return result?.agentcisClientId ?? null;
   }
 
-  async storeDealMapping(migrationId: string, data: DealMappingData): Promise<void> {
-    await this.etlDb.getRepository(TempMappedDeal).upsert(
-      {
-        dealId: data.dealId,
-        contactId: data.contactId,
-        branchId: data.branchId,
-        applicationId: data.applicationId,
-        minimumDate: data.minimumDate,
-        maxDate: data.maxDate,
-        dealName: data.dealName ?? '',
-        userId: data.userId,
-        migrationId: migrationId,
-      },
-      {
-        conflictPaths: ['dealId'],
-        skipUpdateIfNoValuesChanged: true,
-      }
-    );
-  }
+  // async storeDealMapping(migrationId: string, data: DealMappingData): Promise<void> {
+  //   await this.etlDb.getRepository(TempMappedDeal).upsert(
+  //     {
+  //       dealId: data.dealId,
+  //       contactId: data.contactId,
+  //       branchId: data.branchId,
+  //       applicationId: data.applicationId,
+  //       minimumDate: data.minimumDate,
+  //       maxDate: data.maxDate,
+  //       dealName: data.dealName ?? '',
+  //       userId: data.userId,
+  //       migrationId: migrationId,
+  //     },
+  //     {
+  //       conflictPaths: ['dealId'],
+  //       skipUpdateIfNoValuesChanged: true,
+  //     }
+  //   );
+  // }
 
   async storeDealStagingBatch(migrationId: string, deals: DealMappingData[]): Promise<void> {
     if (deals.length === 0) {
@@ -262,6 +190,7 @@ export class MappingRepository {
         maxDate: d.maxDate,
         dealName: d.dealName ?? '',
         migrationId,
+        userId: d.userId,
       }));
 
       await this.etlDb.getRepository(TempMappedDeal).upsert(rows, {
@@ -269,19 +198,5 @@ export class MappingRepository {
         skipUpdateIfNoValuesChanged: true,
       });
     }
-  }
-
-  async getDealStagingCount(migrationId: string): Promise<number> {
-    return this.etlDb.getRepository(TempMappedDeal).count({
-      where: { migrationId },
-    });
-  }
-
-  async getApplyimsContactId(agentcisClientId: number): Promise<string | null> {
-    const result = await this.etlDb.getRepository(TempMappedContact).findOne({
-      where: { agentcisContactId: agentcisClientId },
-      select: ['applyimsContactId'],
-    });
-    return result?.applyimsContactId ?? null;
   }
 }
