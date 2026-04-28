@@ -1,16 +1,12 @@
 import Joi from 'joi';
 
 export interface S3BucketConfig {
-  awsBucketTenant: string;
   awsSourceBucket: string;
   awsDestinationBucket: string;
   awsRegion: string;
 }
 
 export const s3BucketConfigSchema = Joi.object<S3BucketConfig>({
-  awsBucketTenant: Joi.string().required().messages({
-    'any.required': 'AWS_BUCKET_TENANT is required',
-  }),
   awsSourceBucket: Joi.string().required().messages({
     'any.required': 'AWS_SOURCE_BUCKET is required',
   }),
