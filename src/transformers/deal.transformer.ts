@@ -9,14 +9,16 @@ export class DealTransformer {
     if (!mappedDeal.branchId) {
       throw new Error(`Missing branchId for deal ${mappedDeal.dealId}`);
     }
+    if (!mappedDeal.serviceId) {
+      throw new Error(`Missing serviceId for deal ${mappedDeal.dealId}`);
+    }
 
     return {
       id: mappedDeal.dealId,
       name: mappedDeal.dealName ?? '',
       branchId: mappedDeal.branchId,
-      // TODO: Map interestedServiceId from AgentCIS data when available
-      interestedServiceId: 'e09ac3a5-78c4-4705-be23-53fe9a4c64bc',
-      assignees: [],
+      interestedServiceId: mappedDeal.serviceId,
+      assignees: mappedDeal?.userId ? [{ id: mappedDeal.userId }] : [],
       contactId: mappedDeal.contactId,
       status: 'in-progress',
       payload: {

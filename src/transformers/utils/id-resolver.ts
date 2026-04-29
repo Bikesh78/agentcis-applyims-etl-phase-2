@@ -18,7 +18,8 @@ type EntityType =
   | 'institutionBranches'
   | 'institutions'
   | 'applications'
-  | 'deals';
+  | 'deals'
+  | 'interestedServices';
 
 const ENTITY_TYPES: EntityType[] = [
   'branches',
@@ -32,6 +33,7 @@ const ENTITY_TYPES: EntityType[] = [
   'institutions',
   'applications',
   'deals',
+  'interestedServices',
 ];
 
 export class IdResolver {
@@ -158,5 +160,9 @@ export class IdResolver {
 
   async resolveDealId(agentcisApplicationId: number): Promise<string | null> {
     return this.resolve('deals', agentcisApplicationId);
+  }
+
+  async resolveServiceId(agentcisServiceId: number): Promise<string | null> {
+    return this.resolve('interestedServices', agentcisServiceId);
   }
 }

@@ -28,7 +28,8 @@ export interface DealMappingData {
   minimumDate?: Date;
   maxDate?: Date;
   dealName?: string;
-  userId?: string;
+  userId: string | null;
+  serviceId: string | null;
 }
 
 export class MappingRepository {
@@ -153,26 +154,6 @@ export class MappingRepository {
     return result?.agentcisClientId ?? null;
   }
 
-  // async storeDealMapping(migrationId: string, data: DealMappingData): Promise<void> {
-  //   await this.etlDb.getRepository(TempMappedDeal).upsert(
-  //     {
-  //       dealId: data.dealId,
-  //       contactId: data.contactId,
-  //       branchId: data.branchId,
-  //       applicationId: data.applicationId,
-  //       minimumDate: data.minimumDate,
-  //       maxDate: data.maxDate,
-  //       dealName: data.dealName ?? '',
-  //       userId: data.userId,
-  //       migrationId: migrationId,
-  //     },
-  //     {
-  //       conflictPaths: ['dealId'],
-  //       skipUpdateIfNoValuesChanged: true,
-  //     }
-  //   );
-  // }
-
   async storeDealStagingBatch(migrationId: string, deals: DealMappingData[]): Promise<void> {
     if (deals.length === 0) {
       return;
@@ -191,6 +172,7 @@ export class MappingRepository {
         dealName: d.dealName ?? '',
         migrationId,
         userId: d.userId,
+        serviceId: d.serviceId,
       }));
 
       await this.etlDb.getRepository(TempMappedDeal).upsert(rows, {

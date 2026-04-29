@@ -29,7 +29,10 @@ export class TempMappedDeal {
   dealName: string;
 
   @Column({ type: 'varchar', length: 36, nullable: true, name: 'user_id' })
-  userId?: string;
+  userId: string | null;
+
+  @Column({ type: 'varchar', length: 36, nullable: true, name: 'service_id' })
+  serviceId: string | null;
 
   @Column({ type: 'varchar', length: 36, nullable: true, name: 'migration_id' })
   migrationId?: string;

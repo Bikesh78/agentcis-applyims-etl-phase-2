@@ -72,6 +72,18 @@ interface EntityHandlers {
   apiMethod: (batch: TargetEntity[]) => Promise<BulkResponse>;
 }
 
+interface StagingDealApplications {
+  clientId: number;
+  addedByBranchId: number;
+  userId: number;
+  startDate: Date;
+  endDate: Date;
+  bucket: string | number;
+  total: string | number;
+  applicationIds: string;
+  serviceId: string | number;
+}
+
 export class MigrationOrchestrator {
   private isCancelled = false;
 
@@ -409,7 +421,7 @@ export class MigrationOrchestrator {
 
     const migratedClientIds = migratedContacts.map((c) => c.agentcisContactId);
 
-    const applications = await this.agentcisDb
+    const applications: StagingDealApplications[] = await this.agentcisDb
       .createQueryBuilder()
       .select([
         't.client_id AS "clientId"',
@@ -420,6 +432,7 @@ export class MigrationOrchestrator {
         't.bucket AS "bucket"',
         'COUNT(*) AS "total"',
         'GROUP_CONCAT(t.id) AS "applicationIds"',
+        'MIN(t.service_id) AS "serviceId"',
       ])
       .from((subQuery) => {
         return subQuery
@@ -452,6 +465,9 @@ export class MigrationOrchestrator {
       const contactId = await idResolver.resolveContactId(app.clientId);
       const branchId = await idResolver.resolveBranchId(app.addedByBranchId);
       const userId = app.userId ? await idResolver.resolveUserId(app.userId) : null;
+      const serviceId = app.serviceId
+        ? await idResolver.resolveServiceId(Number(app.serviceId))
+        : null;
       const startDate = new Date(app.startDate);
       const endDate = new Date(app.endDate);
 
@@ -475,7 +491,8 @@ export class MigrationOrchestrator {
           minimumDate: startDate,
           maxDate: endDate,
           dealName: this.generateDealName(startDate, endDate),
-          userId: userId ?? undefined,
+          userId,
+          serviceId,
         });
       }
     }
