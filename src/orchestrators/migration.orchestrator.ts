@@ -562,48 +562,61 @@ export class MigrationOrchestrator {
     let copied = 0;
     let failed = 0;
 
-    for (const media of medias) {
-      if (!media.sourceS3Key || !media.destinationS3Key) {
-        this.logger.warn('Missing S3 keys for media', {
-          migrationId,
-          mediaId: media.agentcisMediaId,
-          sourceKey: media.sourceS3Key,
-          destKey: media.destinationS3Key,
-        });
-        await this.mappingRepository.updateMediaS3Status(
-          media.agentcisMediaId,
-          false,
-          'Missing S3 keys'
-        );
-        failed++;
-        continue;
-      }
+    const CONCURRENCY_LIMIT = 50;
 
-      try {
-        await this.s3CopyService.copyFile({
-          sourceBucket: this.s3BucketConfig.awsSourceBucket,
-          sourceKey: media.sourceS3Key,
-          destinationBucket: this.s3BucketConfig.awsDestinationBucket,
-          destinationKey: media.destinationS3Key,
-        });
+    const chunkArray = (arr: any[], size: number) =>
+      Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+        arr.slice(i * size, i * size + size)
+      );
 
-        await this.mappingRepository.updateMediaS3Status(media.agentcisMediaId, true);
-        copied++;
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        this.logger.error('Failed to copy S3 file', {
-          migrationId,
-          mediaId: media.agentcisMediaId,
-          sourceKey: media.sourceS3Key,
-          error: errorMessage,
-        });
-        await this.mappingRepository.updateMediaS3Status(
-          media.agentcisMediaId,
-          false,
-          errorMessage
-        );
-        failed++;
-      }
+    const mediaChunks = chunkArray(medias, CONCURRENCY_LIMIT);
+
+    for (const chunk of mediaChunks) {
+      const promises = chunk.map(async (media) => {
+        if (!media.sourceS3Key || !media.destinationS3Key) {
+          this.logger.warn('Missing S3 keys for media', {
+            migrationId,
+            mediaId: media.agentcisMediaId,
+            sourceKey: media.sourceS3Key,
+            destKey: this.s3BucketConfig.awsBucketTenant + '/' + media.destinationS3Key,
+          });
+          await this.mappingRepository.updateMediaS3Status(
+            media.agentcisMediaId,
+            false,
+            'Missing S3 keys'
+          );
+          failed++;
+          return;
+        }
+
+        try {
+          await this.s3CopyService.copyFile({
+            sourceBucket: this.s3BucketConfig.awsSourceBucket,
+            sourceKey: media.sourceS3Key,
+            destinationBucket: this.s3BucketConfig.awsDestinationBucket,
+            destinationKey: this.s3BucketConfig.awsBucketTenant + '/' + media.destinationS3Key,
+          });
+
+          await this.mappingRepository.updateMediaS3Status(media.agentcisMediaId, true);
+          copied++;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          this.logger.error('Failed to copy S3 file', {
+            migrationId,
+            mediaId: media.agentcisMediaId,
+            sourceKey: media.sourceS3Key,
+            error: errorMessage,
+          });
+          await this.mappingRepository.updateMediaS3Status(
+            media.agentcisMediaId,
+            false,
+            errorMessage
+          );
+          failed++;
+        }
+      });
+
+      await Promise.all(promises);
     }
 
     this.logger.info('S3 file copy completed', { migrationId, copied, failed });
