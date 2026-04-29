@@ -1,10 +1,7 @@
-import { emailFixer } from './email-fixer.js';
-
 export class FieldMapper {
   cleanEmail(email: string | null): string | null {
     if (!email) return null;
-    const trimmed = email.trim().toLowerCase();
-    return emailFixer.fix(trimmed);
+    return email.trim().toLowerCase();
   }
 
   cleanPhone(phone: string | null, countryCode: string | null): string | null {
