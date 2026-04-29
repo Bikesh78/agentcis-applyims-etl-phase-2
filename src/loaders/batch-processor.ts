@@ -1,5 +1,5 @@
 import pLimit from 'p-limit';
-import { ApplyIMSApiClient, BulkResponse } from './api-client.js';
+import { ApplyIMSApiClient, BulkResponse, ExistingContactInfo } from './api-client.js';
 import { MappingRepository, EntityUnionType } from '../repositories/mapping.repository.js';
 import { ErrorRecoveryManager, ErrorCategory } from './error-recovery.js';
 import { Logger } from '../utils/logger.js';
@@ -15,6 +15,8 @@ export interface ProcessResult {
     entityType: string;
   }>;
 }
+
+const DUPLICATE_EMAIL_CODE = 'DUPLICATE_EMAIL';
 
 export class BatchProcessor {
   constructor(
@@ -62,31 +64,61 @@ export class BatchProcessor {
         }
       }
 
-      results.successful += successCount;
-      results.failed += failedCount;
-
-      if (response.failed) {
-        results.errors.push(
-          ...response.failed.map((f) => ({
-            entityType,
-            entityId: f.internalId,
-            error: f.error,
-            code: f.code || 'RECORD_FAILURE',
-          }))
-        );
-
+      if (response.failed && response.failed.length > 0) {
         for (const failedRecord of response.failed) {
-          const error = new Error(failedRecord.error);
-          await this.errorRecoveryManager.logError(
-            migrationId,
-            entityType,
-            String(failedRecord.internalId),
-            error,
-            ErrorCategory.API_ERROR,
-            { failedRecord }
-          );
+          const isDuplicateEmail = failedRecord.code === DUPLICATE_EMAIL_CODE;
+
+          if (isDuplicateEmail && entityType === 'contacts' && failedRecord.existingContact) {
+            const existingContact = failedRecord.existingContact as ExistingContactInfo;
+            this.logger.warn(`Duplicate email contact - using existing ApplyIMS contact`, {
+              agentcisId: failedRecord.internalId,
+              applyimsId: existingContact.id,
+              email: existingContact.email,
+            });
+
+            try {
+              await this.mappingRepository.storeMapping(migrationId, entityType, {
+                agentcisId: failedRecord.internalId,
+                applyimsId: existingContact.id,
+              });
+            } catch (err) {
+              this.logger.error(`Failed to store mapping for duplicate email contact`, {
+                error: String(err),
+                agentcisId: failedRecord.internalId,
+                applyimsId: existingContact.id,
+              });
+            }
+
+            results.successful += 1;
+            results.errors.push({
+              entityType,
+              entityId: failedRecord.internalId,
+              error: failedRecord.error,
+              code: failedRecord.code,
+            });
+          } else {
+            results.errors.push({
+              entityType,
+              entityId: failedRecord.internalId,
+              error: failedRecord.error,
+              code: failedRecord.code || 'RECORD_FAILURE',
+            });
+
+            const error = new Error(failedRecord.error);
+            await this.errorRecoveryManager.logError(
+              migrationId,
+              entityType,
+              String(failedRecord.internalId),
+              error,
+              ErrorCategory.API_ERROR,
+              { failedRecord }
+            );
+          }
         }
       }
+
+      results.successful += successCount;
+      results.failed += failedCount;
 
       this.logger.info(`Batch completed for ${entityType}`, {
         successful: successCount,
@@ -166,19 +198,43 @@ export class BatchProcessor {
         });
       }
 
+      if (response.failed && response.failed.length > 0) {
+        for (const failedRecord of response.failed) {
+          const isDuplicateEmail = failedRecord.code === DUPLICATE_EMAIL_CODE;
+
+          if (isDuplicateEmail && entityType === 'contacts' && failedRecord.existingContact) {
+            const existingContact = failedRecord.existingContact as ExistingContactInfo;
+            this.logger.warn(`Duplicate email contact - using existing ApplyIMS contact`, {
+              agentcisId: failedRecord.internalId,
+              applyimsId: existingContact.id,
+              email: existingContact.email,
+            });
+
+            await this.mappingRepository.storeMapping(migrationId, entityType, {
+              agentcisId: failedRecord.internalId,
+              applyimsId: existingContact.id,
+            });
+
+            result.successful += 1;
+            result.errors.push({
+              entityType,
+              entityId: failedRecord.internalId,
+              error: failedRecord.error,
+              code: failedRecord.code,
+            });
+          } else {
+            result.errors.push({
+              entityType,
+              entityId: failedRecord.internalId,
+              error: failedRecord.error,
+              code: failedRecord.code || 'RECORD_FAILURE',
+            });
+          }
+        }
+      }
+
       result.successful += successCount;
       result.failed += failedCount;
-
-      if (response.failed) {
-        result.errors.push(
-          ...response.failed.map((f) => ({
-            entityType,
-            entityId: f.internalId,
-            error: f.error,
-            code: f.code || 'RECORD_FAILURE',
-          }))
-        );
-      }
 
       this.logger.info(`Concurrent batch ${batchIndex + 1} completed for ${entityType}`, {
         successful: successCount,

@@ -9,9 +9,21 @@ import { ApplyIMSDeal } from 'entities/applyims/deal.entity.js';
 import { ApplyIMSOfficeVisit } from 'entities/applyims/office-visit.entity.js';
 import { ApplyIMSMedia } from 'entities/applyims/media.entity.js';
 
+export interface ExistingContactInfo {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 export interface BulkResponse {
   successful: Array<{ id: string; internalId: string }>;
-  failed: Array<{ code: number; error: string; internalId: string }>;
+  failed: Array<{
+    code: number | string;
+    error: string;
+    internalId: string;
+    existingContact?: ExistingContactInfo;
+  }>;
   summary: {
     total: number;
     success: number;
