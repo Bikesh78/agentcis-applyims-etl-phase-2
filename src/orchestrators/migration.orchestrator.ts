@@ -5,11 +5,13 @@ import { ApplicationExtractor } from '../extractors/application.extractor.js';
 import { DealExtractor } from '../extractors/deal.extractor.js';
 import { OfficeVisitExtractor } from '../extractors/office-visit.extractor.js';
 import { AttachmentExtractor } from '../extractors/attachment.extractor.js';
+import { ReferrerExtractor } from '../extractors/referrer.extractor.js';
 import { ContactTransformer } from '../transformers/contact.transformer.js';
 import { ApplicationTransformer } from '../transformers/application.transformer.js';
 import { DealTransformer } from '../transformers/deal.transformer.js';
 import { OfficeVisitTransformer } from '../transformers/office-visit.transformer.js';
 import { AttachmentTransformer } from '../transformers/attachment.transformer.js';
+import { AgentTransformer } from '../transformers/agent.transformer.js';
 import { IdResolver } from '../transformers/utils/id-resolver.js';
 import { ProductTypeResolver } from '../transformers/utils/product-type-resolver.js';
 import { FieldMapper } from '../transformers/utils/field-mappers.js';
@@ -34,6 +36,8 @@ import { ApplyIMSApplication } from '../entities/applyims/application.entity.js'
 import { ApplyIMSDeal } from '../entities/applyims/deal.entity.js';
 import { ApplyIMSOfficeVisit } from '../entities/applyims/office-visit.entity.js';
 import { ApplyIMSMedia } from '../entities/applyims/media.entity.js';
+import { ApplyIMSAgentPartner } from '../entities/applyims/agent.entity.js';
+import { ReferrerBatch } from '../extractors/referrer.extractor.js';
 import {
   EntityUnionType,
   MappingRepository,
@@ -58,13 +62,14 @@ export interface MigrationResult {
   entities: Record<string, EntityMigrationResult>;
 }
 
-type SourceEntity = Clients | Applications | OfficeVisits | Attachment;
+type SourceEntity = Clients | Applications | OfficeVisits | Attachment | ReferrerBatch;
 type TargetEntity =
   | ApplyIMSContact
   | ApplyIMSApplication
   | ApplyIMSDeal
   | ApplyIMSOfficeVisit
-  | ApplyIMSMedia;
+  | ApplyIMSMedia
+  | ApplyIMSAgentPartner;
 
 interface EntityHandlers {
   extractor: BaseExtractor<SourceEntity>;
@@ -398,6 +403,18 @@ export class MigrationOrchestrator {
               transformer.transform(item as Attachment) as Promise<ApplyIMSMedia>,
           },
           apiMethod: (batch) => this.apiClient.bulkCreateMedia(batch as ApplyIMSMedia[]),
+        };
+      }
+      case EntityType.AGENTS: {
+        const extractor = new ReferrerExtractor(this.agentcisDb, config);
+        const transformer = new AgentTransformer(this.createIdResolver(), this.createFieldMapper());
+        return {
+          extractor: extractor as unknown as BaseExtractor<SourceEntity>,
+          transformer: {
+            transform: (item) =>
+              transformer.transform(item as ReferrerBatch) as Promise<ApplyIMSAgentPartner>,
+          },
+          apiMethod: (batch) => this.apiClient.bulkCreateAgents(batch as ApplyIMSAgentPartner[]),
         };
       }
       default:

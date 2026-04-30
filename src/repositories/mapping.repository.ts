@@ -18,7 +18,8 @@ export type EntityUnionType =
   | 'applications'
   | 'deals'
   | 'office-visits'
-  | 'attachments';
+  | 'attachments'
+  | 'agents';
 
 export interface DealMappingData {
   dealId: string;
@@ -54,6 +55,8 @@ export class MappingRepository {
         break;
       case 'attachments':
         await this.storeMediaMapping(migrationId, data as MappingData);
+        break;
+      case 'agents':
         break;
       default:
         throw new Error(`Unsupported entity type: ${entityType}`);

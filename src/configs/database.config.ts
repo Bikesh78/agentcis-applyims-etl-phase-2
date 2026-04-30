@@ -21,6 +21,8 @@ import { MigrationCheckpoint } from 'entities/etlDb/migration-checkpoints.entity
 import { MigrationError } from 'entities/etlDb/migration-errors.entity.js';
 import { MigrationJob } from 'entities/etlDb/migration-jobs.entity.js';
 import { MigrationMetric } from 'entities/etlDb/migration-metrics.entity.js';
+import { RelatedOffices } from 'entities/agentcis/related-offices.entity.js';
+import { Branches } from 'entities/agentcis/branches.entity.js';
 
 export interface DatabaseConfig {
   host: string;
@@ -106,6 +108,8 @@ export function createAgentcisConnectionOptions() {
       Referrers,
       GroupProductFees,
       ApplicationAssignees,
+      RelatedOffices,
+      Branches,
     ],
   } as DataSourceOptions;
 }

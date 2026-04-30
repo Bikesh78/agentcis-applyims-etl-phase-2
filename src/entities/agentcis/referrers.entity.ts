@@ -31,4 +31,16 @@ export class Referrers {
 
   @Column({ name: 'agent_type', type: 'json', nullable: true })
   agentType: number[];
+
+  @Column({ name: 'email', type: 'varchar', length: 255, nullable: true })
+  email: string | null;
+
+  @Column({ name: 'phone', type: 'varchar', length: 255, nullable: true })
+  phone: string | null;
+
+  @Column({ name: 'tax_number', type: 'varchar', length: 255, nullable: true })
+  taxNumber: string | null;
+
+  @Column({ name: 'country', type: 'varchar', length: 255, nullable: true })
+  country: string | null;
 }

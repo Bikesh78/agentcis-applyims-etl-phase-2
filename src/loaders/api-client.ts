@@ -8,6 +8,7 @@ import { ApplyIMSApplication } from 'entities/applyims/application.entity.js';
 import { ApplyIMSDeal } from 'entities/applyims/deal.entity.js';
 import { ApplyIMSOfficeVisit } from 'entities/applyims/office-visit.entity.js';
 import { ApplyIMSMedia } from 'entities/applyims/media.entity.js';
+import { ApplyIMSAgentPartner } from 'entities/applyims/agent.entity.js';
 
 export interface ExistingContactInfo {
   id: string;
@@ -160,6 +161,11 @@ export class ApplyIMSApiClient {
 
   async bulkCreateMedia(medias: ApplyIMSMedia[]): Promise<BulkResponse> {
     const response = await this.axiosInstance.post('/v1/media/bulk', { medias });
+    return response.data.data;
+  }
+
+  async bulkCreateAgents(agentPartners: ApplyIMSAgentPartner[]): Promise<BulkResponse> {
+    const response = await this.axiosInstance.post('/v1/agent-partners/bulk', { agentPartners });
     return response.data.data;
   }
 }
