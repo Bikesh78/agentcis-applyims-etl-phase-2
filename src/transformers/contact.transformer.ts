@@ -5,6 +5,7 @@ import { AgentcisFirstPointOfContact, Clients } from '../entities/agentcis/clien
 import { ApplyIMSContact } from '../entities/applyims/contact.entity.js';
 import { isUuid } from './utils/validators.js';
 import { COUNTRIES_MAPS } from 'constants/country-map.js';
+import { ExistingDataError } from './utils/errors.js';
 
 export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact> {
   constructor(
@@ -15,6 +16,11 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
   }
 
   protected async transformImpl(source: Clients, id: string): Promise<ApplyIMSContact> {
+    const contactId = await this.idResolver.resolveContactId(source.id);
+    if (contactId) {
+      throw new ExistingDataError('Client', source.id);
+    }
+
     const branchId = await this.idResolver.resolveBranchId(source.branchId);
     const assigneeId = await this.idResolver.resolveUserId(source.assignedTo);
     const archivedBy = await this.idResolver.resolveUserId(source.archivedBy);

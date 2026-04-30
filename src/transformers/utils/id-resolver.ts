@@ -82,13 +82,16 @@ export class IdResolver {
           logger,
         }),
       ]),
-      applications: new DatabaseStrategy({
-        dataSource,
-        tableName: 'temp_mapped_applications',
-        inputColumn: 'agentcis_application_id',
-        outputColumn: 'applyims_application_id',
-        logger,
-      }),
+      applications: new FallbackStrategy([
+        new JsonFileStrategy('../../mapper/applications.json', logger),
+        new DatabaseStrategy({
+          dataSource,
+          tableName: 'temp_mapped_applications',
+          inputColumn: 'agentcis_application_id',
+          outputColumn: 'applyims_application_id',
+          logger,
+        }),
+      ]),
       deals: new DatabaseStrategy({
         dataSource,
         tableName: 'temp_mapped_deals',

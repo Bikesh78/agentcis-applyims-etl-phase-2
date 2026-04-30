@@ -10,6 +10,7 @@ import {
   ApplyimsStatusRemarks,
 } from '../entities/applyims/application.entity.js';
 import { Referrers } from '../entities/agentcis/referrers.entity.js';
+import { ExistingDataError } from './utils/errors.js';
 
 export class ApplicationTransformer extends BaseTransformer<Applications, ApplyIMSApplication> {
   constructor(
@@ -20,6 +21,11 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
   }
 
   protected async transformImpl(source: Applications, id: string): Promise<ApplyIMSApplication> {
+    const applicationId = await this.idResolver.resolveApplicationId(source.id);
+    if (applicationId) {
+      throw new ExistingDataError('Application', source.id);
+    }
+
     const contactId = await this.idResolver.resolveContactId(source.clientId);
     const branchId = await this.idResolver.resolveBranchId(source.addedByBranchId);
     const createdBy = await this.idResolver.resolveUserId(source.creatorId);
