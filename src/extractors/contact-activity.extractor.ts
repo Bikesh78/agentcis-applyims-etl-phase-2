@@ -1,19 +1,19 @@
 import { BaseExtractor, ExtractorConfig } from './base.extractor.js';
 import { DataSource } from 'typeorm';
-import { ContactActivities } from 'entities/agentcis/contact-activities.entity.js';
+import { ApplicationActivities } from 'entities/agentcis/application-activities.entity.js';
 
-export class ContactActivityExtractor extends BaseExtractor<ContactActivities> {
+export class ContactActivityExtractor extends BaseExtractor<ApplicationActivities> {
   constructor(dataSource: DataSource, config: ExtractorConfig) {
-    super(dataSource, 'ContactActivity', config);
+    super(dataSource, 'ApplicationActivity', config);
   }
 
-  async extractBatch(offset: number, limit: number): Promise<ContactActivities[]> {
+  async extractBatch(offset: number, limit: number): Promise<ApplicationActivities[]> {
     return await this.dataSource
-      .getRepository(ContactActivities)
-      .createQueryBuilder('contactActivities')
-      .where('contactActivities.created_at >= :startDate', { startDate: this.config.startDate })
-      .andWhere('contactActivities.created_at <= :endDate', { endDate: this.config.endDate })
-      .orderBy('contactActivities.id')
+      .getRepository(ApplicationActivities)
+      .createQueryBuilder('applicationActivities')
+      .where('applicationActivities.created_at >= :startDate', { startDate: this.config.startDate })
+      .andWhere('applicationActivities.created_at <= :endDate', { endDate: this.config.endDate })
+      .orderBy('applicationActivities.id')
       .offset(offset)
       .limit(limit)
       .getMany();
@@ -21,10 +21,10 @@ export class ContactActivityExtractor extends BaseExtractor<ContactActivities> {
 
   async getTotalCount(): Promise<number> {
     return await this.dataSource
-      .getRepository(ContactActivities)
-      .createQueryBuilder('contactActivities')
-      .where('contactActivities.created_at >= :startDate', { startDate: this.config.startDate })
-      .andWhere('contactActivities.created_at <= :endDate', { endDate: this.config.endDate })
+      .getRepository(ApplicationActivities)
+      .createQueryBuilder('applicationActivities')
+      .where('applicationActivities.created_at >= :startDate', { startDate: this.config.startDate })
+      .andWhere('applicationActivities.created_at <= :endDate', { endDate: this.config.endDate })
       .getCount();
   }
 }

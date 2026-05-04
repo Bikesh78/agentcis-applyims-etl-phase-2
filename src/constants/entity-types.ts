@@ -7,6 +7,7 @@ export enum EntityType {
   OFFICE_VISITS = 'office-visits',
   ATTACHMENTS = 'attachments',
   AGENTS = 'agents',
+  CONTACT_ACTIVITIES = 'contact-activities',
 }
 
 export const ENTITY_API_METHOD_MAP: Partial<Record<EntityType, keyof ApplyIMSApiClient>> = {
@@ -16,6 +17,7 @@ export const ENTITY_API_METHOD_MAP: Partial<Record<EntityType, keyof ApplyIMSApi
   [EntityType.OFFICE_VISITS]: 'bulkCreateOfficeVisits',
   [EntityType.ATTACHMENTS]: 'bulkCreateMedia',
   [EntityType.AGENTS]: 'bulkCreateAgents',
+  [EntityType.CONTACT_ACTIVITIES]: 'bulkCreateContactActivities',
 };
 
 export const SUPPORTED_ENTITIES = Object.values(EntityType);
@@ -25,6 +27,7 @@ export const ENTITY_DEPENDENCY_ORDER: EntityType[] = [
   EntityType.CONTACTS,
   EntityType.DEALS,
   EntityType.APPLICATIONS,
+  EntityType.CONTACT_ACTIVITIES,
   EntityType.OFFICE_VISITS,
   EntityType.ATTACHMENTS,
 ];

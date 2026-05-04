@@ -6,12 +6,14 @@ import { DealExtractor } from '../extractors/deal.extractor.js';
 import { OfficeVisitExtractor } from '../extractors/office-visit.extractor.js';
 import { AttachmentExtractor } from '../extractors/attachment.extractor.js';
 import { ReferrerExtractor } from '../extractors/referrer.extractor.js';
+import { ContactActivityExtractor } from '../extractors/contact-activity.extractor.js';
 import { ContactTransformer } from '../transformers/contact.transformer.js';
 import { ApplicationTransformer } from '../transformers/application.transformer.js';
 import { DealTransformer } from '../transformers/deal.transformer.js';
 import { OfficeVisitTransformer } from '../transformers/office-visit.transformer.js';
 import { AttachmentTransformer } from '../transformers/attachment.transformer.js';
 import { AgentTransformer } from '../transformers/agent.transformer.js';
+import { ContactActivityTransformer } from '../transformers/contact-activity.transformer.js';
 import { IdResolver } from '../transformers/utils/id-resolver.js';
 import { ProductTypeResolver } from '../transformers/utils/product-type-resolver.js';
 import { FieldMapper } from '../transformers/utils/field-mappers.js';
@@ -37,16 +39,14 @@ import { ApplyIMSDeal } from '../entities/applyims/deal.entity.js';
 import { ApplyIMSOfficeVisit } from '../entities/applyims/office-visit.entity.js';
 import { ApplyIMSMedia } from '../entities/applyims/media.entity.js';
 import { ApplyIMSAgentPartner } from '../entities/applyims/agent.entity.js';
+import { ApplyIMSContactActivity } from '../entities/applyims/contact-activity.entity.js';
 import { ReferrerBatch } from '../extractors/referrer.extractor.js';
-import {
-  EntityUnionType,
-  MappingRepository,
-  DealMappingData,
-} from 'repositories/mapping.repository.js';
+import { MappingRepository, DealMappingData } from 'repositories/mapping.repository.js';
 import { TempMappedDeal } from '../entities/etlDb/temp-mapped-deals.entity.js';
 import { TempMappedContact } from '../entities/etlDb/temp-mapped-contacts.entity.js';
 import { S3CopyService } from '../services/s3-copy.service.js';
 import { S3BucketConfig } from '../configs/s3-bucket.config.js';
+import { ApplicationActivities } from 'entities/agentcis/application-activities.entity.js';
 
 export interface EntityMigrationResult {
   total: number;
@@ -62,14 +62,22 @@ export interface MigrationResult {
   entities: Record<string, EntityMigrationResult>;
 }
 
-type SourceEntity = Clients | Applications | OfficeVisits | Attachment | ReferrerBatch;
+type SourceEntity =
+  | Clients
+  | Applications
+  | OfficeVisits
+  | Attachment
+  | ReferrerBatch
+  | ApplicationActivities;
+
 type TargetEntity =
   | ApplyIMSContact
   | ApplyIMSApplication
   | ApplyIMSDeal
   | ApplyIMSOfficeVisit
   | ApplyIMSMedia
-  | ApplyIMSAgentPartner;
+  | ApplyIMSAgentPartner
+  | ApplyIMSContactActivity;
 
 interface EntityHandlers {
   extractor: BaseExtractor<SourceEntity>;
@@ -187,7 +195,7 @@ export class MigrationOrchestrator {
 
   private async migrateEntity(
     config: MigrationConfig,
-    entityType: EntityUnionType,
+    entityType: EntityType,
     entityStartTime: number
   ): Promise<EntityMigrationResult> {
     const { migrationId } = config;
@@ -417,6 +425,21 @@ export class MigrationOrchestrator {
           apiMethod: (batch) => this.apiClient.bulkCreateAgents(batch as ApplyIMSAgentPartner[]),
         };
       }
+      case EntityType.CONTACT_ACTIVITIES: {
+        const extractor = new ContactActivityExtractor(this.agentcisDb, config);
+        const transformer = new ContactActivityTransformer(this.createIdResolver());
+        return {
+          extractor: extractor as unknown as BaseExtractor<SourceEntity>,
+          transformer: {
+            transform: (item) =>
+              transformer.transform(
+                item as ApplicationActivities
+              ) as Promise<ApplyIMSContactActivity>,
+          },
+          apiMethod: (batch) =>
+            this.apiClient.bulkCreateContactActivities(batch as ApplyIMSContactActivity[]),
+        };
+      }
       default:
         throw new Error(`No handler for entity: ${entityType}`);
     }
@@ -581,10 +604,10 @@ export class MigrationOrchestrator {
     }
   }
 
-  private reorderEntities(entities: EntityUnionType[]): EntityUnionType[] {
+  private reorderEntities(entities: EntityType[]): EntityType[] {
     const requestedTypes = new Set<string>(entities);
     const ordered = ENTITY_DEPENDENCY_ORDER.filter((type) => requestedTypes.has(type));
-    return ordered as EntityUnionType[];
+    return ordered as EntityType[];
   }
 
   private async copyS3FilesForMedias(migrationId: string): Promise<void> {

@@ -4,6 +4,8 @@ import { TempMappedApplication } from '../entities/etlDb/temp-mapped-appplicatio
 import { TempMappedDeal } from '../entities/etlDb/temp-mapped-deals.entity.js';
 import { TempMappedOfficeVisit } from '../entities/etlDb/temp-mapped-office-visits.entity.js';
 import { TempMappedMedia } from '../entities/etlDb/temp-mapped-medias.entity.js';
+import { TempMappedContactActivity } from 'entities/etlDb/temp-mapped-contact-activities.entity.js';
+import { EntityType } from '../constants/entity-types.js';
 
 export interface MappingData {
   agentcisId: string;
@@ -12,14 +14,6 @@ export interface MappingData {
   sourceS3Key?: string;
   destinationS3Key?: string;
 }
-
-export type EntityUnionType =
-  | 'contacts'
-  | 'applications'
-  | 'deals'
-  | 'office-visits'
-  | 'attachments'
-  | 'agents';
 
 export interface DealMappingData {
   dealId: string;
@@ -38,25 +32,28 @@ export class MappingRepository {
 
   async storeMapping(
     migrationId: string,
-    entityType: EntityUnionType,
+    entityType: EntityType,
     data: MappingData | DealMappingData
   ): Promise<void> {
     switch (entityType) {
-      case 'contacts':
+      case EntityType.CONTACTS:
         await this.storeContactMapping(migrationId, data as MappingData);
         break;
-      case 'applications':
+      case EntityType.APPLICATIONS:
         await this.storeApplicationMapping(migrationId, data as MappingData);
         break;
-      case 'deals':
+      case EntityType.DEALS:
         break;
-      case 'office-visits':
+      case EntityType.OFFICE_VISITS:
         await this.storeOfficeVisitMapping(migrationId, data as MappingData);
         break;
-      case 'attachments':
+      case EntityType.ATTACHMENTS:
         await this.storeMediaMapping(migrationId, data as MappingData);
         break;
-      case 'agents':
+      case EntityType.AGENTS:
+        break;
+      case EntityType.CONTACT_ACTIVITIES:
+        await this.storeContactActivitiesMapping(migrationId, data as MappingData);
         break;
       default:
         throw new Error(`Unsupported entity type: ${entityType}`);
@@ -118,6 +115,20 @@ export class MappingRepository {
       },
       {
         conflictPaths: ['agentcisMediaId'],
+        skipUpdateIfNoValuesChanged: true,
+      }
+    );
+  }
+
+  async storeContactActivitiesMapping(migrationId: string, data: MappingData): Promise<void> {
+    await this.etlDb.getRepository(TempMappedContactActivity).upsert(
+      {
+        agentcisContactActivityId: parseInt(data.agentcisId),
+        applyimsContactActivityId: data.applyimsId,
+        migrationId: migrationId,
+      },
+      {
+        conflictPaths: ['agentcisContactActivityId'],
         skipUpdateIfNoValuesChanged: true,
       }
     );

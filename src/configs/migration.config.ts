@@ -1,8 +1,8 @@
-import { EntityUnionType } from 'repositories/mapping.repository.js';
+import { EntityType } from '../constants/entity-types.js';
 
 export interface MigrationConfig {
   migrationId: string;
-  entities: EntityUnionType[];
+  entities: EntityType[];
   dateRange: {
     start: Date;
     end: Date;

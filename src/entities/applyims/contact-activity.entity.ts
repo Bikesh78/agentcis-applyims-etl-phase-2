@@ -4,9 +4,8 @@ export interface ApplyIMSContactActivity {
   activitiesType: string | null;
   activitiesAction: string | null;
   data: unknown | null;
-  userId: string | null;
-  contactId: string | null;
-  updateType: string | null;
+  userId: string;
+  contactId: string;
   previousAssignedUserId: string | null;
   assignedUserId: string | null;
   followerUserId: string | null;

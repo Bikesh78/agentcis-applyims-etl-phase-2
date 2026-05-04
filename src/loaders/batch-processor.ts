@@ -1,6 +1,7 @@
 import pLimit from 'p-limit';
 import { ApplyIMSApiClient, BulkResponse, ExistingContactInfo } from './api-client.js';
-import { MappingRepository, EntityUnionType } from '../repositories/mapping.repository.js';
+import { MappingRepository } from '../repositories/mapping.repository.js';
+import { EntityType } from '../constants/entity-types.js';
 import { ErrorRecoveryManager, ErrorCategory } from './error-recovery.js';
 import { Logger } from '../utils/logger.js';
 
@@ -29,7 +30,7 @@ export class BatchProcessor {
 
   async processBatch<T extends { agentcisClientId: string; id?: string }>(
     items: T[],
-    entityType: EntityUnionType,
+    entityType: EntityType,
     apiMethod: (batch: T[]) => Promise<BulkResponse>,
     migrationId: string
   ): Promise<ProcessResult> {
@@ -140,7 +141,7 @@ export class BatchProcessor {
 
   async processWithConcurrency<T extends { agentcisClientId: string; id?: string }>(
     items: T[],
-    entityType: EntityUnionType,
+    entityType: EntityType,
     apiMethod: (batch: T[]) => Promise<BulkResponse>,
     maxConcurrent: number = 5,
     migrationId: string
@@ -173,7 +174,7 @@ export class BatchProcessor {
 
   private async processSingleChunk<T extends { agentcisClientId: string; id?: string }>(
     chunk: T[],
-    entityType: EntityUnionType,
+    entityType: EntityType,
     apiMethod: (batch: T[]) => Promise<BulkResponse>,
     batchIndex: number,
     migrationId: string

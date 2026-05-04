@@ -1,11 +1,11 @@
 import { IdResolver } from './utils/id-resolver.js';
 import { BaseTransformer } from './base.transformer.js';
 import { isUuid } from './utils/validators.js';
-import { ContactActivities } from '../entities/agentcis/contact-activities.entity.js';
 import { ApplyIMSContactActivity } from '../entities/applyims/contact-activity.entity.js';
+import { ApplicationActivities } from 'entities/agentcis/application-activities.entity.js';
 
 export class ContactActivityTransformer extends BaseTransformer<
-  ContactActivities,
+  ApplicationActivities,
   ApplyIMSContactActivity
 > {
   constructor(idResolver: IdResolver) {
@@ -13,21 +13,37 @@ export class ContactActivityTransformer extends BaseTransformer<
   }
 
   protected async transformImpl(
-    source: ContactActivities,
+    source: ApplicationActivities,
     id: string
   ): Promise<ApplyIMSContactActivity> {
+    console.log('source', JSON.stringify(source, null, 2));
+    const userId = await this.idResolver.resolveUserId(source.userId);
+    // const contactId = await this.idResolver.resolveContactId(source.);
+    const contactId = '82336da6-d087-447f-b67c-d3276c497a21';
+
+    if (!userId) {
+      throw new Error(`Cannot resolve userId ${source.userId}`);
+    }
+
     return {
       id,
-      activitiesTypeId: source.activitiesTypeId,
-      activitiesType: source.activitiesType,
-      activitiesAction: source.activitiesAction,
-      data: source.data,
-      userId: source.userId,
-      contactId: source.contactId,
-      updateType: source.updateType,
-      previousAssignedUserId: source.previousAssignedUserId,
-      assignedUserId: source.assignedUserId,
-      followerUserId: source.followerUserId,
+      activitiesTypeId: null,
+
+      // activitiesType: source.activitiesType,
+      // activitiesAction: source.activitiesAction,
+      // data: source.data,
+      // previousAssignedUserId: source.previousAssignedUserId,
+      // assignedUserId: source.assignedUserId,
+      // followerUserId: source.followerUserId,
+      activitiesType: null,
+      activitiesAction: null,
+      data: null,
+      userId,
+      contactId,
+      // updateType: source.updateType,
+      previousAssignedUserId: userId,
+      assignedUserId: userId,
+      followerUserId: userId,
       createdAt: source.createdAt,
       updatedAt: source.updatedAt,
     };

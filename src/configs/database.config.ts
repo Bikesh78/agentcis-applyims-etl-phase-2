@@ -23,6 +23,8 @@ import { MigrationJob } from 'entities/etlDb/migration-jobs.entity.js';
 import { MigrationMetric } from 'entities/etlDb/migration-metrics.entity.js';
 import { RelatedOffices } from 'entities/agentcis/related-offices.entity.js';
 import { Branches } from 'entities/agentcis/branches.entity.js';
+import { ApplicationActivities } from 'entities/agentcis/application-activities.entity.js';
+import { TempMappedContactActivity } from 'entities/etlDb/temp-mapped-contact-activities.entity.js';
 
 export interface DatabaseConfig {
   host: string;
@@ -110,6 +112,7 @@ export function createAgentcisConnectionOptions() {
       ApplicationAssignees,
       RelatedOffices,
       Branches,
+      ApplicationActivities,
     ],
   } as DataSourceOptions;
 }
@@ -138,6 +141,7 @@ export function createEtlConnectionOptions() {
       MigrationError,
       MigrationJob,
       MigrationMetric,
+      TempMappedContactActivity,
     ],
   } as DataSourceOptions;
 }

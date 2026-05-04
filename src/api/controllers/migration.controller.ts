@@ -4,10 +4,10 @@ import { MigrationOrchestrator } from '../../orchestrators/migration.orchestrato
 import { CheckpointService } from '../../services/checkpoint.service.js';
 import { logger } from '../../utils/logger.js';
 import { MigrationConfig } from 'configs/migration.config.js';
-import { EntityUnionType } from 'repositories/mapping.repository.js';
+import { EntityType } from '../../constants/entity-types.js';
 
 interface MigrationRequest {
-  entities: EntityUnionType[];
+  entities: EntityType[];
   dateRange: {
     start: Date;
     end: Date;
@@ -140,9 +140,7 @@ export class MigrationController {
       const originalConfig = originalJob.config as MigrationConfig | undefined;
       const checkpoints = await this.checkpointService.getAllCheckpoints(id);
 
-      const entities = (overrideConfig.entities ??
-        originalConfig?.entities ??
-        []) as EntityUnionType[];
+      const entities = (overrideConfig.entities ?? originalConfig?.entities ?? []) as EntityType[];
 
       const mergedConfig: MigrationConfig = {
         migrationId: id,
