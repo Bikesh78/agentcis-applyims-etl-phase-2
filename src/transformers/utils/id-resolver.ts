@@ -168,4 +168,8 @@ export class IdResolver {
   async resolveServiceId(agentcisServiceId: number): Promise<string | null> {
     return this.resolve('interestedServices', agentcisServiceId);
   }
+
+  async resolveContactIdFromUuid(uuid: string): Promise<string | null> {
+    return this.resolve('contacts', uuid);
+  }
 }
