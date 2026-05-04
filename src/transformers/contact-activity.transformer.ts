@@ -27,7 +27,7 @@ export class ContactActivityTransformer extends BaseTransformer<
 
     return {
       id,
-      activitiesTypeId: null,
+      activitiesTypeId: null, // should be equal to resolved application id
 
       // activitiesType: source.activitiesType,
       // activitiesAction: source.activitiesAction,
@@ -35,8 +35,11 @@ export class ContactActivityTransformer extends BaseTransformer<
       // previousAssignedUserId: source.previousAssignedUserId,
       // assignedUserId: source.assignedUserId,
       // followerUserId: source.followerUserId,
-      activitiesType: null,
-      activitiesAction: null,
+      // activitiesType: null,
+      // activitiesAction: null,
+
+      activitiesType: 'application',
+      activitiesAction: 'updated',
       data: null,
       userId,
       contactId,

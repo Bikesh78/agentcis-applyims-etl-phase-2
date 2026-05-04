@@ -3,6 +3,7 @@ import cors from 'cors';
 import healthRoutes from './api/routes/health.routes.js';
 import migrationRoutes from './api/routes/migration.routes.js';
 import monitoringRoutes from './api/routes/monitoring.routes.js';
+import testRoutes from './api/routes/test.routes.js';
 import { errorMiddleware } from './api/middleware/error.middleware.js';
 import { loggingMiddleware } from './api/middleware/logging.middleware.js';
 
@@ -20,6 +21,7 @@ app.get('/', (_req: Request, res: Response) => {
 app.use('/api/health', healthRoutes);
 app.use('/api/migration', migrationRoutes);
 app.use('/api/monitoring', monitoringRoutes);
+app.use('/api/test', testRoutes);
 
 app.use(errorMiddleware);
 
