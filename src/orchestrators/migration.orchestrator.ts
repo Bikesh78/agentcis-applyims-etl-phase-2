@@ -433,7 +433,7 @@ export class MigrationOrchestrator {
           transformer: {
             transform: (item) =>
               transformer.transform(
-                item as ApplicationActivities
+                item as unknown as ApplicationActivities
               ) as Promise<ApplyIMSContactActivity>,
           },
           apiMethod: (batch) =>

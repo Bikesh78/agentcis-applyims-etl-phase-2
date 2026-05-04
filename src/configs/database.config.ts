@@ -25,6 +25,7 @@ import { RelatedOffices } from 'entities/agentcis/related-offices.entity.js';
 import { Branches } from 'entities/agentcis/branches.entity.js';
 import { ApplicationActivities } from 'entities/agentcis/application-activities.entity.js';
 import { TempMappedContactActivity } from 'entities/etlDb/temp-mapped-contact-activities.entity.js';
+import { ApplicationStages } from 'entities/agentcis/application-stages.entity.js';
 
 export interface DatabaseConfig {
   host: string;
@@ -113,6 +114,7 @@ export function createAgentcisConnectionOptions() {
       RelatedOffices,
       Branches,
       ApplicationActivities,
+      ApplicationStages,
     ],
   } as DataSourceOptions;
 }

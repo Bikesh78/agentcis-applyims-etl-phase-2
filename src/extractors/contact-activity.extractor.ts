@@ -11,6 +11,15 @@ export class ContactActivityExtractor extends BaseExtractor<ApplicationActivitie
     return await this.dataSource
       .getRepository(ApplicationActivities)
       .createQueryBuilder('applicationActivities')
+      .leftJoinAndSelect('applicationActivities.applicationStage', 'applicationStage')
+      .leftJoinAndSelect('applicationStage.application', 'application')
+      .select([
+        'applicationActivities',
+        'applicationStage.id',
+        'applicationStage.applicationId',
+        'applicationStage.stageId',
+        'application.clientId',
+      ])
       .where('applicationActivities.created_at >= :startDate', { startDate: this.config.startDate })
       .andWhere('applicationActivities.created_at <= :endDate', { endDate: this.config.endDate })
       .orderBy('applicationActivities.id')

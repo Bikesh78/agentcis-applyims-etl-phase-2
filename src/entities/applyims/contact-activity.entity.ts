@@ -10,7 +10,7 @@ export interface ApplyIMSContactActivity {
   activitiesType: ApplyIMSActivitiesType;
   activitiesAction: ApplyIMSActivitiesActionType;
   // data: unknown | null;
-  data: ApplyIMSActivitiesJsonField;
+  data: ApplyIMSActivitiesJsonField | null;
   userId: string;
   contactId: string;
   previousAssignedUserId: string | null;

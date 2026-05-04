@@ -17,6 +17,7 @@ export class ContactActivityTransformer extends BaseTransformer<
     id: string
   ): Promise<ApplyIMSContactActivity> {
     console.log('source', JSON.stringify(source, null, 2));
+    console.log('ddddd', source);
     const userId = await this.idResolver.resolveUserId(source.userId);
     // const contactId = await this.idResolver.resolveContactId(source.);
     const contactId = '82336da6-d087-447f-b67c-d3276c497a21';
@@ -50,6 +51,27 @@ export class ContactActivityTransformer extends BaseTransformer<
       createdAt: source.createdAt,
       updatedAt: source.updatedAt,
     };
+
+    // return {
+    //   id,
+    //   activitiesTypeId: applicationStage ? String(applicationStage.id) : null,
+    //   activitiesType: 'application',
+    //   activitiesAction: 'updated',
+    //   data: {
+    //     data: {
+    //       id: id,
+    //       appIdentifier: String(applicationActivity.id),
+    //       contactId: contactId,
+    //     },
+    //   },
+    //   userId,
+    //   contactId,
+    //   previousAssignedUserId: userId,
+    //   assignedUserId: userId,
+    //   followerUserId: userId,
+    //   createdAt: applicationActivity.createdAt,
+    //   updatedAt: applicationActivity.updatedAt,
+    // };
   }
 
   protected validate(target: ApplyIMSContactActivity): void {

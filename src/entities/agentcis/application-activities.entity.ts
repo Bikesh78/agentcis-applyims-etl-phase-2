@@ -2,12 +2,23 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ApplicationStages } from './application-stages.entity.js';
 
 @Entity('application_activities')
 export class ApplicationActivities {
+  @ManyToOne(() => ApplicationStages, (stage) => stage.applicationActivities)
+  @JoinColumn({ name: 'application_stage_id' })
+  applicationStage: ApplicationStages | null;
+
+  @OneToMany(() => ApplicationStages, (stage) => stage.application)
+  applicationStages: ApplicationStages[];
+
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
