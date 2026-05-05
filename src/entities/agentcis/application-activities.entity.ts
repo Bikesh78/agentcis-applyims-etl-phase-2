@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { ApplicationStages } from './application-stages.entity.js';
-import { AgenticActivitiesType } from 'types/activities-type.js';
+import { AgentcisDescription, AgenticActivitiesType } from 'types/activities-type.js';
 
 @Entity('application_activities')
 export class ApplicationActivities {
@@ -29,7 +29,7 @@ export class ApplicationActivities {
   type: AgenticActivitiesType;
 
   @Column({ type: 'text', nullable: true, name: 'description' })
-  description: string | null;
+  description: AgentcisDescription;
 
   @CreateDateColumn({ type: 'timestamp', nullable: true, name: 'created_at' })
   createdAt: Date;

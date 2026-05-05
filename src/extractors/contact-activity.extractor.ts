@@ -2,13 +2,27 @@ import { BaseExtractor, ExtractorConfig } from './base.extractor.js';
 import { DataSource } from 'typeorm';
 import { ApplicationActivities } from 'entities/agentcis/application-activities.entity.js';
 
-export class ContactActivityExtractor extends BaseExtractor<ApplicationActivities> {
+export interface ApplicationActivityWithRelations extends Omit<
+  ApplicationActivities,
+  'applicationStage'
+> {
+  applicationStage: {
+    id: number;
+    stageId: number;
+    application: {
+      id: number;
+      clientId: number;
+    };
+  };
+}
+
+export class ContactActivityExtractor extends BaseExtractor<ApplicationActivityWithRelations> {
   constructor(dataSource: DataSource, config: ExtractorConfig) {
     super(dataSource, 'ApplicationActivity', config);
   }
 
-  async extractBatch(offset: number, limit: number): Promise<ApplicationActivities[]> {
-    return await this.dataSource
+  async extractBatch(offset: number, limit: number): Promise<ApplicationActivityWithRelations[]> {
+    const results = await this.dataSource
       .getRepository(ApplicationActivities)
       .createQueryBuilder('applicationActivities')
       .leftJoinAndSelect('applicationActivities.applicationStage', 'applicationStage')
@@ -26,6 +40,8 @@ export class ContactActivityExtractor extends BaseExtractor<ApplicationActivitie
       .offset(offset)
       .limit(limit)
       .getMany();
+
+    return results as unknown as ApplicationActivityWithRelations[];
   }
 
   async getTotalCount(): Promise<number> {

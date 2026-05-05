@@ -58,3 +58,67 @@ interface ApplyIMSJsonData {
 export interface ApplyIMSActivitiesJsonField {
   data: ApplyIMSJsonData;
 }
+
+interface Reason {
+  id: number;
+  title: string;
+  status: number;
+}
+
+interface Stage {
+  old: {
+    id: number;
+    previous?: number;
+    next: number;
+  };
+  new: {
+    id: number;
+    previous?: number;
+    next: number | null;
+  };
+}
+
+interface New {
+  first_name: string;
+  pivot: {
+    assignee_id: number;
+    is_owner: number;
+  };
+}
+interface Assignee {
+  id: number;
+  name: string;
+}
+interface NoteData {
+  title: string;
+  description: string;
+}
+interface Attachments {
+  original_name: string;
+}
+interface Referrer {
+  new: {
+    id: number;
+    name: string;
+  };
+}
+interface Fee {
+  new: {
+    total: string;
+    discount: string;
+  };
+}
+
+export interface AgentcisDescription {
+  user_name?: string;
+  reason?: Reason | null;
+  reverted_completed_application?: boolean;
+  stage?: Stage;
+  new?: New;
+  assignee?: Assignee;
+  data?: NoteData;
+  attachments?: Attachments[];
+  referrer?: Referrer;
+  value?: string;
+  fee?: Fee;
+}

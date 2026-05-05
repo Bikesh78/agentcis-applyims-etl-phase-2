@@ -2,10 +2,10 @@ import { IdResolver } from './utils/id-resolver.js';
 import { BaseTransformer } from './base.transformer.js';
 import { isUuid } from './utils/validators.js';
 import { ApplyIMSContactActivity } from '../entities/applyims/contact-activity.entity.js';
-import { ApplicationActivities } from 'entities/agentcis/application-activities.entity.js';
+import { ApplicationActivityWithRelations } from '../extractors/contact-activity.extractor.js';
 
 export class ContactActivityTransformer extends BaseTransformer<
-  ApplicationActivities,
+  ApplicationActivityWithRelations,
   ApplyIMSContactActivity
 > {
   constructor(idResolver: IdResolver) {
@@ -13,21 +13,35 @@ export class ContactActivityTransformer extends BaseTransformer<
   }
 
   protected async transformImpl(
-    source: ApplicationActivities,
+    source: ApplicationActivityWithRelations,
     id: string
   ): Promise<ApplyIMSContactActivity> {
-    console.log('source', JSON.stringify(source, null, 2));
-    console.log('ddddd', source.applicationStage.application.id);
+    const clientId = source.applicationStage.application.clientId;
+    const applicationId = source.applicationStage.application.id;
     const userId = await this.idResolver.resolveUserId(source.userId);
-    const contactId = '82336da6-d087-447f-b67c-d3276c497a21';
+    const contactId = await this.idResolver.resolveUserId(clientId);
+    const activitiesTypeId = await this.idResolver.resolveApplicationId(applicationId);
+    const workflowStagesId = await this.idResolver.resolveWorkflowStagesId(
+      source.applicationStage.stageId
+    );
+    console.log('source', source);
 
     if (!userId) {
       throw new Error(`Cannot resolve userId ${source.userId}`);
     }
+    if (!contactId) {
+      throw new Error(`Cannot resolve contactId ${clientId}`);
+    }
+    if (!activitiesTypeId) {
+      throw new Error(`Cannot resolve activitiesTypeId for ${applicationId}`);
+    }
+    if (!workflowStagesId) {
+      throw new Error(`Cannot resolve workflowStagesId ${source.applicationStage.stageId}`);
+    }
 
     return {
       id,
-      activitiesTypeId: null, // should be equal to resolved application id
+      activitiesTypeId, // should be equal to resolved application id
 
       // activitiesType: source.activitiesType,
       // activitiesAction: source.activitiesAction,
@@ -35,43 +49,21 @@ export class ContactActivityTransformer extends BaseTransformer<
       // previousAssignedUserId: source.previousAssignedUserId,
       // assignedUserId: source.assignedUserId,
       // followerUserId: source.followerUserId,
-      // activitiesType: null,
-      // activitiesAction: null,
 
       activitiesType: 'application',
       activitiesAction: 'updated',
       data: null,
       userId,
       contactId,
-      // updateType: source.updateType,
       previousAssignedUserId: userId,
       assignedUserId: userId,
       followerUserId: userId,
       createdAt: source.createdAt,
       updatedAt: source.updatedAt,
     };
-
-    // return {
-    //   id,
-    //   activitiesTypeId: applicationStage ? String(applicationStage.id) : null,
-    //   activitiesType: 'application',
-    //   activitiesAction: 'updated',
-    //   data: {
-    //     data: {
-    //       id: id,
-    //       appIdentifier: String(applicationActivity.id),
-    //       contactId: contactId,
-    //     },
-    //   },
-    //   userId,
-    //   contactId,
-    //   previousAssignedUserId: userId,
-    //   assignedUserId: userId,
-    //   followerUserId: userId,
-    //   createdAt: applicationActivity.createdAt,
-    //   updatedAt: applicationActivity.updatedAt,
-    // };
   }
+
+  // private getMappedData()
 
   protected validate(target: ApplyIMSContactActivity): void {
     if (!isUuid(target.id)) {

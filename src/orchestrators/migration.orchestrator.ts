@@ -6,7 +6,10 @@ import { DealExtractor } from '../extractors/deal.extractor.js';
 import { OfficeVisitExtractor } from '../extractors/office-visit.extractor.js';
 import { AttachmentExtractor } from '../extractors/attachment.extractor.js';
 import { ReferrerExtractor } from '../extractors/referrer.extractor.js';
-import { ContactActivityExtractor } from '../extractors/contact-activity.extractor.js';
+import {
+  ContactActivityExtractor,
+  ApplicationActivityWithRelations,
+} from '../extractors/contact-activity.extractor.js';
 import { ContactTransformer } from '../transformers/contact.transformer.js';
 import { ApplicationTransformer } from '../transformers/application.transformer.js';
 import { DealTransformer } from '../transformers/deal.transformer.js';
@@ -433,7 +436,7 @@ export class MigrationOrchestrator {
           transformer: {
             transform: (item) =>
               transformer.transform(
-                item as unknown as ApplicationActivities
+                item as unknown as ApplicationActivityWithRelations
               ) as Promise<ApplyIMSContactActivity>,
           },
           apiMethod: (batch) =>
