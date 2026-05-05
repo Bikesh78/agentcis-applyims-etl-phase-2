@@ -4,6 +4,8 @@ import {
   ApplyIMSActivitiesType,
 } from 'types/activities-type.js';
 
+export { ApplyIMSActivitiesJsonField };
+
 export interface ApplyIMSContactActivity {
   id: string;
   activitiesTypeId: string | null;

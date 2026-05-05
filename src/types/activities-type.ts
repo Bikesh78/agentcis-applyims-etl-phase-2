@@ -34,29 +34,91 @@ export type ApplyIMSActivitiesActionType =
   | 'completed'
   | 'created'
   | 'updated'
-  | 'deleted';
+  | 'deleted'
+  | 'revert';
 
 interface ApplyIMSActivitviesStage {
   id: string;
-  workflowId: string;
+  workflowId?: string;
   stage: string;
   level: number;
-  actor: string;
-  companyId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  actor?: string;
+  companyId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 interface ApplyIMSJsonData {
   currentStage?: ApplyIMSActivitviesStage;
   previousStage?: ApplyIMSActivitviesStage;
-  id: string;
-  appIdentifier: string;
-  contactId: string;
+  id?: string;
+  appIdentifier?: string;
+  contactId?: string;
+  activeStageId?: string;
+  prevStageId?: string;
+  status?: string;
+  statusRemarks?: StatusRemarks;
+  createdById?: string;
+  assignees?: Array<{
+    id: string;
+    firstName: string;
+    role?: { name: string };
+  }>;
+  hasAgentPartner?: boolean;
+  agentPartner?: {
+    applicationId?: string;
+    subAgentPartnerId?: string | null;
+    subAgentBranchId?: string | null;
+    superAgentPartnerId?: string | null;
+    superAgentBranchId?: string | null;
+  };
 }
 
 export interface ApplyIMSActivitiesJsonField {
-  data: ApplyIMSJsonData;
+  data: ApplyIMSJsonData | ApplicationFeeData | ApplicationDiscountData | ApplicationEnrollmentData | ApplicationMiscData | ApplicationDocumentData;
+}
+
+export interface StatusRemarks {
+  discontinue?: {
+    reason: string;
+    remarks: string;
+  };
+}
+
+export interface ApplicationFeeData {
+  productFeeAmount?: number;
+  productFeeCurrency?: string;
+}
+
+export interface ApplicationDiscountData {
+  id: string;
+  contactId: string;
+  appIdentifier: string;
+  activitiesLabel?: string;
+}
+
+export interface ApplicationEnrollmentData {
+  id: string;
+  contactId: string;
+  appIdentifier: string;
+  activitiesLabel?: string;
+}
+
+export interface ApplicationMiscData {
+  id: string;
+  contactId: string;
+  appIdentifier: string;
+  activitiesLabel: string;
+}
+
+export interface ApplicationDocumentData {
+  activeStageId?: string;
+  currentStage?: {
+    stage: string;
+    level: number;
+    id?: string;
+  };
+  documentType?: string;
 }
 
 interface Reason {
