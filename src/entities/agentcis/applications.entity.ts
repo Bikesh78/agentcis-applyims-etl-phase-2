@@ -3,7 +3,6 @@ import { Products } from './products.entity.js';
 import { Referrers } from './referrers.entity.js';
 import { GroupProductFees } from './group-product-fees.entity.js';
 import { ApplicationAssignees } from './application-assignees.entity.js';
-import { ApplicationStages } from './application-stages.entity.js';
 
 export type AgentcisApplicationType = 'Open' | 'Complete' | 'Discontinue';
 
@@ -22,9 +21,6 @@ export class Applications {
 
   @OneToMany(() => ApplicationAssignees, (assignee) => assignee.application)
   applicationAssignees: ApplicationAssignees[];
-
-  @OneToMany(() => ApplicationStages, (stage) => stage.application)
-  applicationStages: ApplicationStages[];
 
   @PrimaryGeneratedColumn()
   id: number;

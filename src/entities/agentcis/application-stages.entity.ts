@@ -3,28 +3,23 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToMany,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ApplicationActivities } from './application-activities.entity.js';
 import { Applications } from './applications.entity.js';
 
 @Entity('application_stages')
 export class ApplicationStages {
-  @ManyToOne(() => Applications, (application) => application.applicationStages)
+  @ManyToOne(() => Applications, () => {})
   @JoinColumn({ name: 'application_id' })
-  application: Applications | null;
-
-  @OneToMany(() => ApplicationActivities, (activity) => activity.applicationStage)
-  applicationActivities: ApplicationActivities[];
+  application: Applications;
 
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-  @Column({ type: 'int', unsigned: true, name: 'application_id' })
-  applicationId: number;
+  // @Column({ type: 'int', unsigned: true, name: 'application_id' })
+  // applicationId: number;
 
   @Column({ type: 'int', unsigned: true, name: 'stage_id' })
   stageId: number;

@@ -16,9 +16,9 @@ export class ContactActivityExtractor extends BaseExtractor<ApplicationActivitie
       .select([
         'applicationActivities',
         'applicationStage.id',
-        'applicationStage.applicationId',
         'applicationStage.stageId',
         'application.clientId',
+        'application.id',
       ])
       .where('applicationActivities.created_at >= :startDate', { startDate: this.config.startDate })
       .andWhere('applicationActivities.created_at <= :endDate', { endDate: this.config.endDate })

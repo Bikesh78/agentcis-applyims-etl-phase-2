@@ -17,9 +17,8 @@ export class ContactActivityTransformer extends BaseTransformer<
     id: string
   ): Promise<ApplyIMSContactActivity> {
     console.log('source', JSON.stringify(source, null, 2));
-    console.log('ddddd', source);
+    console.log('ddddd', source.applicationStage.application.id);
     const userId = await this.idResolver.resolveUserId(source.userId);
-    // const contactId = await this.idResolver.resolveContactId(source.);
     const contactId = '82336da6-d087-447f-b67c-d3276c497a21';
 
     if (!userId) {
