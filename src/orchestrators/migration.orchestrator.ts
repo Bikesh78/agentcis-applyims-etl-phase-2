@@ -530,6 +530,7 @@ export class MigrationOrchestrator {
           dealId,
           contactId,
           branchId: branchId ?? undefined,
+          clientId: app.clientId,
           applicationId: parseInt(appId, 10),
           minimumDate: startDate,
           maxDate: endDate,

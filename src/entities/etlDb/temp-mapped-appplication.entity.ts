@@ -13,12 +13,6 @@ export class TempMappedApplication {
   @Column({ type: 'varchar', length: 36, name: 'applyims_application_id' })
   applyimsApplicationId: string;
 
-  @Column({ type: 'int', nullable: true, name: 'agentcis_client_id' })
-  agentcisClientId?: number;
-
-  @Column({ type: 'varchar', length: 36, nullable: true, name: 'applyims_contact_id' })
-  applyimsContactId?: string;
-
   @Column({ type: 'varchar', length: 50, nullable: true, name: 'app_identifier' })
   appIdentifier?: string;
 

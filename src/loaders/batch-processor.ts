@@ -1,6 +1,6 @@
 import pLimit from 'p-limit';
 import { ApplyIMSApiClient, BulkResponse, ExistingContactInfo } from './api-client.js';
-import { MappingRepository } from '../repositories/mapping.repository.js';
+import { MappingRepository, StoreMappingInput } from '../repositories/mapping.repository.js';
 import { EntityType } from '../constants/entity-types.js';
 import { ErrorRecoveryManager, ErrorCategory } from './error-recovery.js';
 import { Logger } from '../utils/logger.js';
@@ -53,10 +53,19 @@ export class BatchProcessor {
 
       for (const success of response.successful ?? []) {
         try {
-          await this.mappingRepository.storeMapping(migrationId, entityType, {
-            agentcisId: success.internalId,
-            applyimsId: success.id,
-          });
+          const data =
+            entityType === EntityType.APPLICATIONS
+              ? {
+                  agentcisId: success.internalId,
+                  applyimsId: success.id,
+                  appIdentifier: success.appIdentifier,
+                }
+              : { agentcisId: success.internalId, applyimsId: success.id };
+
+          await this.mappingRepository.storeMapping(migrationId, {
+            entityType,
+            data,
+          } as StoreMappingInput);
         } catch (err) {
           this.logger.error(`Failed to store mapping for ${entityType}`, {
             error: String(err),
@@ -78,10 +87,10 @@ export class BatchProcessor {
             });
 
             try {
-              await this.mappingRepository.storeMapping(migrationId, entityType, {
-                agentcisId: failedRecord.internalId,
-                applyimsId: existingContact.id,
-              });
+              await this.mappingRepository.storeMapping(migrationId, {
+                entityType,
+                data: { agentcisId: failedRecord.internalId, applyimsId: existingContact.id },
+              } as StoreMappingInput);
             } catch (err) {
               this.logger.error(`Failed to store mapping for duplicate email contact`, {
                 error: String(err),
@@ -193,10 +202,19 @@ export class BatchProcessor {
       const failedCount = response.failed?.length ?? 0;
 
       for (const success of response.successful ?? []) {
-        await this.mappingRepository.storeMapping(migrationId, entityType, {
-          agentcisId: success.internalId,
-          applyimsId: success.id,
-        });
+        const data =
+          entityType === EntityType.APPLICATIONS
+            ? {
+                agentcisId: success.internalId,
+                applyimsId: success.id,
+                appIdentifier: success.appIdentifier,
+              }
+            : { agentcisId: success.internalId, applyimsId: success.id };
+
+        await this.mappingRepository.storeMapping(migrationId, {
+          entityType,
+          data,
+        } as StoreMappingInput);
       }
 
       if (response.failed && response.failed.length > 0) {
@@ -211,10 +229,10 @@ export class BatchProcessor {
               email: existingContact.email,
             });
 
-            await this.mappingRepository.storeMapping(migrationId, entityType, {
-              agentcisId: failedRecord.internalId,
-              applyimsId: existingContact.id,
-            });
+            await this.mappingRepository.storeMapping(migrationId, {
+              entityType,
+              data: { agentcisId: failedRecord.internalId, applyimsId: existingContact.id },
+            } as StoreMappingInput);
 
             result.successful += 1;
             result.errors.push({

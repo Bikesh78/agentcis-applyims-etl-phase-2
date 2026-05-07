@@ -91,11 +91,7 @@ export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSM
         return `contact__agentcis_${source.attachmentableId}/Contact-Documents/${source.originalName}`;
       case 'application_stage': {
         const agentcisAppId = source.attachmentableId;
-        const applyimsAppId = await this.idResolver.resolveApplicationId(agentcisAppId);
-        if (!applyimsAppId) {
-          throw new Error(`Cannot resolve application UUID for application ${agentcisAppId}`);
-        }
-        const clientId = await this.mappingRepo.getAgentcisClientIdFromApplication(applyimsAppId);
+        const clientId = await this.mappingRepo.getClientIdByApplication(agentcisAppId);
         if (!clientId) {
           throw new Error(`Cannot resolve client ID for application ${agentcisAppId}`);
         }

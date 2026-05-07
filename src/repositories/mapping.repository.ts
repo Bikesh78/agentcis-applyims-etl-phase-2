@@ -7,10 +7,20 @@ import { TempMappedMedia } from '../entities/etlDb/temp-mapped-medias.entity.js'
 import { TempMappedContactActivity } from 'entities/etlDb/temp-mapped-contact-activities.entity.js';
 import { EntityType } from '../constants/entity-types.js';
 
-export interface MappingData {
+export interface BaseMappingData {
   agentcisId: string;
   applyimsId: string;
-  branchId?: string;
+}
+
+export type ContactMappingData = BaseMappingData;
+export type OfficeVisitMappingData = BaseMappingData;
+export type ContactActivityMappingData = BaseMappingData;
+
+export interface ApplicationMappingData extends BaseMappingData {
+  appIdentifier?: string;
+}
+
+export interface MediaMappingData extends BaseMappingData {
   sourceS3Key?: string;
   destinationS3Key?: string;
 }
@@ -19,6 +29,7 @@ export interface DealMappingData {
   dealId: string;
   contactId?: string;
   branchId?: string;
+  clientId?: number;
   applicationId?: number;
   minimumDate?: Date;
   maxDate?: Date;
@@ -27,40 +38,46 @@ export interface DealMappingData {
   serviceId: string | null;
 }
 
+export type StoreMappingInput =
+  | { entityType: EntityType.CONTACTS; data: ContactMappingData }
+  | { entityType: EntityType.APPLICATIONS; data: ApplicationMappingData }
+  | { entityType: EntityType.OFFICE_VISITS; data: OfficeVisitMappingData }
+  | { entityType: EntityType.ATTACHMENTS; data: MediaMappingData }
+  | { entityType: EntityType.CONTACT_ACTIVITIES; data: ContactActivityMappingData }
+  | { entityType: EntityType.DEALS; data: BaseMappingData }
+  | { entityType: EntityType.AGENTS; data: BaseMappingData };
+
 export class MappingRepository {
   constructor(private readonly etlDb: DataSource) {}
 
-  async storeMapping(
-    migrationId: string,
-    entityType: EntityType,
-    data: MappingData | DealMappingData
-  ): Promise<void> {
-    switch (entityType) {
+  async storeMapping(migrationId: string, input: StoreMappingInput): Promise<void> {
+    switch (input.entityType) {
       case EntityType.CONTACTS:
-        await this.storeContactMapping(migrationId, data as MappingData);
+        await this.storeContactMapping(migrationId, input.data);
         break;
       case EntityType.APPLICATIONS:
-        await this.storeApplicationMapping(migrationId, data as MappingData);
-        break;
-      case EntityType.DEALS:
+        await this.storeApplicationMapping(migrationId, input.data);
         break;
       case EntityType.OFFICE_VISITS:
-        await this.storeOfficeVisitMapping(migrationId, data as MappingData);
+        await this.storeOfficeVisitMapping(migrationId, input.data);
         break;
       case EntityType.ATTACHMENTS:
-        await this.storeMediaMapping(migrationId, data as MappingData);
-        break;
-      case EntityType.AGENTS:
+        await this.storeMediaMapping(migrationId, input.data);
         break;
       case EntityType.CONTACT_ACTIVITIES:
-        await this.storeContactActivitiesMapping(migrationId, data as MappingData);
+        await this.storeContactActivitiesMapping(migrationId, input.data);
         break;
-      default:
-        throw new Error(`Unsupported entity type: ${entityType}`);
+      case EntityType.DEALS:
+      case EntityType.AGENTS:
+        break;
+      default: {
+        const _exhaustive: never = input;
+        throw new Error(`Unsupported entity type: ${JSON.stringify(_exhaustive)}`);
+      }
     }
   }
 
-  async storeContactMapping(migrationId: string, data: MappingData): Promise<void> {
+  async storeContactMapping(migrationId: string, data: ContactMappingData): Promise<void> {
     await this.etlDb.getRepository(TempMappedContact).upsert(
       {
         agentcisContactId: parseInt(data.agentcisId),
@@ -74,11 +91,12 @@ export class MappingRepository {
     );
   }
 
-  async storeApplicationMapping(migrationId: string, data: MappingData): Promise<void> {
+  async storeApplicationMapping(migrationId: string, data: ApplicationMappingData): Promise<void> {
     await this.etlDb.getRepository(TempMappedApplication).upsert(
       {
         agentcisApplicationId: parseInt(data.agentcisId),
         applyimsApplicationId: data.applyimsId,
+        appIdentifier: data.appIdentifier,
         migrationId: migrationId,
       },
       {
@@ -88,7 +106,7 @@ export class MappingRepository {
     );
   }
 
-  async storeOfficeVisitMapping(migrationId: string, data: MappingData): Promise<void> {
+  async storeOfficeVisitMapping(migrationId: string, data: OfficeVisitMappingData): Promise<void> {
     await this.etlDb.getRepository(TempMappedOfficeVisit).upsert(
       {
         agentcisOfficeVisitId: parseInt(data.agentcisId),
@@ -102,7 +120,7 @@ export class MappingRepository {
     );
   }
 
-  async storeMediaMapping(migrationId: string, data: MappingData): Promise<void> {
+  async storeMediaMapping(migrationId: string, data: MediaMappingData): Promise<void> {
     await this.etlDb.getRepository(TempMappedMedia).upsert(
       {
         agentcisMediaId: parseInt(data.agentcisId),
@@ -119,7 +137,10 @@ export class MappingRepository {
     );
   }
 
-  async storeContactActivitiesMapping(migrationId: string, data: MappingData): Promise<void> {
+  async storeContactActivitiesMapping(
+    migrationId: string,
+    data: ContactActivityMappingData
+  ): Promise<void> {
     await this.etlDb.getRepository(TempMappedContactActivity).upsert(
       {
         agentcisContactActivityId: parseInt(data.agentcisId),
@@ -159,12 +180,12 @@ export class MappingRepository {
     });
   }
 
-  async getAgentcisClientIdFromApplication(applyimsApplicationId: string): Promise<number | null> {
-    const result = await this.etlDb.getRepository(TempMappedApplication).findOne({
-      where: { applyimsApplicationId },
-      select: ['agentcisClientId'],
+  async getClientIdByApplication(applicationId: number): Promise<number | null> {
+    const result = await this.etlDb.getRepository(TempMappedDeal).findOne({
+      where: { applicationId },
+      select: ['clientId'],
     });
-    return result?.agentcisClientId ?? null;
+    return result?.clientId ?? null;
   }
 
   async storeDealStagingBatch(migrationId: string, deals: DealMappingData[]): Promise<void> {
@@ -179,6 +200,7 @@ export class MappingRepository {
         dealId: d.dealId,
         contactId: d.contactId,
         branchId: d.branchId,
+        clientId: d.clientId,
         applicationId: d.applicationId,
         minimumDate: d.minimumDate,
         maxDate: d.maxDate,

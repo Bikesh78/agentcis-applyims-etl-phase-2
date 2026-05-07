@@ -19,7 +19,7 @@ export interface ExistingContactInfo {
 }
 
 export interface BulkResponse {
-  successful: Array<{ id: string; internalId: string }>;
+  successful: Array<{ id: string; internalId: string; appIdentifier?: string }>;
   failed: Array<{
     code: number | string;
     error: string;

@@ -16,6 +16,9 @@ export class TempMappedDeal {
   @Column({ type: 'varchar', length: 36, nullable: true, name: 'branch_id' })
   branchId?: string;
 
+  @Column({ type: 'int', nullable: true, name: 'client_id' })
+  clientId?: number;
+
   @Column({ type: 'bigint', nullable: true, name: 'application_id' })
   applicationId?: number;
 
