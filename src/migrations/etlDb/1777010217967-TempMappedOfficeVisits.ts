@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class TempMappedOfficeVisits1777010217967 implements MigrationInterface {
+  name = 'TempMappedOfficeVisits1777010217967';
+
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
             CREATE TABLE "temp_mapped_office_visits" (

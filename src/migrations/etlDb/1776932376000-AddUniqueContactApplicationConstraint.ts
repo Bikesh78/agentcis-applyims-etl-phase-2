@@ -6,7 +6,7 @@ export class AddUniqueContactApplicationConstraint1746932376000 implements Migra
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "temp_mapped_deals"
-      ADD CONSTRAINT "unique_contact_application" UNIQUE ("contact_id", "application_id")
+      ADD CONSTRAINT "UQ_temp_mapped_deals_contact_application" UNIQUE ("contact_id", "application_id")
     `);
   }
 

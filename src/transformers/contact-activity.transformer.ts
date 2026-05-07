@@ -27,7 +27,8 @@ export class ContactActivityTransformer extends BaseTransformer<
     const userId = await this.idResolver.resolveUserId(source.userId);
     const contactId = await this.idResolver.resolveContactId(clientId);
     const activitiesTypeId = await this.idResolver.resolveApplicationId(applicationId);
-    const appIdentifier = await this.idResolver.resolveAppIdentifier(applicationId);
+    // const appIdentifier = await this.idResolver.resolveAppIdentifier(applicationId);
+    const appIdentifier = "dsfsdfsd";
     const description: AgentcisDescription = source.description
       ? JSON.parse(source.description)
       : null;
@@ -66,6 +67,7 @@ export class ContactActivityTransformer extends BaseTransformer<
       followerUserId: userId,
       createdAt: source.createdAt,
       updatedAt: source.updatedAt,
+      agentcisActivityId: source.id
     };
   }
 

@@ -20,4 +20,5 @@ export interface ApplyIMSContactActivity {
   followerUserId: string | null;
   createdAt: Date;
   updatedAt: Date;
+  agentcisActivityId: number;
 }
