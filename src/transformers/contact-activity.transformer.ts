@@ -187,8 +187,8 @@ export class ContactActivityTransformer extends BaseTransformer<
               appIdentifier,
               contactId,
               status,
-              currentStage: { id: workflowStagesId, stage: 'Temp', level: 2 }, // TODO: map this accurately later on
-              previousStage: { id: prevWorkflowStagesId, stage: 'Temp', level: 1 }, // TODO: map this accurately later on
+              currentStage: { id: workflowStagesId, stage: workflowStagesId, level: 2 }, // TODO: map this accurately later on
+              previousStage: { id: prevWorkflowStagesId, stage: prevWorkflowStagesId, level: 1 }, // TODO: map this accurately later on
             },
           },
         };
@@ -256,7 +256,7 @@ export class ContactActivityTransformer extends BaseTransformer<
               id: activitiesTypeId,
               appIdentifier,
               contactId,
-              currentStage: { stage: '', level: 0, id: activitiesTypeId }, // TODO: map this later
+              currentStage: { stage: stageId as string, level: 0, id: activitiesTypeId }, // TODO: map this later
             },
           },
         };
@@ -271,8 +271,8 @@ export class ContactActivityTransformer extends BaseTransformer<
               id: activitiesTypeId,
               appIdentifier,
               contactId,
-              currentStage: { stage: '', level: 0, id: activitiesTypeId }, // TODO: Map this later
-              documentType: '', // TODO: Map this later
+              currentStage: { stage: stageId as string, level: 0, id: activitiesTypeId }, // TODO: Map this later
+              documentType: 'Agentcis document', // TODO: Map this later
             },
           },
         };
@@ -287,8 +287,8 @@ export class ContactActivityTransformer extends BaseTransformer<
               id: activitiesTypeId,
               appIdentifier,
               contactId,
-              currentStage: { stage: '', level: 0, id: activitiesTypeId }, // TODO: Map this later
-              documentType: '', // TODO: Map this later
+              currentStage: { stage: stageId as string, level: 0, id: activitiesTypeId }, // TODO: Map this later
+              documentType: 'Agentcis document', // TODO: Map this later
             },
           },
         };
