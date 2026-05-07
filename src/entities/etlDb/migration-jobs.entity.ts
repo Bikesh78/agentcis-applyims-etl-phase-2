@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 import { MigrationCheckpoint } from './migration-checkpoints.entity.js';
 import { MigrationError } from './migration-errors.entity.js';
-import { MigrationMetric } from './migration-metrics.entity.js';
 
 export enum MigrationStatus {
   PENDING = 'pending',
@@ -52,7 +51,4 @@ export class MigrationJob {
 
   @OneToMany(() => MigrationError, (e) => e.migration)
   errors: MigrationError[];
-
-  @OneToMany(() => MigrationMetric, (m) => m.migration)
-  metrics: MigrationMetric[];
 }

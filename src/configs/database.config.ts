@@ -20,7 +20,6 @@ import { TempMappedMedia } from 'entities/etlDb/temp-mapped-medias.entity.js';
 import { MigrationCheckpoint } from 'entities/etlDb/migration-checkpoints.entity.js';
 import { MigrationError } from 'entities/etlDb/migration-errors.entity.js';
 import { MigrationJob } from 'entities/etlDb/migration-jobs.entity.js';
-import { MigrationMetric } from 'entities/etlDb/migration-metrics.entity.js';
 import { RelatedOffices } from 'entities/agentcis/related-offices.entity.js';
 import { Branches } from 'entities/agentcis/branches.entity.js';
 import { ApplicationActivities } from 'entities/agentcis/application-activities.entity.js';
@@ -142,7 +141,6 @@ export function createEtlConnectionOptions() {
       MigrationCheckpoint,
       MigrationError,
       MigrationJob,
-      MigrationMetric,
       TempMappedContactActivity,
     ],
   } as DataSourceOptions;

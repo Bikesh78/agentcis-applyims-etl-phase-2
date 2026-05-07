@@ -19,6 +19,9 @@ export class TempMappedApplication {
   @Column({ type: 'varchar', length: 36, nullable: true, name: 'applyims_contact_id' })
   applyimsContactId?: string;
 
+  @Column({ type: 'varchar', length: 50, nullable: true, name: 'app_identifier' })
+  appIdentifier?: string;
+
   @Column({ type: 'varchar', length: 36, nullable: true, name: 'migration_id' })
   migrationId?: string;
 

@@ -13,12 +13,6 @@ export class TempMappedContact {
   @Column({ type: 'varchar', length: 36, name: 'applyims_contact_id' })
   applyimsContactId: string;
 
-  @Column({ type: 'varchar', length: 36, nullable: true, name: 'deal_id' })
-  dealId?: string;
-
-  @Column({ type: 'varchar', length: 36, nullable: true, name: 'branch_id' })
-  branchId?: string;
-
   @Index()
   @Column({ type: 'varchar', length: 36, nullable: true, name: 'migration_id' })
   migrationId?: string;

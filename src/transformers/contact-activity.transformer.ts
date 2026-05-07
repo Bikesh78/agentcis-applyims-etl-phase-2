@@ -10,19 +10,6 @@ import {
   ApplyIMSActivitiesJsonField,
 } from '../types/activities-type.js';
 
-const DISCONTINUE_REASON_MAP: Record<string, string> = {
-  'Client Lost': 'Withdrawn',
-  'Enrolled in Other Application': 'Enrolled into Another Course',
-  'Error by Team Member': 'Error by Team Member',
-  'Financial Difficulties': 'Financial Issues',
-  'Rejected by Institution': 'Rejected by Institution',
-  'Test Data': 'Others',
-  'Other Reason': 'Others',
-  'Visa Rejected': 'Visa Denied',
-  Refund: 'Others',
-  Withdraw: 'Withdrawn',
-};
-
 export class ContactActivityTransformer extends BaseTransformer<
   ApplicationActivityWithRelations,
   ApplyIMSContactActivity
@@ -40,7 +27,9 @@ export class ContactActivityTransformer extends BaseTransformer<
     const userId = await this.idResolver.resolveUserId(source.userId);
     const contactId = await this.idResolver.resolveContactId(clientId);
     const activitiesTypeId = await this.idResolver.resolveApplicationId(applicationId);
-    const description: AgentcisDescription = source.description ? JSON.parse(source.description) : null;
+    const description: AgentcisDescription = source.description
+      ? JSON.parse(source.description)
+      : null;
 
     if (!userId) {
       throw new Error(`Cannot resolve userId ${source.userId}`);
@@ -105,7 +94,7 @@ export class ContactActivityTransformer extends BaseTransformer<
               status: 'Discontinued',
               statusRemarks: {
                 discontinue: {
-                  reason: "Reverted via Migration",
+                  reason: 'Reverted via Migration',
                   remarks: `Action by ${userName}`,
                 },
               },
@@ -123,7 +112,7 @@ export class ContactActivityTransformer extends BaseTransformer<
               id: activitiesTypeId,
               appIdentifier,
               contactId,
-              status: "Completed",
+              status: 'Completed',
               activeStageId: stageId!,
             },
           },
@@ -143,7 +132,7 @@ export class ContactActivityTransformer extends BaseTransformer<
               status: 'Discontinued',
               statusRemarks: {
                 discontinue: {
-                  reason: reason?.title || "Client Lost",
+                  reason: reason?.title || 'Client Lost',
                   remarks: `Action by ${userName}`,
                 },
               },
@@ -161,7 +150,7 @@ export class ContactActivityTransformer extends BaseTransformer<
         const oldId = stage.old.id;
         const newId = stage.new.id;
         const oldNext = stage.old.next;
-        const oldPrevious = stage.old.previous
+        const oldPrevious = stage.old.previous;
 
         let action: ApplyIMSActivitiesActionType = 'updated';
         let status = 'In Progress';
@@ -194,8 +183,8 @@ export class ContactActivityTransformer extends BaseTransformer<
               appIdentifier,
               contactId,
               status,
-              currentStage: { id: workflowStagesId, stage: "Temp", level: 2 }, // TODO: map this accurately later on
-              previousStage: { id: prevWorkflowStagesId, stage: "Temp", level: 1 }, // TODO: map this accurately later on
+              currentStage: { id: workflowStagesId, stage: 'Temp', level: 2 }, // TODO: map this accurately later on
+              previousStage: { id: prevWorkflowStagesId, stage: 'Temp', level: 1 }, // TODO: map this accurately later on
             },
           },
         };
@@ -212,7 +201,7 @@ export class ContactActivityTransformer extends BaseTransformer<
         const firstName = newData.first_name;
 
         if (!assigneeUserId) {
-          throw new Error(`Cannot resolve assigneeUserId for ${assigneeId}`)
+          throw new Error(`Cannot resolve assigneeUserId for ${assigneeId}`);
         }
 
         return {
@@ -224,7 +213,7 @@ export class ContactActivityTransformer extends BaseTransformer<
               appIdentifier,
               contactId,
               createdById: assigneeUserId,
-              assignees: [{ id: assigneeUserId, firstName, role: { name: 'superAdmin' } }]
+              assignees: [{ id: assigneeUserId, firstName, role: { name: 'superAdmin' } }],
             },
           },
         };
@@ -252,8 +241,8 @@ export class ContactActivityTransformer extends BaseTransformer<
       }
 
       case 'note-created': {
-        const noteData = description?.data;
-        const body = noteData ? `${noteData.title}: ${noteData.description}` : '';
+        // const noteData = description?.data;
+        // const body = noteData ? `${noteData.title}: ${noteData.description}` : '';
 
         return {
           activitiesType: 'application-comment',
@@ -279,7 +268,7 @@ export class ContactActivityTransformer extends BaseTransformer<
               appIdentifier,
               contactId,
               currentStage: { stage: '', level: 0, id: activitiesTypeId }, // TODO: Map this later
-              documentType: ""// TODO: Map this later
+              documentType: '', // TODO: Map this later
             },
           },
         };
@@ -295,8 +284,7 @@ export class ContactActivityTransformer extends BaseTransformer<
               appIdentifier,
               contactId,
               currentStage: { stage: '', level: 0, id: activitiesTypeId }, // TODO: Map this later
-              documentType: ""// TODO: Map this later
-
+              documentType: '', // TODO: Map this later
             },
           },
         };

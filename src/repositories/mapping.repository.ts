@@ -65,7 +65,6 @@ export class MappingRepository {
       {
         agentcisContactId: parseInt(data.agentcisId),
         applyimsContactId: data.applyimsId,
-        branchId: data.branchId,
         migrationId: migrationId,
       },
       {
