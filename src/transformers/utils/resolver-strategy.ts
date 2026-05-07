@@ -1,9 +1,9 @@
 import { DataSource } from 'typeorm';
 import { Logger } from 'utils/logger.js';
 
-interface Mapper {
+interface MapperRow {
   agentcis_id: number;
-  applyims_id: string;
+  [key: string]: unknown;
 }
 
 export interface ResolverStrategy<TIn = number, TOut = string> {
@@ -16,7 +16,8 @@ export class JsonFileStrategy implements ResolverStrategy<number, string> {
 
   constructor(
     private readonly jsonPath: string,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly outputField: string = 'applyims_id'
   ) {}
 
   async resolve(agentcisId: number): Promise<string | null> {
@@ -30,9 +31,12 @@ export class JsonFileStrategy implements ResolverStrategy<number, string> {
     this.loadPromise = (async () => {
       try {
         const data = await import(this.jsonPath);
-        const mapper: Mapper[] = data.default || data;
-        for (const item of mapper) {
-          this.map.set(item.agentcis_id, item.applyims_id);
+        const rows: MapperRow[] = data.default || data;
+        for (const item of rows) {
+          const value = item[this.outputField];
+          if (value !== undefined && value !== null && value !== '') {
+            this.map.set(item.agentcis_id, String(value));
+          }
         }
       } catch (err) {
         this.logger.error(`JsonFileStrategy: failed to load "${this.jsonPath}": ${err}`);

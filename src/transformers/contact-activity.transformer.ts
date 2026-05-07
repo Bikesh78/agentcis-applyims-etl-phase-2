@@ -27,6 +27,7 @@ export class ContactActivityTransformer extends BaseTransformer<
     const userId = await this.idResolver.resolveUserId(source.userId);
     const contactId = await this.idResolver.resolveContactId(clientId);
     const activitiesTypeId = await this.idResolver.resolveApplicationId(applicationId);
+    const appIdentifier = await this.idResolver.resolveAppIdentifier(applicationId);
     const description: AgentcisDescription = source.description
       ? JSON.parse(source.description)
       : null;
@@ -40,12 +41,16 @@ export class ContactActivityTransformer extends BaseTransformer<
     if (!activitiesTypeId) {
       throw new Error(`Cannot resolve activitiesTypeId for ${applicationId}`);
     }
+    if (!appIdentifier) {
+      throw new Error(`Cannot resolve appIdentifier for ${applicationId}`);
+    }
 
     const { activitiesType, activitiesAction, data } = await this.mapActivityType(
       source,
       activitiesTypeId,
       contactId,
-      description
+      description,
+      appIdentifier
     );
 
     return {
@@ -68,7 +73,8 @@ export class ContactActivityTransformer extends BaseTransformer<
     source: ApplicationActivityWithRelations,
     activitiesTypeId: string,
     contactId: string,
-    description: AgentcisDescription
+    description: AgentcisDescription,
+    appIdentifier: string
   ): Promise<{
     activitiesType: ApplyIMSActivitiesType;
     activitiesAction: ApplyIMSActivitiesActionType;
@@ -76,8 +82,6 @@ export class ContactActivityTransformer extends BaseTransformer<
   }> {
     const agentcisType = source.type as string | null;
     const userName = description.user_name;
-    const appIdentifier = String(source.id);
-    // const stageId = source.applicationStage?.stageId;
     const stageId = await this.idResolver.resolveWorkflowStagesId(source.applicationStage?.stageId);
 
     switch (agentcisType) {

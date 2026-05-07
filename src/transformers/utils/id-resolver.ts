@@ -18,6 +18,7 @@ type EntityType =
   | 'institutionBranches'
   | 'institutions'
   | 'applications'
+  | 'appIdentifiers'
   | 'deals'
   | 'interestedServices';
 
@@ -32,6 +33,7 @@ const ENTITY_TYPES: EntityType[] = [
   'institutionBranches',
   'institutions',
   'applications',
+  'appIdentifiers',
   'deals',
   'interestedServices',
 ];
@@ -79,6 +81,16 @@ export class IdResolver {
           tableName: 'temp_mapped_applications',
           inputColumn: 'agentcis_application_id',
           outputColumn: 'applyims_application_id',
+          logger,
+        }),
+      ]),
+      appIdentifiers: new FallbackStrategy([
+        new JsonFileStrategy('../../mapper/applications.json', logger, 'app_identifier'),
+        new DatabaseStrategy({
+          dataSource,
+          tableName: 'temp_mapped_applications',
+          inputColumn: 'agentcis_application_id',
+          outputColumn: 'app_identifier',
           logger,
         }),
       ]),
@@ -149,6 +161,10 @@ export class IdResolver {
 
   async resolveApplicationId(agentcisApplicationId: number): Promise<string | null> {
     return this.resolve('applications', agentcisApplicationId);
+  }
+
+  async resolveAppIdentifier(agentcisApplicationId: number): Promise<string | null> {
+    return this.resolve('appIdentifiers', agentcisApplicationId);
   }
 
   async resolveDealId(agentcisApplicationId: number): Promise<string | null> {
