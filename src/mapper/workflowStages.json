@@ -1,910 +1,1307 @@
 [
   {
-    "agentcis_id": 9,
-    "applyims_id": "5123970e-be71-4c49-892a-825fdab6ce83"
-  },
-  {
-    "agentcis_id": 10,
-    "applyims_id": "d62c4984-330c-4523-8d5f-cddb32a87b3d"
-  },
-  {
-    "agentcis_id": 11,
-    "applyims_id": "740221b3-f787-4670-9efb-61a8f5e74056"
-  },
-  {
-    "agentcis_id": 12,
-    "applyims_id": "efe53f53-4a45-485c-bc83-12a9ca258f9e"
-  },
-  {
-    "agentcis_id": 13,
-    "applyims_id": "149323e1-1c33-4d64-8480-0e2fa9261c1e"
-  },
-  {
-    "agentcis_id": 14,
-    "applyims_id": "6788f477-af7f-4f0a-a850-aa342a886db6"
-  },
-  {
-    "agentcis_id": 15,
-    "applyims_id": "d4212342-6752-41fe-9929-e10d82286fbf"
-  },
-  {
-    "agentcis_id": 16,
-    "applyims_id": "16c12feb-2112-451a-87d2-55c3b2b908e4"
-  },
-  {
-    "agentcis_id": 17,
-    "applyims_id": "b9e8b683-9442-4bb0-99bf-a04507934bce"
-  },
-  {
-    "agentcis_id": 18,
-    "applyims_id": "e7c9b24d-0939-4ee4-9fff-5e5ddd771b7f"
-  },
-  {
-    "agentcis_id": 19,
-    "applyims_id": "eb3d0adc-2dbd-401d-b365-9792f38e5816"
-  },
-  {
-    "agentcis_id": 20,
-    "applyims_id": "7c3f3600-910b-4aa3-84be-3360a0b8469f"
-  },
-  {
-    "agentcis_id": 21,
-    "applyims_id": "ec8fac85-ab7e-4fe7-b9ae-71d5b4c3191c"
-  },
-  {
-    "agentcis_id": 22,
-    "applyims_id": "9fa430dd-db6d-4aaa-b1bb-3c73860375dd"
-  },
-  {
-    "agentcis_id": 96,
-    "applyims_id": "734d0ccd-bab5-4bbb-a7c1-b9ee76f005f8"
-  },
-  {
-    "agentcis_id": 97,
-    "applyims_id": "25d9afd5-cfc1-45e2-9602-f93b36d179ea"
-  },
-  {
-    "agentcis_id": 98,
-    "applyims_id": "a8d9d766-0e9c-4f78-9c53-fc14aa92bbfa"
-  },
-  {
-    "agentcis_id": 99,
-    "applyims_id": "008957cf-f85f-459d-8b0c-97728ce291d1"
-  },
-  {
-    "agentcis_id": 100,
-    "applyims_id": "c9d5617d-8909-405b-8665-d2d1d4e65a0c"
-  },
-  {
-    "agentcis_id": 101,
-    "applyims_id": "d345bfbe-ec1f-4306-8992-845735ae859e"
-  },
-  {
-    "agentcis_id": 102,
-    "applyims_id": "d345bfbe-ec1f-4306-8992-845735ae859e"
-  },
-  {
-    "agentcis_id": 103,
-    "applyims_id": "4a56e42b-be8d-48b4-9f27-939d7a40cbbd"
-  },
-  {
-    "agentcis_id": 104,
-    "applyims_id": "3b3e48e4-c306-4519-8745-faec9cdd9c5e"
-  },
-  {
-    "agentcis_id": 105,
-    "applyims_id": "e1142f96-c12c-4b64-a423-ce284cb8df53"
-  },
-  {
-    "agentcis_id": 106,
-    "applyims_id": "b0d03007-5b33-4d2a-a98e-088f813eb7a5"
-  },
-  {
-    "agentcis_id": 107,
-    "applyims_id": "e1b0faf4-c9d7-4e3c-bf37-a36ddcb12ec4"
-  },
-  {
-    "agentcis_id": 109,
-    "applyims_id": "d29f3a67-ab47-4bf9-b7b6-ad9c38faeb1b"
-  },
-  {
-    "agentcis_id": 110,
-    "applyims_id": "375572b1-c565-494f-bd26-c552e129e92b"
-  },
-  {
-    "agentcis_id": 108,
-    "applyims_id": "64f76f6c-fc55-46b4-819f-b1abc901151d"
-  },
-  {
-    "agentcis_id": 111,
-    "applyims_id": "f56151a1-2b9f-40dd-b99b-feca51d38ad2"
-  },
-  {
-    "agentcis_id": 112,
-    "applyims_id": "ee4456c0-c1cf-4781-9a73-ea656dfff861"
-  },
-  {
-    "agentcis_id": 113,
-    "applyims_id": "f8e9dc78-404d-4a87-8c5c-4e4ffe155314"
-  },
-  {
-    "agentcis_id": 135,
-    "applyims_id": "8f9021f2-5a0d-4a2f-80db-687f01d71e4d"
-  },
-  {
-    "agentcis_id": 256,
-    "applyims_id": "8f830d81-29da-4af2-b46f-e51b8add7467"
-  },
-  {
-    "agentcis_id": 257,
-    "applyims_id": "e2e81029-3cce-4a1d-8f2a-55a5704a4bdf"
-  },
-  {
-    "agentcis_id": 136,
-    "applyims_id": "e2e81029-3cce-4a1d-8f2a-55a5704a4bdf"
-  },
-  {
-    "agentcis_id": 139,
-    "applyims_id": "24d06dfe-b80a-4d45-b9be-73bd250e3e26"
-  },
-  {
-    "agentcis_id": 258,
-    "applyims_id": "8be8d507-0436-4604-9472-21c13ba7e6dc"
-  },
-  {
-    "agentcis_id": 259,
-    "applyims_id": "eb53e1e7-ea8d-4aa2-9515-0c6cdb81bfc4"
-  },
-  {
-    "agentcis_id": 260,
-    "applyims_id": "97388a20-ceae-4503-9b52-35a31c0b32b1"
-  },
-  {
-    "agentcis_id": 140,
-    "applyims_id": "25fecaf4-e261-4817-bec7-6c47d8320086"
-  },
-  {
-    "agentcis_id": 261,
-    "applyims_id": "25fecaf4-e261-4817-bec7-6c47d8320086"
-  },
-  {
-    "agentcis_id": 262,
-    "applyims_id": "33d60c3c-9463-4a66-ad63-62c0e7c27376"
-  },
-  {
-    "agentcis_id": 263,
-    "applyims_id": "e680124a-f651-41ed-86a3-951a07b45bfb"
-  },
-  {
-    "agentcis_id": 264,
-    "applyims_id": "e680124a-f651-41ed-86a3-951a07b45bfb"
-  },
-  {
-    "agentcis_id": 265,
-    "applyims_id": "e680124a-f651-41ed-86a3-951a07b45bfb"
-  },
-  {
-    "agentcis_id": 266,
-    "applyims_id": "e680124a-f651-41ed-86a3-951a07b45bfb"
-  },
-  {
-    "agentcis_id": 137,
-    "applyims_id": "b90bdf25-a9a5-42eb-be4d-ecca23597a97"
-  },
-  {
-    "agentcis_id": 138,
-    "applyims_id": "4508bb6a-13a0-498e-b96c-ecc8825813bc"
-  },
-  {
-    "agentcis_id": 267,
-    "applyims_id": "42878229-daff-4685-9285-ac6f42c38b71"
-  },
-  {
-    "agentcis_id": 8,
-    "applyims_id": "2e16205b-40d3-4b77-b89b-7070b1f44a1e"
-  },
-  {
-    "agentcis_id": 7,
-    "applyims_id": "978c3d3f-94f0-43a8-aa60-700a5b0ce469"
-  },
-  {
     "agentcis_id": 5,
-    "applyims_id": "187fe71e-e0ab-4a50-a0ba-ec177f9e647a"
+    "applyims_id": "187fe71e-e0ab-4a50-a0ba-ec177f9e647a",
+    "service_stage_name": "Insurance Request"
   },
   {
     "agentcis_id": 6,
-    "applyims_id": "0f16abe9-1df1-4fd5-8333-f4b18ae14689"
+    "applyims_id": "0f16abe9-1df1-4fd5-8333-f4b18ae14689",
+    "service_stage_name": "Certificate Issue"
+  },
+  {
+    "agentcis_id": 7,
+    "applyims_id": "978c3d3f-94f0-43a8-aa60-700a5b0ce469",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 8,
+    "applyims_id": "2e16205b-40d3-4b77-b89b-7070b1f44a1e",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 9,
+    "applyims_id": "5123970e-be71-4c49-892a-825fdab6ce83",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 10,
+    "applyims_id": "d62c4984-330c-4523-8d5f-cddb32a87b3d",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 11,
+    "applyims_id": "740221b3-f787-4670-9efb-61a8f5e74056",
+    "service_stage_name": "Offer Letter"
+  },
+  {
+    "agentcis_id": 12,
+    "applyims_id": "efe53f53-4a45-485c-bc83-12a9ca258f9e",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 13,
+    "applyims_id": "149323e1-1c33-4d64-8480-0e2fa9261c1e",
+    "service_stage_name": "COE"
+  },
+  {
+    "agentcis_id": 14,
+    "applyims_id": "6788f477-af7f-4f0a-a850-aa342a886db6",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 15,
+    "applyims_id": "d4212342-6752-41fe-9929-e10d82286fbf",
+    "service_stage_name": "Enrollment Application"
+  },
+  {
+    "agentcis_id": 16,
+    "applyims_id": "16c12feb-2112-451a-87d2-55c3b2b908e4",
+    "service_stage_name": "Conditional Offer"
+  },
+  {
+    "agentcis_id": 17,
+    "applyims_id": "b9e8b683-9442-4bb0-99bf-a04507934bce",
+    "service_stage_name": "GTE"
+  },
+  {
+    "agentcis_id": 18,
+    "applyims_id": "e7c9b24d-0939-4ee4-9fff-5e5ddd771b7f",
+    "service_stage_name": "Full Offer"
+  },
+  {
+    "agentcis_id": 19,
+    "applyims_id": "eb3d0adc-2dbd-401d-b365-9792f38e5816",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 20,
+    "applyims_id": "7c3f3600-910b-4aa3-84be-3360a0b8469f",
+    "service_stage_name": "COE"
+  },
+  {
+    "agentcis_id": 21,
+    "applyims_id": "ec8fac85-ab7e-4fe7-b9ae-71d5b4c3191c",
+    "service_stage_name": "Visa Application"
+  },
+  {
+    "agentcis_id": 22,
+    "applyims_id": "9fa430dd-db6d-4aaa-b1bb-3c73860375dd",
+    "service_stage_name": "Visa Grant"
+  },
+  {
+    "agentcis_id": 23,
+    "applyims_id": "23b9ac0f-3045-4450-9d63-a1db957cb562",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 24,
+    "applyims_id": "468eef95-b7e2-4d91-aa28-a7418e5f2448",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 25,
+    "applyims_id": "6d898f86-80d7-4267-855b-b9466884f326",
+    "service_stage_name": "Offer Release"
+  },
+  {
+    "agentcis_id": 27,
+    "applyims_id": "54eb7a5b-7fc2-434d-9049-def02f713dd9",
+    "service_stage_name": "COE"
   },
   {
     "agentcis_id": 28,
-    "applyims_id": "41a3380c-3337-49f0-b693-e36e34350bb0"
+    "applyims_id": "41a3380c-3337-49f0-b693-e36e34350bb0",
+    "service_stage_name": "Enquiry"
   },
   {
     "agentcis_id": 29,
-    "applyims_id": "5693d203-47e4-440f-9cc1-de5b25b8ff5d"
+    "applyims_id": "5693d203-47e4-440f-9cc1-de5b25b8ff5d",
+    "service_stage_name": "Class Enrollment"
   },
   {
     "agentcis_id": 30,
-    "applyims_id": "2460c7ce-e626-4204-b8f0-e44b92f86d66"
-  },
-  {
-    "agentcis_id": 39,
-    "applyims_id": "2460c7ce-e626-4204-b8f0-e44b92f86d66"
-  },
-  {
-    "agentcis_id": 195,
-    "applyims_id": "ab0953e6-cf65-44e6-a478-56999ee8327c"
-  },
-  {
-    "agentcis_id": 196,
-    "applyims_id": "a8ef95a6-c974-4045-80f1-0ad4ff0d8c98"
-  },
-  {
-    "agentcis_id": 197,
-    "applyims_id": "5a18878d-2fa9-484d-acef-a38dab39f7a7"
-  },
-  {
-    "agentcis_id": 198,
-    "applyims_id": "aee5d759-1eaf-4870-ba68-e3a9b1a5a24e"
-  },
-  {
-    "agentcis_id": 199,
-    "applyims_id": "d1f7b883-9fa5-43ab-87ef-5862ddeff01b"
-  },
-  {
-    "agentcis_id": 200,
-    "applyims_id": "9549dc6d-03c2-4813-abe1-bed152d3d47e"
-  },
-  {
-    "agentcis_id": 201,
-    "applyims_id": "75bcb413-b86e-46c4-aaaa-7fd0d593597b"
-  },
-  {
-    "agentcis_id": 202,
-    "applyims_id": "7867979b-ace9-4499-9d8b-19c5a081b1af"
-  },
-  {
-    "agentcis_id": 203,
-    "applyims_id": "45edf336-76e5-47c5-b4ad-fccf963ff0f7"
+    "applyims_id": "2460c7ce-e626-4204-b8f0-e44b92f86d66",
+    "service_stage_name": "Payment"
   },
   {
     "agentcis_id": 31,
-    "applyims_id": "8e8c3364-6e3f-4a8c-a0d7-3114dc4c0495"
+    "applyims_id": "8e8c3364-6e3f-4a8c-a0d7-3114dc4c0495",
+    "service_stage_name": "Sign Up"
   },
   {
     "agentcis_id": 32,
-    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15"
+    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15",
+    "service_stage_name": "Documents collections"
   },
   {
     "agentcis_id": 33,
-    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec"
+    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec",
+    "service_stage_name": "Lodge Application"
   },
   {
     "agentcis_id": 34,
-    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac"
+    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac",
+    "service_stage_name": "Additional Info Provided"
   },
   {
     "agentcis_id": 35,
-    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47"
-  },
-  {
-    "agentcis_id": 42,
-    "applyims_id": "8e8c3364-6e3f-4a8c-a0d7-3114dc4c0495"
-  },
-  {
-    "agentcis_id": 43,
-    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15"
-  },
-  {
-    "agentcis_id": 44,
-    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec"
-  },
-  {
-    "agentcis_id": 45,
-    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac"
-  },
-  {
-    "agentcis_id": 46,
-    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac"
-  },
-  {
-    "agentcis_id": 47,
-    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac"
-  },
-  {
-    "agentcis_id": 48,
-    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47"
-  },
-  {
-    "agentcis_id": 49,
-    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47"
-  },
-  {
-    "agentcis_id": 58,
-    "applyims_id": "bfead117-4966-4362-b721-22dc55ea0ae6"
-  },
-  {
-    "agentcis_id": 59,
-    "applyims_id": "3bcfd860-071f-40cf-9f4b-c9a21f238f45"
-  },
-  {
-    "agentcis_id": 60,
-    "applyims_id": "b9ca0613-6d00-4425-b4ba-5989b9cb00a0"
-  },
-  {
-    "agentcis_id": 205,
-    "applyims_id": "3f6ff975-1231-446c-b0c4-2a6a6a014995"
-  },
-  {
-    "agentcis_id": 206,
-    "applyims_id": "45089905-6f3f-4ba4-add1-30156b2401db"
-  },
-  {
-    "agentcis_id": 207,
-    "applyims_id": "148565d3-a7e8-4382-9b02-66927f8a6858"
-  },
-  {
-    "agentcis_id": 208,
-    "applyims_id": "f6af626a-970c-4c52-bc7f-a84ad160336b"
-  },
-  {
-    "agentcis_id": 178,
-    "applyims_id": "6ad3408e-9e9a-4fcf-8063-f89a0e17a27c"
-  },
-  {
-    "agentcis_id": 179,
-    "applyims_id": "2f7a6667-e40f-4e2d-b7de-f2c9d4a40b70"
-  },
-  {
-    "agentcis_id": 180,
-    "applyims_id": "3a71d482-ff30-41d1-ae33-1d89a94ab996"
-  },
-  {
-    "agentcis_id": 181,
-    "applyims_id": "3a71d482-ff30-41d1-ae33-1d89a94ab996"
-  },
-  {
-    "agentcis_id": 182,
-    "applyims_id": "ffee66c5-0707-47da-bd75-53c09fd48faa"
-  },
-  {
-    "agentcis_id": 183,
-    "applyims_id": "49564637-10dd-42c0-8c29-1bcf7038bd05"
-  },
-  {
-    "agentcis_id": 184,
-    "applyims_id": "deb8a499-ee03-4ac0-85fd-d6910bb696fe"
-  },
-  {
-    "agentcis_id": 185,
-    "applyims_id": "82aff608-5d38-4bdc-8f39-093ea6deb872"
-  },
-  {
-    "agentcis_id": 186,
-    "applyims_id": "612b7217-dd2d-4b6c-81d9-098be36e35bf"
+    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47",
+    "service_stage_name": "Finalise Application"
   },
   {
     "agentcis_id": 36,
-    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15"
+    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15",
+    "service_stage_name": "Documents collections"
   },
   {
     "agentcis_id": 37,
-    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec"
-  },
-  {
-    "agentcis_id": 82,
-    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac"
+    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec",
+    "service_stage_name": "Lodge Application"
   },
   {
     "agentcis_id": 38,
-    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47"
+    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47",
+    "service_stage_name": "Finalise Application"
   },
   {
-    "agentcis_id": 141,
-    "applyims_id": "29b5615d-2c54-4f3a-aa2d-800d675e7637"
-  },
-  {
-    "agentcis_id": 142,
-    "applyims_id": "d7ec5665-88bf-46ee-bc7e-58ff3b9cb07f"
-  },
-  {
-    "agentcis_id": 143,
-    "applyims_id": "8683f569-53a5-46c4-a72a-d965b5209afa"
-  },
-  {
-    "agentcis_id": 144,
-    "applyims_id": "947f4bf5-00a6-4e2e-8cf9-1921f832f108"
-  },
-  {
-    "agentcis_id": 145,
-    "applyims_id": "177b75a0-b900-4036-8f1a-f8b231ebd6d5"
-  },
-  {
-    "agentcis_id": 146,
-    "applyims_id": "e6afab44-89a3-4d8c-bdb5-fe3f9ba62b5c"
-  },
-  {
-    "agentcis_id": 147,
-    "applyims_id": "8218f0dd-7b7b-4ba4-bec5-f33b19a6e302"
+    "agentcis_id": 39,
+    "applyims_id": "2460c7ce-e626-4204-b8f0-e44b92f86d66",
+    "service_stage_name": "Payment"
   },
   {
     "agentcis_id": 40,
-    "applyims_id": "85fbef64-63e9-4809-9b2b-6c90c8afdf00"
+    "applyims_id": "85fbef64-63e9-4809-9b2b-6c90c8afdf00",
+    "service_stage_name": "Contact Details Update"
   },
   {
     "agentcis_id": 41,
-    "applyims_id": "282d2af3-e924-448f-9d92-dbed6c1b173c"
+    "applyims_id": "282d2af3-e924-448f-9d92-dbed6c1b173c",
+    "service_stage_name": "Travel Card Collection"
   },
   {
-    "agentcis_id": 209,
-    "applyims_id": "dcc35ad4-19a6-43cc-85ce-7c1e490d4fa8"
+    "agentcis_id": 42,
+    "applyims_id": "8e8c3364-6e3f-4a8c-a0d7-3114dc4c0495",
+    "service_stage_name": "Sign Up"
   },
   {
-    "agentcis_id": 210,
-    "applyims_id": "a597bce2-f445-4b9f-8d49-c0d64a62c646"
+    "agentcis_id": 43,
+    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15",
+    "service_stage_name": "Documents collections"
   },
   {
-    "agentcis_id": 211,
-    "applyims_id": "ff94080b-8db1-43f4-af91-60871435b0f3"
+    "agentcis_id": 44,
+    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec",
+    "service_stage_name": "Lodge Application"
   },
   {
-    "agentcis_id": 212,
-    "applyims_id": "74ba98e4-8306-4c26-aa88-b78621b99315"
+    "agentcis_id": 45,
+    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac",
+    "service_stage_name": "Additional Info Provided"
   },
   {
-    "agentcis_id": 213,
-    "applyims_id": "61918ae6-a83c-493c-a182-8573229c3d62"
+    "agentcis_id": 46,
+    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac",
+    "service_stage_name": "Additional Info Provided"
   },
   {
-    "agentcis_id": 214,
-    "applyims_id": "afc2dc7b-4c45-4bcb-b62f-608f8bff8548"
+    "agentcis_id": 47,
+    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac",
+    "service_stage_name": "Additional Info Provided"
   },
   {
-    "agentcis_id": 215,
-    "applyims_id": "041b0313-253e-4507-b62b-99a6a028177e"
+    "agentcis_id": 48,
+    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47",
+    "service_stage_name": "Finalise Application"
   },
   {
-    "agentcis_id": 83,
-    "applyims_id": "957f8fb7-6457-4de0-ab6a-bd059e66a1ad"
-  },
-  {
-    "agentcis_id": 84,
-    "applyims_id": "03c62cbc-ea86-47cd-a819-4f8f343e8759"
-  },
-  {
-    "agentcis_id": 85,
-    "applyims_id": "fcfa4880-d664-4b41-8ac8-e4848878c441"
-  },
-  {
-    "agentcis_id": 86,
-    "applyims_id": "c07725a9-d30b-4997-a6d7-9db038af52d3"
-  },
-  {
-    "agentcis_id": 216,
-    "applyims_id": "3b8365d1-d605-4953-8355-ffc59c07b5e4"
-  },
-  {
-    "agentcis_id": 217,
-    "applyims_id": "1fc61f33-1013-484e-bc41-bc9f7f2ed8bd"
-  },
-  {
-    "agentcis_id": 218,
-    "applyims_id": "0721f7a5-a814-42e4-97ff-075d61658ac4"
-  },
-  {
-    "agentcis_id": 219,
-    "applyims_id": "da15eab8-bfa4-47ed-8208-29ffe94cd59c"
-  },
-  {
-    "agentcis_id": 220,
-    "applyims_id": "68291fcc-c48d-451c-96bf-416afc1926c9"
-  },
-  {
-    "agentcis_id": 221,
-    "applyims_id": "7ecc0db3-2378-4a1a-8214-6f0357f35d6a"
-  },
-  {
-    "agentcis_id": 163,
-    "applyims_id": "26e8fb70-65f5-465d-9749-4cddc507c84b"
-  },
-  {
-    "agentcis_id": 164,
-    "applyims_id": "26e8fb70-65f5-465d-9749-4cddc507c84b"
-  },
-  {
-    "agentcis_id": 165,
-    "applyims_id": "24ef71dd-79ab-4bf3-af1f-719294d22003"
-  },
-  {
-    "agentcis_id": 166,
-    "applyims_id": "d0d3017a-a69f-4a19-ba04-cceaba4ecfb1"
-  },
-  {
-    "agentcis_id": 167,
-    "applyims_id": "1cc224f4-ec70-452d-b566-fc8c16294c30"
-  },
-  {
-    "agentcis_id": 168,
-    "applyims_id": "5e0d397c-f6f6-4a57-9444-73d2af19e45e"
-  },
-  {
-    "agentcis_id": 169,
-    "applyims_id": "e229fb88-a9ab-4ffa-9dd4-c383b2cfcb33"
-  },
-  {
-    "agentcis_id": 148,
-    "applyims_id": "6aadc233-4b1c-4311-9f8b-e9d9498dfdaf"
-  },
-  {
-    "agentcis_id": 149,
-    "applyims_id": "66079deb-329d-40d4-951d-3d24ef664265"
-  },
-  {
-    "agentcis_id": 150,
-    "applyims_id": "4370767d-96a3-4995-9c74-1722c176a1d4"
-  },
-  {
-    "agentcis_id": 151,
-    "applyims_id": "4046ecf8-96a5-4a7c-a638-9c86694cd1f4"
-  },
-  {
-    "agentcis_id": 152,
-    "applyims_id": "343f583d-00b6-4441-bd3e-82e13afe96f0"
-  },
-  {
-    "agentcis_id": 153,
-    "applyims_id": "c8c1d863-5179-46a7-9b6b-ff3676497c00"
+    "agentcis_id": 49,
+    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47",
+    "service_stage_name": "Finalise Application"
   },
   {
     "agentcis_id": 50,
-    "applyims_id": "8e8c3364-6e3f-4a8c-a0d7-3114dc4c0495"
+    "applyims_id": "8e8c3364-6e3f-4a8c-a0d7-3114dc4c0495",
+    "service_stage_name": "Sign Up"
   },
   {
     "agentcis_id": 51,
-    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15"
+    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15",
+    "service_stage_name": "Documents collections"
   },
   {
     "agentcis_id": 52,
-    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec"
+    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec",
+    "service_stage_name": "Lodge Application"
   },
   {
     "agentcis_id": 53,
-    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac"
+    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac",
+    "service_stage_name": "Additional Info Provided"
   },
   {
     "agentcis_id": 54,
-    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac"
+    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac",
+    "service_stage_name": "Additional Info Provided"
   },
   {
     "agentcis_id": 55,
-    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac"
+    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac",
+    "service_stage_name": "Additional Info Provided"
   },
   {
     "agentcis_id": 56,
-    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47"
+    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47",
+    "service_stage_name": "Finalise Application"
   },
   {
     "agentcis_id": 57,
-    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47"
+    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47",
+    "service_stage_name": "Finalise Application"
   },
   {
-    "agentcis_id": 187,
-    "applyims_id": "f885be9b-9f2a-477e-b2d2-e816194d2d90"
+    "agentcis_id": 58,
+    "applyims_id": "bfead117-4966-4362-b721-22dc55ea0ae6",
+    "service_stage_name": "Document collection"
   },
   {
-    "agentcis_id": 188,
-    "applyims_id": "b0f28b27-a9fe-4f4d-bfa8-acd400921ad8"
+    "agentcis_id": 59,
+    "applyims_id": "3bcfd860-071f-40cf-9f4b-c9a21f238f45",
+    "service_stage_name": "Application Lodgement"
   },
   {
-    "agentcis_id": 189,
-    "applyims_id": "5dc9003d-3fd8-4470-9dec-52a6759a8ab5"
-  },
-  {
-    "agentcis_id": 190,
-    "applyims_id": "993f9357-0eb9-449f-914f-90a0cbb6d95b"
-  },
-  {
-    "agentcis_id": 191,
-    "applyims_id": "cc462fb3-3480-4f3c-8713-b5426f7e9a1b"
-  },
-  {
-    "agentcis_id": 192,
-    "applyims_id": "8787d87d-4fc4-4f84-ae5a-6d99be2056eb"
-  },
-  {
-    "agentcis_id": 193,
-    "applyims_id": "808ed1a5-acd5-4a67-9a74-fa98cfaad5d8"
-  },
-  {
-    "agentcis_id": 194,
-    "applyims_id": "ac9eebf9-975f-4fbf-9178-fd4896812d86"
-  },
-  {
-    "agentcis_id": 129,
-    "applyims_id": "785c37db-609f-46e0-8753-425510952fe4"
-  },
-  {
-    "agentcis_id": 130,
-    "applyims_id": "957f8fb7-6457-4de0-ab6a-bd059e66a1ad"
-  },
-  {
-    "agentcis_id": 131,
-    "applyims_id": "957f8fb7-6457-4de0-ab6a-bd059e66a1ad"
-  },
-  {
-    "agentcis_id": 132,
-    "applyims_id": "03c62cbc-ea86-47cd-a819-4f8f343e8759"
-  },
-  {
-    "agentcis_id": 133,
-    "applyims_id": "fcfa4880-d664-4b41-8ac8-e4848878c441"
-  },
-  {
-    "agentcis_id": 134,
-    "applyims_id": "c07725a9-d30b-4997-a6d7-9db038af52d3"
-  },
-  {
-    "agentcis_id": 141,
-    "applyims_id": "29b5615d-2c54-4f3a-aa2d-800d675e7637"
-  },
-  {
-    "agentcis_id": 142,
-    "applyims_id": "d7ec5665-88bf-46ee-bc7e-58ff3b9cb07f"
-  },
-  {
-    "agentcis_id": 143,
-    "applyims_id": "8683f569-53a5-46c4-a72a-d965b5209afa"
-  },
-  {
-    "agentcis_id": 144,
-    "applyims_id": "947f4bf5-00a6-4e2e-8cf9-1921f832f108"
-  },
-  {
-    "agentcis_id": 145,
-    "applyims_id": "177b75a0-b900-4036-8f1a-f8b231ebd6d5"
-  },
-  {
-    "agentcis_id": 146,
-    "applyims_id": "e6afab44-89a3-4d8c-bdb5-fe3f9ba62b5c"
-  },
-  {
-    "agentcis_id": 147,
-    "applyims_id": "8218f0dd-7b7b-4ba4-bec5-f33b19a6e302"
+    "agentcis_id": 60,
+    "applyims_id": "b9ca0613-6d00-4425-b4ba-5989b9cb00a0",
+    "service_stage_name": "Application Outcome"
   },
   {
     "agentcis_id": 61,
-    "applyims_id": "b3876934-7c05-4734-9469-b8a8cdd843f0"
+    "applyims_id": "b3876934-7c05-4734-9469-b8a8cdd843f0",
+    "service_stage_name": "Document Collection"
   },
   {
     "agentcis_id": 62,
-    "applyims_id": "eec291bd-af03-48e8-b963-ac8f4da5708a"
+    "applyims_id": "eec291bd-af03-48e8-b963-ac8f4da5708a",
+    "service_stage_name": "EOI Lodgement"
   },
   {
     "agentcis_id": 63,
-    "applyims_id": "5e3e80ca-cfa9-49a5-b13f-3b65ad07e327"
+    "applyims_id": "5e3e80ca-cfa9-49a5-b13f-3b65ad07e327",
+    "service_stage_name": "EOI Outcome"
   },
   {
     "agentcis_id": 64,
-    "applyims_id": "8e8c3364-6e3f-4a8c-a0d7-3114dc4c0495"
+    "applyims_id": "8e8c3364-6e3f-4a8c-a0d7-3114dc4c0495",
+    "service_stage_name": "Sign Up"
   },
   {
     "agentcis_id": 65,
-    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15"
+    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15",
+    "service_stage_name": "Documents collections"
   },
   {
     "agentcis_id": 66,
-    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec"
+    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec",
+    "service_stage_name": "Lodge Application"
   },
   {
     "agentcis_id": 67,
-    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec"
+    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec",
+    "service_stage_name": "Lodge Application"
   },
   {
     "agentcis_id": 68,
-    "applyims_id": "47168698-564e-4924-a975-64ea285803b4"
+    "applyims_id": "47168698-564e-4924-a975-64ea285803b4",
+    "service_stage_name": "Additional Information request"
   },
   {
     "agentcis_id": 69,
-    "applyims_id": "47168698-564e-4924-a975-64ea285803b4"
+    "applyims_id": "47168698-564e-4924-a975-64ea285803b4",
+    "service_stage_name": "Additional Information request"
   },
   {
     "agentcis_id": 70,
-    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47"
-  },
-  {
-    "agentcis_id": 23,
-    "applyims_id": "23b9ac0f-3045-4450-9d63-a1db957cb562"
-  },
-  {
-    "agentcis_id": 24,
-    "applyims_id": "468eef95-b7e2-4d91-aa28-a7418e5f2448"
-  },
-  {
-    "agentcis_id": 25,
-    "applyims_id": "6d898f86-80d7-4267-855b-b9466884f326"
-  },
-  {
-    "agentcis_id": 27,
-    "applyims_id": "54eb7a5b-7fc2-434d-9049-def02f713dd9"
-  },
-  {
-    "agentcis_id": 23,
-    "applyims_id": "0f6004b0-f3a8-4cc2-b663-8af0459890dc"
-  },
-  {
-    "agentcis_id": 24,
-    "applyims_id": "147dc9ec-a09c-44c7-9901-483fa1a3e27e"
-  },
-  {
-    "agentcis_id": 25,
-    "applyims_id": "c3851c1c-7109-42a2-bb8b-0a6a5483c780"
-  },
-  {
-    "agentcis_id": 27,
-    "applyims_id": "54eb7a5b-7fc2-434d-9049-def02f713dd9"
-  },
-  {
-    "agentcis_id": 23,
-    "applyims_id": "da66262e-6342-42dd-a4b6-01667a53a22d"
-  },
-  {
-    "agentcis_id": 24,
-    "applyims_id": "a778b239-1330-4d32-b071-90a6723eaba7"
-  },
-  {
-    "agentcis_id": 25,
-    "applyims_id": "4a9e10bd-0fbc-4d55-bfe5-da0b263033a3"
-  },
-  {
-    "agentcis_id": 27,
-    "applyims_id": "8a2ec15d-5abe-4949-b35d-dbf3d42a494e"
+    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47",
+    "service_stage_name": "Finalise Application"
   },
   {
     "agentcis_id": 73,
-    "applyims_id": "b7b12c85-41eb-4dc0-9a0e-7c2ab6cb349b"
+    "applyims_id": "b7b12c85-41eb-4dc0-9a0e-7c2ab6cb349b",
+    "service_stage_name": "Enquiry"
   },
   {
     "agentcis_id": 74,
-    "applyims_id": "ac68dfe2-15f0-4abf-a421-3c294b9e7f17"
+    "applyims_id": "ac68dfe2-15f0-4abf-a421-3c294b9e7f17",
+    "service_stage_name": "Prepare Draft"
   },
   {
     "agentcis_id": 77,
-    "applyims_id": "6eb10535-57b3-4d76-9bf3-02c824bcd7ad"
+    "applyims_id": "6eb10535-57b3-4d76-9bf3-02c824bcd7ad",
+    "service_stage_name": "Collect Service Fee/ Documents"
   },
   {
     "agentcis_id": 78,
-    "applyims_id": "9ae7fd54-8d48-44da-9bd3-3cb89783d88a"
+    "applyims_id": "9ae7fd54-8d48-44da-9bd3-3cb89783d88a",
+    "service_stage_name": "Lodgement"
   },
   {
-    "agentcis_id": 159,
-    "applyims_id": "dc34298b-a50c-43c3-b92d-0da3c474d067"
+    "agentcis_id": 82,
+    "applyims_id": "af1b8926-000d-4242-b87b-53f5288fedac",
+    "service_stage_name": "Additional Info Provided"
   },
   {
-    "agentcis_id": 160,
-    "applyims_id": "77655738-3690-4779-88fb-47fccd45135d"
+    "agentcis_id": 83,
+    "applyims_id": "957f8fb7-6457-4de0-ab6a-bd059e66a1ad",
+    "service_stage_name": "Document collection"
   },
   {
-    "agentcis_id": 161,
-    "applyims_id": "f505cf98-b68e-4016-9417-e411c1806eee"
+    "agentcis_id": 84,
+    "applyims_id": "03c62cbc-ea86-47cd-a819-4f8f343e8759",
+    "service_stage_name": "Lodge Application"
   },
   {
-    "agentcis_id": 162,
-    "applyims_id": "8ee097bb-b8cf-4585-ade3-3cfce715d250"
+    "agentcis_id": 85,
+    "applyims_id": "fcfa4880-d664-4b41-8ac8-e4848878c441",
+    "service_stage_name": "Additional Information"
   },
   {
-    "agentcis_id": 247,
-    "applyims_id": "e9c4031e-c212-46e4-b893-f3f97365f9cd"
+    "agentcis_id": 86,
+    "applyims_id": "c07725a9-d30b-4997-a6d7-9db038af52d3",
+    "service_stage_name": "Finalize Application"
   },
   {
-    "agentcis_id": 248,
-    "applyims_id": "ac64a125-44b0-434e-a9cd-4a27ed0e50db"
+    "agentcis_id": 87,
+    "applyims_id": "",
+    "service_stage_name": ""
   },
   {
-    "agentcis_id": 249,
-    "applyims_id": "6f4aff02-158a-4201-b6c2-51c554c2a8a9"
+    "agentcis_id": 88,
+    "applyims_id": "",
+    "service_stage_name": ""
   },
   {
-    "agentcis_id": 250,
-    "applyims_id": "229fdc52-91ee-4c62-90e2-bcd1f42ec985"
+    "agentcis_id": 89,
+    "applyims_id": "",
+    "service_stage_name": ""
   },
   {
-    "agentcis_id": 251,
-    "applyims_id": "1f5a74bf-1d82-48e9-a059-d18fa2076cd2"
+    "agentcis_id": 90,
+    "applyims_id": "",
+    "service_stage_name": ""
   },
   {
-    "agentcis_id": 252,
-    "applyims_id": "1fcefc30-a065-46d7-b874-07ed161f0354"
+    "agentcis_id": 91,
+    "applyims_id": "",
+    "service_stage_name": ""
   },
   {
-    "agentcis_id": 253,
-    "applyims_id": "6bbf82be-3e1e-403f-8f86-9fb43afa40c8"
-  },
-  {
-    "agentcis_id": 229,
-    "applyims_id": "2ad5981e-e469-4a27-859f-fe8b1d62889a"
-  },
-  {
-    "agentcis_id": 230,
-    "applyims_id": "4486b16e-c606-4674-ae08-58e7fbddc736"
-  },
-  {
-    "agentcis_id": 231,
-    "applyims_id": "1ba15318-2e71-41d2-b20a-5109e379505c"
-  },
-  {
-    "agentcis_id": 232,
-    "applyims_id": "a2dc9989-fc5d-49ab-9d4a-d3097e0f798d"
-  },
-  {
-    "agentcis_id": 233,
-    "applyims_id": "773c847c-4f2d-42f3-9440-fcc1b5282d51"
-  },
-  {
-    "agentcis_id": 234,
-    "applyims_id": "db60648d-bf61-45ea-adb2-ffb46393151a"
-  },
-  {
-    "agentcis_id": 235,
-    "applyims_id": "158b4c78-8736-464d-9618-a6493c740c7a"
-  },
-  {
-    "agentcis_id": 236,
-    "applyims_id": "3eb6080e-746e-419c-89d5-fc121be01280"
-  },
-  {
-    "agentcis_id": 237,
-    "applyims_id": "deb9da03-093e-4311-abda-fcf10c49361c"
-  },
-  {
-    "agentcis_id": 238,
-    "applyims_id": "e4a46d36-0a89-4cd0-b559-c8ed9879a5fc"
-  },
-  {
-    "agentcis_id": 239,
-    "applyims_id": "b08c6f06-f064-4b07-aa96-05631a2706ff"
-  },
-  {
-    "agentcis_id": 240,
-    "applyims_id": "86e942d1-5c64-44b8-8130-eab27daa0c05"
-  },
-  {
-    "agentcis_id": 241,
-    "applyims_id": "cf59fb13-3172-4e2c-84ca-dad68bd79f40"
-  },
-  {
-    "agentcis_id": 242,
-    "applyims_id": "f623d72a-83ff-4552-b116-fe4b16348700"
-  },
-  {
-    "agentcis_id": 243,
-    "applyims_id": "957f8fb7-6457-4de0-ab6a-bd059e66a1ad"
-  },
-  {
-    "agentcis_id": 244,
-    "applyims_id": "03c62cbc-ea86-47cd-a819-4f8f343e8759"
-  },
-  {
-    "agentcis_id": 245,
-    "applyims_id": "fcfa4880-d664-4b41-8ac8-e4848878c441"
-  },
-  {
-    "agentcis_id": 246,
-    "applyims_id": "c07725a9-d30b-4997-a6d7-9db038af52d3"
-  },
-  {
-    "agentcis_id": 114,
-    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15"
-  },
-  {
-    "agentcis_id": 115,
-    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec"
-  },
-  {
-    "agentcis_id": 116,
-    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47"
+    "agentcis_id": 92,
+    "applyims_id": "",
+    "service_stage_name": ""
   },
   {
     "agentcis_id": 93,
-    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47"
+    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47",
+    "service_stage_name": "Finalise Application"
+  },
+  {
+    "agentcis_id": 94,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 95,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 96,
+    "applyims_id": "734d0ccd-bab5-4bbb-a7c1-b9ee76f005f8",
+    "service_stage_name": "Documentation"
+  },
+  {
+    "agentcis_id": 97,
+    "applyims_id": "25d9afd5-cfc1-45e2-9602-f93b36d179ea",
+    "service_stage_name": "Application Submission"
+  },
+  {
+    "agentcis_id": 98,
+    "applyims_id": "a8d9d766-0e9c-4f78-9c53-fc14aa92bbfa",
+    "service_stage_name": "Pre Offer Letter"
+  },
+  {
+    "agentcis_id": 99,
+    "applyims_id": "008957cf-f85f-459d-8b0c-97728ce291d1",
+    "service_stage_name": "Initial Tuition Payment"
+  },
+  {
+    "agentcis_id": 100,
+    "applyims_id": "c9d5617d-8909-405b-8665-d2d1d4e65a0c",
+    "service_stage_name": "Final Offer"
+  },
+  {
+    "agentcis_id": 101,
+    "applyims_id": "d345bfbe-ec1f-4306-8992-845735ae859e",
+    "service_stage_name": "Financial Preparation"
+  },
+  {
+    "agentcis_id": 102,
+    "applyims_id": "d345bfbe-ec1f-4306-8992-845735ae859e",
+    "service_stage_name": "Financial Preparation"
+  },
+  {
+    "agentcis_id": 103,
+    "applyims_id": "4a56e42b-be8d-48b4-9f27-939d7a40cbbd",
+    "service_stage_name": "Visa Submission"
+  },
+  {
+    "agentcis_id": 104,
+    "applyims_id": "3b3e48e4-c306-4519-8745-faec9cdd9c5e",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 105,
+    "applyims_id": "e1142f96-c12c-4b64-a423-ce284cb8df53",
+    "service_stage_name": "Profile assessment"
+  },
+  {
+    "agentcis_id": 106,
+    "applyims_id": "b0d03007-5b33-4d2a-a98e-088f813eb7a5",
+    "service_stage_name": "Application Lodged"
+  },
+  {
+    "agentcis_id": 107,
+    "applyims_id": "e1b0faf4-c9d7-4e3c-bf37-a36ddcb12ec4",
+    "service_stage_name": "Conditional Offer"
+  },
+  {
+    "agentcis_id": 108,
+    "applyims_id": "64f76f6c-fc55-46b4-819f-b1abc901151d",
+    "service_stage_name": "CAS Request"
+  },
+  {
+    "agentcis_id": 109,
+    "applyims_id": "d29f3a67-ab47-4bf9-b7b6-ad9c38faeb1b",
+    "service_stage_name": "Unconditional offer"
+  },
+  {
+    "agentcis_id": 110,
+    "applyims_id": "375572b1-c565-494f-bd26-c552e129e92b",
+    "service_stage_name": "Initial deposit payment"
+  },
+  {
+    "agentcis_id": 111,
+    "applyims_id": "f56151a1-2b9f-40dd-b99b-feca51d38ad2",
+    "service_stage_name": "CAS Approved"
+  },
+  {
+    "agentcis_id": 112,
+    "applyims_id": "ee4456c0-c1cf-4781-9a73-ea656dfff861",
+    "service_stage_name": "Visa Submission"
+  },
+  {
+    "agentcis_id": 113,
+    "applyims_id": "f8e9dc78-404d-4a87-8c5c-4e4ffe155314",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 114,
+    "applyims_id": "84e39584-e37a-4889-965b-b65ee2bd4f15",
+    "service_stage_name": "Documents collections"
+  },
+  {
+    "agentcis_id": 115,
+    "applyims_id": "6e8400f8-bf8e-4971-b2d9-60af8b7a0bec",
+    "service_stage_name": "Lodge Application"
+  },
+  {
+    "agentcis_id": 116,
+    "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47",
+    "service_stage_name": "Finalise Application"
+  },
+  {
+    "agentcis_id": 122,
+    "applyims_id": "2cdb86a1-b854-4e18-a9a3-b9ad692fd5eb",
+    "service_stage_name": "Current Student Verification"
+  },
+  {
+    "agentcis_id": 123,
+    "applyims_id": "88eb8680-0caa-4e0c-8020-1a3d0d96d901",
+    "service_stage_name": "Arrival Verification"
+  },
+  {
+    "agentcis_id": 124,
+    "applyims_id": "24f961ef-cd62-456d-ad93-1944543d677a",
+    "service_stage_name": "Job Verification"
+  },
+  {
+    "agentcis_id": 125,
+    "applyims_id": "1416d1cc-a720-4635-a501-ab8dd47a5ca3",
+    "service_stage_name": "Fund Release"
+  },
+  {
+    "agentcis_id": 126,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 127,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 128,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 129,
+    "applyims_id": "785c37db-609f-46e0-8753-425510952fe4",
+    "service_stage_name": "Sign up"
+  },
+  {
+    "agentcis_id": 130,
+    "applyims_id": "957f8fb7-6457-4de0-ab6a-bd059e66a1ad",
+    "service_stage_name": "Document collection"
+  },
+  {
+    "agentcis_id": 131,
+    "applyims_id": "957f8fb7-6457-4de0-ab6a-bd059e66a1ad",
+    "service_stage_name": "Document collection"
+  },
+  {
+    "agentcis_id": 132,
+    "applyims_id": "03c62cbc-ea86-47cd-a819-4f8f343e8759",
+    "service_stage_name": "Lodge Application"
+  },
+  {
+    "agentcis_id": 133,
+    "applyims_id": "fcfa4880-d664-4b41-8ac8-e4848878c441",
+    "service_stage_name": "Additional Information"
+  },
+  {
+    "agentcis_id": 134,
+    "applyims_id": "c07725a9-d30b-4997-a6d7-9db038af52d3",
+    "service_stage_name": "Finalize Application"
+  },
+  {
+    "agentcis_id": 135,
+    "applyims_id": "8f9021f2-5a0d-4a2f-80db-687f01d71e4d",
+    "service_stage_name": "Inquiry"
+  },
+  {
+    "agentcis_id": 136,
+    "applyims_id": "e2e81029-3cce-4a1d-8f2a-55a5704a4bdf",
+    "service_stage_name": "Offer Letter"
+  },
+  {
+    "agentcis_id": 137,
+    "applyims_id": "b90bdf25-a9a5-42eb-be4d-ecca23597a97",
+    "service_stage_name": "Accommodation Arrangements"
+  },
+  {
+    "agentcis_id": 138,
+    "applyims_id": "4508bb6a-13a0-498e-b96c-ecc8825813bc",
+    "service_stage_name": "Register class & orientation"
+  },
+  {
+    "agentcis_id": 139,
+    "applyims_id": "24d06dfe-b80a-4d45-b9be-73bd250e3e26",
+    "service_stage_name": "I-20 Letter"
+  },
+  {
+    "agentcis_id": 140,
+    "applyims_id": "25fecaf4-e261-4817-bec7-6c47d8320086",
+    "service_stage_name": "Visa interview"
+  },
+  {
+    "agentcis_id": 141,
+    "applyims_id": "29b5615d-2c54-4f3a-aa2d-800d675e7637",
+    "service_stage_name": "Documentation"
+  },
+  {
+    "agentcis_id": 142,
+    "applyims_id": "d7ec5665-88bf-46ee-bc7e-58ff3b9cb07f",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 143,
+    "applyims_id": "8683f569-53a5-46c4-a72a-d965b5209afa",
+    "service_stage_name": "Acceptance Letter"
+  },
+  {
+    "agentcis_id": 144,
+    "applyims_id": "947f4bf5-00a6-4e2e-8cf9-1921f832f108",
+    "service_stage_name": "Offer Letter"
+  },
+  {
+    "agentcis_id": 145,
+    "applyims_id": "177b75a0-b900-4036-8f1a-f8b231ebd6d5",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 146,
+    "applyims_id": "e6afab44-89a3-4d8c-bdb5-fe3f9ba62b5c",
+    "service_stage_name": "Final Offer"
+  },
+  {
+    "agentcis_id": 147,
+    "applyims_id": "8218f0dd-7b7b-4ba4-bec5-f33b19a6e302",
+    "service_stage_name": "Visa"
+  },
+  {
+    "agentcis_id": 148,
+    "applyims_id": "6aadc233-4b1c-4311-9f8b-e9d9498dfdaf",
+    "service_stage_name": "Documentation"
+  },
+  {
+    "agentcis_id": 149,
+    "applyims_id": "66079deb-329d-40d4-951d-3d24ef664265",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 150,
+    "applyims_id": "4370767d-96a3-4995-9c74-1722c176a1d4",
+    "service_stage_name": "Offer Letter"
+  },
+  {
+    "agentcis_id": 151,
+    "applyims_id": "4046ecf8-96a5-4a7c-a638-9c86694cd1f4",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 152,
+    "applyims_id": "343f583d-00b6-4441-bd3e-82e13afe96f0",
+    "service_stage_name": "Final Offer"
+  },
+  {
+    "agentcis_id": 153,
+    "applyims_id": "c8c1d863-5179-46a7-9b6b-ff3676497c00",
+    "service_stage_name": "Visa"
+  },
+  {
+    "agentcis_id": 154,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 155,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 156,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 157,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 158,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 159,
+    "applyims_id": "dc34298b-a50c-43c3-b92d-0da3c474d067",
+    "service_stage_name": "Consultation and Service fees"
+  },
+  {
+    "agentcis_id": 160,
+    "applyims_id": "77655738-3690-4779-88fb-47fccd45135d",
+    "service_stage_name": "Application Submission"
+  },
+  {
+    "agentcis_id": 161,
+    "applyims_id": "f505cf98-b68e-4016-9417-e411c1806eee",
+    "service_stage_name": "Interview Booked"
+  },
+  {
+    "agentcis_id": 162,
+    "applyims_id": "8ee097bb-b8cf-4585-ade3-3cfce715d250",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 163,
+    "applyims_id": "26e8fb70-65f5-465d-9749-4cddc507c84b",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 164,
+    "applyims_id": "26e8fb70-65f5-465d-9749-4cddc507c84b",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 165,
+    "applyims_id": "24ef71dd-79ab-4bf3-af1f-719294d22003",
+    "service_stage_name": "Letter of Acceptance"
+  },
+  {
+    "agentcis_id": 166,
+    "applyims_id": "d0d3017a-a69f-4a19-ba04-cceaba4ecfb1",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 167,
+    "applyims_id": "1cc224f4-ec70-452d-b566-fc8c16294c30",
+    "service_stage_name": "Letter of Certification"
+  },
+  {
+    "agentcis_id": 168,
+    "applyims_id": "5e0d397c-f6f6-4a57-9444-73d2af19e45e",
+    "service_stage_name": "Visa Processing"
+  },
+  {
+    "agentcis_id": 169,
+    "applyims_id": "e229fb88-a9ab-4ffa-9dd4-c383b2cfcb33",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 170,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 171,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 172,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 173,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 174,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 175,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 176,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 177,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 178,
+    "applyims_id": "6ad3408e-9e9a-4fcf-8063-f89a0e17a27c",
+    "service_stage_name": "Documentation"
+  },
+  {
+    "agentcis_id": 179,
+    "applyims_id": "2f7a6667-e40f-4e2d-b7de-f2c9d4a40b70",
+    "service_stage_name": "Application Lodge"
+  },
+  {
+    "agentcis_id": 180,
+    "applyims_id": "3a71d482-ff30-41d1-ae33-1d89a94ab996",
+    "service_stage_name": "Provisional Offer Letter"
+  },
+  {
+    "agentcis_id": 181,
+    "applyims_id": "3a71d482-ff30-41d1-ae33-1d89a94ab996",
+    "service_stage_name": "Provisional Offer Letter"
+  },
+  {
+    "agentcis_id": 182,
+    "applyims_id": "ffee66c5-0707-47da-bd75-53c09fd48faa",
+    "service_stage_name": "Full Offer"
+  },
+  {
+    "agentcis_id": 183,
+    "applyims_id": "49564637-10dd-42c0-8c29-1bcf7038bd05",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 184,
+    "applyims_id": "deb8a499-ee03-4ac0-85fd-d6910bb696fe",
+    "service_stage_name": "COE"
+  },
+  {
+    "agentcis_id": 185,
+    "applyims_id": "82aff608-5d38-4bdc-8f39-093ea6deb872",
+    "service_stage_name": "Visa lodge"
+  },
+  {
+    "agentcis_id": 186,
+    "applyims_id": "612b7217-dd2d-4b6c-81d9-098be36e35bf",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 187,
+    "applyims_id": "f885be9b-9f2a-477e-b2d2-e816194d2d90",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 188,
+    "applyims_id": "b0f28b27-a9fe-4f4d-bfa8-acd400921ad8",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 189,
+    "applyims_id": "5dc9003d-3fd8-4470-9dec-52a6759a8ab5",
+    "service_stage_name": "Conditional Offer Letter"
+  },
+  {
+    "agentcis_id": 190,
+    "applyims_id": "993f9357-0eb9-449f-914f-90a0cbb6d95b",
+    "service_stage_name": "Unconditional Offer letter"
+  },
+  {
+    "agentcis_id": 191,
+    "applyims_id": "cc462fb3-3480-4f3c-8713-b5426f7e9a1b",
+    "service_stage_name": "Fee Payment"
+  },
+  {
+    "agentcis_id": 192,
+    "applyims_id": "8787d87d-4fc4-4f84-ae5a-6d99be2056eb",
+    "service_stage_name": "Acceptance"
+  },
+  {
+    "agentcis_id": 193,
+    "applyims_id": "808ed1a5-acd5-4a67-9a74-fa98cfaad5d8",
+    "service_stage_name": "Visa Processing"
+  },
+  {
+    "agentcis_id": 194,
+    "applyims_id": "ac9eebf9-975f-4fbf-9178-fd4896812d86",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 195,
+    "applyims_id": "ab0953e6-cf65-44e6-a478-56999ee8327c",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 196,
+    "applyims_id": "a8ef95a6-c974-4045-80f1-0ad4ff0d8c98",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 197,
+    "applyims_id": "5a18878d-2fa9-484d-acef-a38dab39f7a7",
+    "service_stage_name": "Conditional Offer Letter"
+  },
+  {
+    "agentcis_id": 198,
+    "applyims_id": "aee5d759-1eaf-4870-ba68-e3a9b1a5a24e",
+    "service_stage_name": "Visa Processing"
+  },
+  {
+    "agentcis_id": 199,
+    "applyims_id": "d1f7b883-9fa5-43ab-87ef-5862ddeff01b",
+    "service_stage_name": "Visa Lodgement"
+  },
+  {
+    "agentcis_id": 200,
+    "applyims_id": "9549dc6d-03c2-4813-abe1-bed152d3d47e",
+    "service_stage_name": "Interview"
+  },
+  {
+    "agentcis_id": 201,
+    "applyims_id": "75bcb413-b86e-46c4-aaaa-7fd0d593597b",
+    "service_stage_name": "AIP Received"
+  },
+  {
+    "agentcis_id": 202,
+    "applyims_id": "7867979b-ace9-4499-9d8b-19c5a081b1af",
+    "service_stage_name": "Tuition Fee Payment"
+  },
+  {
+    "agentcis_id": 203,
+    "applyims_id": "45edf336-76e5-47c5-b4ad-fccf963ff0f7",
+    "service_stage_name": "Visa Granted"
+  },
+  {
+    "agentcis_id": 204,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 205,
+    "applyims_id": "3f6ff975-1231-446c-b0c4-2a6a6a014995",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 206,
+    "applyims_id": "45089905-6f3f-4ba4-add1-30156b2401db",
+    "service_stage_name": "I 20 Issued"
+  },
+  {
+    "agentcis_id": 207,
+    "applyims_id": "148565d3-a7e8-4382-9b02-66927f8a6858",
+    "service_stage_name": "Visa Applied"
+  },
+  {
+    "agentcis_id": 208,
+    "applyims_id": "f6af626a-970c-4c52-bc7f-a84ad160336b",
+    "service_stage_name": "Visa Granted"
+  },
+  {
+    "agentcis_id": 209,
+    "applyims_id": "dcc35ad4-19a6-43cc-85ce-7c1e490d4fa8",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 210,
+    "applyims_id": "a597bce2-f445-4b9f-8d49-c0d64a62c646",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 211,
+    "applyims_id": "ff94080b-8db1-43f4-af91-60871435b0f3",
+    "service_stage_name": "Conditional Offer Letter"
+  },
+  {
+    "agentcis_id": 212,
+    "applyims_id": "74ba98e4-8306-4c26-aa88-b78621b99315",
+    "service_stage_name": "Fee Payment"
+  },
+  {
+    "agentcis_id": 213,
+    "applyims_id": "61918ae6-a83c-493c-a182-8573229c3d62",
+    "service_stage_name": "Final Offer Letter"
+  },
+  {
+    "agentcis_id": 214,
+    "applyims_id": "afc2dc7b-4c45-4bcb-b62f-608f8bff8548",
+    "service_stage_name": "Visa Application"
+  },
+  {
+    "agentcis_id": 215,
+    "applyims_id": "041b0313-253e-4507-b62b-99a6a028177e",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 216,
+    "applyims_id": "3b8365d1-d605-4953-8355-ffc59c07b5e4",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 217,
+    "applyims_id": "1fc61f33-1013-484e-bc41-bc9f7f2ed8bd",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 218,
+    "applyims_id": "0721f7a5-a814-42e4-97ff-075d61658ac4",
+    "service_stage_name": "Conditional Offer Letter"
+  },
+  {
+    "agentcis_id": 219,
+    "applyims_id": "da15eab8-bfa4-47ed-8208-29ffe94cd59c",
+    "service_stage_name": "Fee Payment"
+  },
+  {
+    "agentcis_id": 220,
+    "applyims_id": "68291fcc-c48d-451c-96bf-416afc1926c9",
+    "service_stage_name": "Visa Application"
+  },
+  {
+    "agentcis_id": 221,
+    "applyims_id": "7ecc0db3-2378-4a1a-8214-6f0357f35d6a",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 222,
+    "applyims_id": "",
+    "service_stage_name": ""
+  },
+  {
+    "agentcis_id": 223,
+    "applyims_id": "8852f1fd-10b8-4910-966c-54eb78158fbf",
+    "service_stage_name": "Application Submission"
+  },
+  {
+    "agentcis_id": 224,
+    "applyims_id": "0c297b9a-e911-4391-b769-97fbe6ecdd11",
+    "service_stage_name": "Conditional Offer Letter"
+  },
+  {
+    "agentcis_id": 225,
+    "applyims_id": "c6f58c93-3132-49b2-a88d-f440560318a9",
+    "service_stage_name": "Unconditional Offer Letter"
+  },
+  {
+    "agentcis_id": 226,
+    "applyims_id": "550f2ff4-98c3-4c11-aec7-2f5c133cfdb0",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 227,
+    "applyims_id": "2f6f9644-43d3-41eb-9e6d-f09a86bedc06",
+    "service_stage_name": "Visa Submission"
+  },
+  {
+    "agentcis_id": 228,
+    "applyims_id": "72b6bd34-ac89-42e7-9e1d-4f030dee5c7f",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 229,
+    "applyims_id": "2ad5981e-e469-4a27-859f-fe8b1d62889a",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 230,
+    "applyims_id": "4486b16e-c606-4674-ae08-58e7fbddc736",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 231,
+    "applyims_id": "1ba15318-2e71-41d2-b20a-5109e379505c",
+    "service_stage_name": "Assessment Approval"
+  },
+  {
+    "agentcis_id": 232,
+    "applyims_id": "a2dc9989-fc5d-49ab-9d4a-d3097e0f798d",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 233,
+    "applyims_id": "773c847c-4f2d-42f3-9440-fcc1b5282d51",
+    "service_stage_name": "Acceptance Letter"
+  },
+  {
+    "agentcis_id": 234,
+    "applyims_id": "db60648d-bf61-45ea-adb2-ffb46393151a",
+    "service_stage_name": "Visa Processing"
+  },
+  {
+    "agentcis_id": 235,
+    "applyims_id": "158b4c78-8736-464d-9618-a6493c740c7a",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 236,
+    "applyims_id": "3eb6080e-746e-419c-89d5-fc121be01280",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 237,
+    "applyims_id": "deb9da03-093e-4311-abda-fcf10c49361c",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 238,
+    "applyims_id": "e4a46d36-0a89-4cd0-b559-c8ed9879a5fc",
+    "service_stage_name": "Conditional Offer Letter"
+  },
+  {
+    "agentcis_id": 239,
+    "applyims_id": "b08c6f06-f064-4b07-aa96-05631a2706ff",
+    "service_stage_name": "Fee Payment"
+  },
+  {
+    "agentcis_id": 240,
+    "applyims_id": "86e942d1-5c64-44b8-8130-eab27daa0c05",
+    "service_stage_name": "Final Offer Letter"
+  },
+  {
+    "agentcis_id": 241,
+    "applyims_id": "cf59fb13-3172-4e2c-84ca-dad68bd79f40",
+    "service_stage_name": "Visa Application"
+  },
+  {
+    "agentcis_id": 242,
+    "applyims_id": "f623d72a-83ff-4552-b116-fe4b16348700",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 243,
+    "applyims_id": "957f8fb7-6457-4de0-ab6a-bd059e66a1ad",
+    "service_stage_name": "Document collection"
+  },
+  {
+    "agentcis_id": 244,
+    "applyims_id": "03c62cbc-ea86-47cd-a819-4f8f343e8759",
+    "service_stage_name": "Lodge Application"
+  },
+  {
+    "agentcis_id": 245,
+    "applyims_id": "fcfa4880-d664-4b41-8ac8-e4848878c441",
+    "service_stage_name": "Additional Information"
+  },
+  {
+    "agentcis_id": 246,
+    "applyims_id": "c07725a9-d30b-4997-a6d7-9db038af52d3",
+    "service_stage_name": "Finalize Application"
+  },
+  {
+    "agentcis_id": 247,
+    "applyims_id": "e9c4031e-c212-46e4-b893-f3f97365f9cd",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 248,
+    "applyims_id": "ac64a125-44b0-434e-a9cd-4a27ed0e50db",
+    "service_stage_name": "Application Submission"
+  },
+  {
+    "agentcis_id": 249,
+    "applyims_id": "6f4aff02-158a-4201-b6c2-51c554c2a8a9",
+    "service_stage_name": "Conditional Offer Letter"
+  },
+  {
+    "agentcis_id": 250,
+    "applyims_id": "229fdc52-91ee-4c62-90e2-bcd1f42ec985",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 251,
+    "applyims_id": "1f5a74bf-1d82-48e9-a059-d18fa2076cd2",
+    "service_stage_name": "Final Offer Letter"
+  },
+  {
+    "agentcis_id": 252,
+    "applyims_id": "1fcefc30-a065-46d7-b874-07ed161f0354",
+    "service_stage_name": "Visa Submission"
+  },
+  {
+    "agentcis_id": 253,
+    "applyims_id": "6bbf82be-3e1e-403f-8f86-9fb43afa40c8",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 256,
+    "applyims_id": "8f830d81-29da-4af2-b46f-e51b8add7467",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 257,
+    "applyims_id": "e2e81029-3cce-4a1d-8f2a-55a5704a4bdf",
+    "service_stage_name": "Offer Letter"
+  },
+  {
+    "agentcis_id": 258,
+    "applyims_id": "8be8d507-0436-4604-9472-21c13ba7e6dc",
+    "service_stage_name": "Visa form - DS - 160"
+  },
+  {
+    "agentcis_id": 259,
+    "applyims_id": "eb53e1e7-ea8d-4aa2-9515-0c6cdb81bfc4",
+    "service_stage_name": "Pay DS - 160 Fee (Visa Fee)"
+  },
+  {
+    "agentcis_id": 260,
+    "applyims_id": "97388a20-ceae-4503-9b52-35a31c0b32b1",
+    "service_stage_name": "Complete SEVIS I - 901"
+  },
+  {
+    "agentcis_id": 261,
+    "applyims_id": "25fecaf4-e261-4817-bec7-6c47d8320086",
+    "service_stage_name": "Visa interview"
+  },
+  {
+    "agentcis_id": 262,
+    "applyims_id": "33d60c3c-9463-4a66-ad63-62c0e7c27376",
+    "service_stage_name": "Visa Decision"
+  },
+  {
+    "agentcis_id": 263,
+    "applyims_id": "e680124a-f651-41ed-86a3-951a07b45bfb",
+    "service_stage_name": "Medical"
+  },
+  {
+    "agentcis_id": 264,
+    "applyims_id": "e680124a-f651-41ed-86a3-951a07b45bfb",
+    "service_stage_name": "Medical"
+  },
+  {
+    "agentcis_id": 265,
+    "applyims_id": "e680124a-f651-41ed-86a3-951a07b45bfb",
+    "service_stage_name": "Medical"
+  },
+  {
+    "agentcis_id": 266,
+    "applyims_id": "e680124a-f651-41ed-86a3-951a07b45bfb",
+    "service_stage_name": "Medical"
+  },
+  {
+    "agentcis_id": 267,
+    "applyims_id": "42878229-daff-4685-9285-ac6f42c38b71",
+    "service_stage_name": "Travel Arrangements"
+  },
+  {
+    "agentcis_id": 268,
+    "applyims_id": "184708ca-dc10-45cd-b297-710b412cdd65",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 269,
+    "applyims_id": "7a259e13-835c-49f6-b726-40615b6a61f8",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 270,
+    "applyims_id": "11c294d1-5278-43a1-9b4a-cc9a1eaf6d12",
+    "service_stage_name": "Offer Received"
+  },
+  {
+    "agentcis_id": 271,
+    "applyims_id": "1e916872-ce41-4fb2-9962-8111cae73368",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 272,
+    "applyims_id": "5639f39b-8bf3-447a-9ef0-2d753152a372",
+    "service_stage_name": "Visa Processing"
+  },
+  {
+    "agentcis_id": 273,
+    "applyims_id": "95caa026-7d7f-4e8f-a784-199c056da39c",
+    "service_stage_name": "Visa Grant"
+  },
+  {
+    "agentcis_id": 274,
+    "applyims_id": "9c0e1ae0-dd03-43d0-87a4-dc4161060663",
+    "service_stage_name": "Enquiry"
+  },
+  {
+    "agentcis_id": 275,
+    "applyims_id": "735d8bd9-65c1-4611-9fcb-11060af11190",
+    "service_stage_name": "Application"
+  },
+  {
+    "agentcis_id": 276,
+    "applyims_id": "c7e5a625-6ed8-43ab-bbe8-b95798aa22e7",
+    "service_stage_name": "Offer Received"
+  },
+  {
+    "agentcis_id": 277,
+    "applyims_id": "f7c8201b-1f37-47ad-b0ef-8d57f8d36077",
+    "service_stage_name": "Payment"
+  },
+  {
+    "agentcis_id": 278,
+    "applyims_id": "b5fc3921-24b7-4828-abe0-334b7f6890d7",
+    "service_stage_name": "Registration Received"
+  },
+  {
+    "agentcis_id": 279,
+    "applyims_id": "ef713bdc-2d1f-42a0-ae8b-b8fdf39b9176",
+    "service_stage_name": "Visa Processing"
+  },
+  {
+    "agentcis_id": 280,
+    "applyims_id": "b879055a-ef2f-4082-8038-0bb5b8188f67",
+    "service_stage_name": "Visa Granted"
   }
 ]
