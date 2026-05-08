@@ -52,6 +52,7 @@ function getServices(): Services {
     mappingRepository,
     s3CopyService,
     config.s3Bucket,
+    config.tenant,
     logger
   );
 

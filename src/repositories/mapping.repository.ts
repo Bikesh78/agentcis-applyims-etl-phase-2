@@ -5,6 +5,7 @@ import { TempMappedDeal } from '../entities/etlDb/temp-mapped-deals.entity.js';
 import { TempMappedOfficeVisit } from '../entities/etlDb/temp-mapped-office-visits.entity.js';
 import { TempMappedMedia } from '../entities/etlDb/temp-mapped-medias.entity.js';
 import { TempMappedContactActivity } from 'entities/etlDb/temp-mapped-contact-activities.entity.js';
+import { TempMappedUser } from '../entities/etlDb/temp-mapped-users.entity.js';
 import { EntityType } from '../constants/entity-types.js';
 
 export interface BaseMappingData {
@@ -15,6 +16,7 @@ export interface BaseMappingData {
 export type ContactMappingData = BaseMappingData;
 export type OfficeVisitMappingData = BaseMappingData;
 export type ContactActivityMappingData = BaseMappingData;
+export type UserMappingData = BaseMappingData;
 
 export interface ApplicationMappingData extends BaseMappingData {
   appIdentifier?: string;
@@ -44,20 +46,21 @@ export type StoreMappingInput =
   | { entityType: EntityType.OFFICE_VISITS; data: OfficeVisitMappingData }
   | { entityType: EntityType.ATTACHMENTS; data: MediaMappingData }
   | { entityType: EntityType.CONTACT_ACTIVITIES; data: ContactActivityMappingData }
+  | { entityType: EntityType.USERS; data: UserMappingData }
   | { entityType: EntityType.DEALS; data: BaseMappingData }
   | { entityType: EntityType.AGENTS; data: BaseMappingData };
 
 export class MappingRepository {
-  constructor(private readonly etlDb: DataSource) { }
+  constructor(private readonly etlDb: DataSource) {}
 
   async storeMapping(migrationId: string, input: StoreMappingInput): Promise<void> {
     switch (input.entityType) {
       case EntityType.CONTACTS:
-        console.log('input contacts', input)
+        console.log('input contacts', input);
         await this.storeContactMapping(migrationId, input.data);
         break;
       case EntityType.APPLICATIONS:
-        console.log('appli input data', input.data)
+        console.log('appli input data', input.data);
         await this.storeApplicationMapping(migrationId, input.data);
         break;
       case EntityType.OFFICE_VISITS:
@@ -68,6 +71,9 @@ export class MappingRepository {
         break;
       case EntityType.CONTACT_ACTIVITIES:
         await this.storeContactActivitiesMapping(migrationId, input.data);
+        break;
+      case EntityType.USERS:
+        await this.storeUserMapping(migrationId, input.data);
         break;
       case EntityType.DEALS:
       case EntityType.AGENTS:
@@ -151,6 +157,20 @@ export class MappingRepository {
       },
       {
         conflictPaths: ['agentcisContactActivityId'],
+        skipUpdateIfNoValuesChanged: true,
+      }
+    );
+  }
+
+  async storeUserMapping(migrationId: string, data: UserMappingData): Promise<void> {
+    await this.etlDb.getRepository(TempMappedUser).upsert(
+      {
+        agentcisUserId: parseInt(data.agentcisId),
+        applyimsUserId: data.applyimsId,
+        migrationId: migrationId,
+      },
+      {
+        conflictPaths: ['agentcisUserId'],
         skipUpdateIfNoValuesChanged: true,
       }
     );

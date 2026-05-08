@@ -36,5 +36,9 @@
     "awsDestinationBucket": "AWS_DESTINATION_BUCKET",
     "awsRegion": "AWS_REGION"
   },
-  "visitPurposeId": "VISIT_PURPOSE_ID"
+  "visitPurposeId": "VISIT_PURPOSE_ID",
+  "tenant": {
+    "companyId": "TENANT_COMPANY_ID",
+    "domain": "TENANT_DOMAIN"
+  }
 }

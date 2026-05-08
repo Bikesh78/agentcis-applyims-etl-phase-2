@@ -68,6 +68,16 @@ export class IdResolver {
 
   static createPhaseResolver(dataSource: DataSource, logger: Logger): IdResolver {
     return this.createDefaultResolver(logger, {
+      users: new FallbackStrategy([
+        new JsonFileStrategy('../../mapper/users.json', logger),
+        new DatabaseStrategy({
+          dataSource,
+          tableName: 'temp_mapped_users',
+          inputColumn: 'agentcis_user_id',
+          outputColumn: 'applyims_user_id',
+          logger,
+        }),
+      ]),
       contacts: new FallbackStrategy([
         new JsonFileStrategy('../../mapper/contacts.json', logger),
         new DatabaseStrategy({

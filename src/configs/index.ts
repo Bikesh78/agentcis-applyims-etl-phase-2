@@ -4,6 +4,7 @@ import { ApiConfig, apiConfigSchema } from './api.config.js';
 import { LoggerConfig, loggerConfigSchema } from './logger.config.js';
 import config from 'config';
 import { S3BucketConfig, s3BucketConfigSchema } from './s3-bucket.config.js';
+import { TenantConfig, tenantConfigSchema } from './tenant.config.js';
 
 export interface AppConfig {
   nodeEnv: string;
@@ -13,6 +14,7 @@ export interface AppConfig {
   applyimsApi: ApiConfig;
   logger: LoggerConfig;
   s3Bucket: S3BucketConfig;
+  tenant: TenantConfig;
   visitPurposeId: string;
 }
 
@@ -30,6 +32,7 @@ const appConfigSchema = Joi.object<AppConfig>({
   etlDb: databaseConfigSchema.required(),
   applyimsApi: apiConfigSchema.required(),
   logger: loggerConfigSchema.required(),
+  tenant: tenantConfigSchema.required(),
   visitPurposeId: Joi.string().uuid().required().messages({
     'any.required': 'VISIT_PURPOSE_ID is required',
     'string.guid': 'VISIT_PURPOSE_ID must be a valid UUID',
@@ -51,6 +54,7 @@ export function loadConfig(): AppConfig {
     applyimsApi: config.get('applyimsApi'),
     logger: config.get('logger'),
     s3Bucket: config.get('s3Bucket'),
+    tenant: config.get('tenant'),
     visitPurposeId: config.get('visitPurposeId'),
   };
 

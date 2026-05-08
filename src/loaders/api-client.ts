@@ -10,6 +10,7 @@ import { ApplyIMSOfficeVisit } from 'entities/applyims/office-visit.entity.js';
 import { ApplyIMSMedia } from 'entities/applyims/media.entity.js';
 import { ApplyIMSAgentPartner } from 'entities/applyims/agent.entity.js';
 import { ApplyIMSContactActivity } from 'entities/applyims/contact-activity.entity.js';
+import { ApplyIMSUser } from 'entities/applyims/user.entity.js';
 
 export interface ExistingContactInfo {
   id: string;
@@ -170,17 +171,17 @@ export class ApplyIMSApiClient {
     return response.data.data;
   }
 
-  // @ts-ignore
-  async bulkCreateContactActivities(contactActivities: ApplyIMSContactActivity[]): Promise<BulkResponse> {
-    try {
-      const response = await this.axiosInstance.post('/v1/contact-activities/bulk', {
-        activities: contactActivities,
-      });
-      return response.data.data;
-    } catch (error: any) {
-      console.log('contactActivities', contactActivities)
-      console.log('eeeee ====', error?.response.data)
+  async bulkCreateUsers(users: ApplyIMSUser[]): Promise<BulkResponse> {
+    const response = await this.axiosInstance.post('/v1/users/bulk', { users });
+    return response.data.data;
+  }
 
-    }
+  async bulkCreateContactActivities(
+    contactActivities: ApplyIMSContactActivity[]
+  ): Promise<BulkResponse> {
+    const response = await this.axiosInstance.post('/v1/contact-activities/bulk', {
+      activities: contactActivities,
+    });
+    return response.data.data;
   }
 }

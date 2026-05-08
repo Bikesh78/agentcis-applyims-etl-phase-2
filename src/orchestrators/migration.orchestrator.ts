@@ -10,6 +10,7 @@ import {
   ContactActivityExtractor,
   ApplicationActivityWithRelations,
 } from '../extractors/contact-activity.extractor.js';
+import { UserExtractor } from '../extractors/user.extractor.js';
 import { ContactTransformer } from '../transformers/contact.transformer.js';
 import { ApplicationTransformer } from '../transformers/application.transformer.js';
 import { DealTransformer } from '../transformers/deal.transformer.js';
@@ -17,6 +18,7 @@ import { OfficeVisitTransformer } from '../transformers/office-visit.transformer
 import { AttachmentTransformer } from '../transformers/attachment.transformer.js';
 import { AgentTransformer } from '../transformers/agent.transformer.js';
 import { ContactActivityTransformer } from '../transformers/contact-activity.transformer.js';
+import { UserTransformer } from '../transformers/user.transformer.js';
 import { IdResolver } from '../transformers/utils/id-resolver.js';
 import { ProductTypeResolver } from '../transformers/utils/product-type-resolver.js';
 import { FieldMapper } from '../transformers/utils/field-mappers.js';
@@ -43,12 +45,15 @@ import { ApplyIMSOfficeVisit } from '../entities/applyims/office-visit.entity.js
 import { ApplyIMSMedia } from '../entities/applyims/media.entity.js';
 import { ApplyIMSAgentPartner } from '../entities/applyims/agent.entity.js';
 import { ApplyIMSContactActivity } from '../entities/applyims/contact-activity.entity.js';
+import { ApplyIMSUser } from '../entities/applyims/user.entity.js';
+import { Users } from '../entities/agentcis/users.entity.js';
 import { ReferrerBatch } from '../extractors/referrer.extractor.js';
 import { MappingRepository, DealMappingData } from 'repositories/mapping.repository.js';
 import { TempMappedDeal } from '../entities/etlDb/temp-mapped-deals.entity.js';
 import { TempMappedContact } from '../entities/etlDb/temp-mapped-contacts.entity.js';
 import { S3CopyService } from '../services/s3-copy.service.js';
 import { S3BucketConfig } from '../configs/s3-bucket.config.js';
+import { TenantConfig } from '../configs/tenant.config.js';
 import { ApplicationActivities } from 'entities/agentcis/application-activities.entity.js';
 
 export interface EntityMigrationResult {
@@ -71,7 +76,8 @@ type SourceEntity =
   | OfficeVisits
   | Attachment
   | ReferrerBatch
-  | ApplicationActivities;
+  | ApplicationActivities
+  | Users;
 
 type TargetEntity =
   | ApplyIMSContact
@@ -80,7 +86,8 @@ type TargetEntity =
   | ApplyIMSOfficeVisit
   | ApplyIMSMedia
   | ApplyIMSAgentPartner
-  | ApplyIMSContactActivity;
+  | ApplyIMSContactActivity
+  | ApplyIMSUser;
 
 interface EntityHandlers {
   extractor: BaseExtractor<SourceEntity>;
@@ -113,6 +120,7 @@ export class MigrationOrchestrator {
     private mappingRepository: MappingRepository,
     private s3CopyService: S3CopyService,
     private s3BucketConfig: S3BucketConfig,
+    private tenantConfig: TenantConfig,
     private logger: Logger
   ) {}
 
@@ -441,6 +449,17 @@ export class MigrationOrchestrator {
           },
           apiMethod: (batch) =>
             this.apiClient.bulkCreateContactActivities(batch as ApplyIMSContactActivity[]),
+        };
+      }
+      case EntityType.USERS: {
+        const extractor = new UserExtractor(this.agentcisDb, config);
+        const transformer = new UserTransformer(this.createIdResolver(), this.tenantConfig);
+        return {
+          extractor: extractor as BaseExtractor<SourceEntity>,
+          transformer: {
+            transform: (item) => transformer.transform(item as Users) as Promise<TargetEntity>,
+          },
+          apiMethod: (batch) => this.apiClient.bulkCreateUsers(batch as ApplyIMSUser[]),
         };
       }
       default:
