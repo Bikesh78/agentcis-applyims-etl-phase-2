@@ -27,8 +27,8 @@ export class ContactActivityTransformer extends BaseTransformer<
     const userId = await this.idResolver.resolveUserId(source.userId);
     const contactId = await this.idResolver.resolveContactId(clientId);
     const activitiesTypeId = await this.idResolver.resolveApplicationId(applicationId);
-    // const appIdentifier = await this.idResolver.resolveAppIdentifier(applicationId);
-    const appIdentifier = "dsfsdfsd";
+    const appIdentifier = await this.idResolver.resolveAppIdentifier(applicationId);
+    // const appIdentifier = "dsfsdfsd";
     const description: AgentcisDescription = source.description
       ? JSON.parse(source.description)
       : null;
@@ -67,7 +67,7 @@ export class ContactActivityTransformer extends BaseTransformer<
       followerUserId: userId,
       createdAt: source.createdAt,
       updatedAt: source.updatedAt,
-      agentcisActivityId: source.id
+      agentcisActivityId: source.id,
     };
   }
 
@@ -85,6 +85,7 @@ export class ContactActivityTransformer extends BaseTransformer<
     const agentcisType = source.type as string | null;
     const userName = description.user_name;
     const stageId = await this.idResolver.resolveWorkflowStagesId(source.applicationStage?.stageId);
+    // const stageName = await this.idResolver.resolveWorkflowStagesName(source.applicationStage?.stageId);
 
     switch (agentcisType) {
       case 'reverted-discontinued-application': {
@@ -172,12 +173,22 @@ export class ContactActivityTransformer extends BaseTransformer<
 
         const workflowStagesId = await this.idResolver.resolveWorkflowStagesId(newId);
         const prevWorkflowStagesId = await this.idResolver.resolveWorkflowStagesId(oldId);
+        const stageName = await this.idResolver.resolveWorkflowStagesName(newId);
+        const prevStageName = await this.idResolver.resolveWorkflowStagesName(oldId);
+        const currentLevel = await this.idResolver.resolveWorkflowStagesLevel(newId);
+        const prevLevel = await this.idResolver.resolveWorkflowStagesLevel(oldId);
 
         if (!workflowStagesId) {
           throw new Error(`Cannot resolve workflowStagesId for ${newId}`);
         }
         if (!prevWorkflowStagesId) {
           throw new Error(`Cannot resolve prevWorkflowStagesId for ${oldId}`);
+        }
+        if (!stageName) {
+          throw new Error(`Cannot resolve stageName for ${newId}`);
+        }
+        if (!prevStageName) {
+          throw new Error(`Cannot resolve prevStageName for ${oldId}`);
         }
 
         return {
@@ -189,8 +200,16 @@ export class ContactActivityTransformer extends BaseTransformer<
               appIdentifier,
               contactId,
               status,
-              currentStage: { id: workflowStagesId, stage: workflowStagesId, level: 2 }, // TODO: map this accurately later on
-              previousStage: { id: prevWorkflowStagesId, stage: prevWorkflowStagesId, level: 1 }, // TODO: map this accurately later on
+              currentStage: {
+                id: workflowStagesId,
+                stage: stageName,
+                level: currentLevel as unknown as number,
+              }, // TODO: map this accurately later on
+              previousStage: {
+                id: prevWorkflowStagesId,
+                stage: prevStageName,
+                level: prevLevel as unknown as number,
+              }, // TODO: map this accurately later on
             },
           },
         };
@@ -247,8 +266,13 @@ export class ContactActivityTransformer extends BaseTransformer<
       }
 
       case 'note-created': {
-        // const noteData = description?.data;
-        // const body = noteData ? `${noteData.title}: ${noteData.description}` : '';
+        const stageId = source.applicationStage.stageId;
+        const stage = await this.idResolver.resolveWorkflowStagesId(stageId);
+        const level = await this.idResolver.resolveWorkflowStagesLevel(stageId);
+
+        if (!stage) {
+          throw new Error(`Cannot resolve workflowStagesId for ${stageId}`);
+        }
 
         return {
           activitiesType: 'application-comment',
@@ -258,13 +282,26 @@ export class ContactActivityTransformer extends BaseTransformer<
               id: activitiesTypeId,
               appIdentifier,
               contactId,
-              currentStage: { stage: stageId as string, level: 0, id: activitiesTypeId }, // TODO: map this later
+              currentStage: {
+                stage: stage as string,
+                level: level as unknown as number,
+                id: activitiesTypeId,
+              }, // TODO: map this later
             },
           },
         };
       }
 
       case 'documents': {
+        const stageId = source.applicationStage.stageId;
+        const stage = await this.idResolver.resolveWorkflowStagesId(stageId);
+        const stageName = await this.idResolver.resolveWorkflowStagesName(stageId);
+        const level = await this.idResolver.resolveWorkflowStagesLevel(stageId);
+
+        if (!stage) {
+          throw new Error(`Cannot resolve workflowStagesId for ${stageId}`);
+        }
+
         return {
           activitiesType: 'application-document',
           activitiesAction: 'created',
@@ -273,14 +310,23 @@ export class ContactActivityTransformer extends BaseTransformer<
               id: activitiesTypeId,
               appIdentifier,
               contactId,
-              currentStage: { stage: stageId as string, level: 0, id: activitiesTypeId }, // TODO: Map this later
-              documentType: 'Agentcis document', // TODO: Map this later
+              currentStage: { stage, level: level as unknown as number, id: activitiesTypeId }, // TODO: Map this later
+              documentType: `${stageName || 'Agentcis'} Document`, // TODO: Map this later
             },
           },
         };
       }
 
       case 'document-deleted': {
+        const stageId = source.applicationStage.stageId;
+        const stage = await this.idResolver.resolveWorkflowStagesId(stageId);
+        const stageName = await this.idResolver.resolveWorkflowStagesName(stageId);
+        const level = await this.idResolver.resolveWorkflowStagesLevel(stageId);
+
+        if (!stage) {
+          throw new Error(`Cannot resolve workflowStagesId for ${stageId}`);
+        }
+
         return {
           activitiesType: 'application-document',
           activitiesAction: 'deleted',
@@ -289,8 +335,8 @@ export class ContactActivityTransformer extends BaseTransformer<
               id: activitiesTypeId,
               appIdentifier,
               contactId,
-              currentStage: { stage: stageId as string, level: 0, id: activitiesTypeId }, // TODO: Map this later
-              documentType: 'Agentcis document', // TODO: Map this later
+              currentStage: { stage, level: level as unknown as number, id: activitiesTypeId }, // TODO: Map this later
+              documentType: `${stageName || 'Agentcis'} Document`, // TODO: Map this later
             },
           },
         };

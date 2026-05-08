@@ -15,6 +15,7 @@ type EntityType =
   | 'workflows'
   | 'workflowStages'
   | 'workflowStageNames'
+  | 'workflowStageLevels'
   | 'agents'
   | 'institutionBranches'
   | 'institutions'
@@ -31,6 +32,7 @@ const ENTITY_TYPES: EntityType[] = [
   'workflows',
   'workflowStages',
   'workflowStageNames',
+  'workflowStageLevels',
   'agents',
   'institutionBranches',
   'institutions',
@@ -108,6 +110,11 @@ export class IdResolver {
         logger,
         'service_stage_name'
       ),
+      workflowStageLevels: new JsonFileStrategy(
+        '../../mapper/workflowStages.json',
+        logger,
+        'level'
+      ),
     });
   }
 
@@ -118,6 +125,8 @@ export class IdResolver {
         this.logger.warn(`Deal Id for application ${agentcisId} not found in mapping`);
       } else if (type === 'workflowStageNames') {
         this.logger.warn(`Stage name for agentcis stage ${agentcisId} not found in mapping`);
+      } else if (type === 'workflowStageLevels') {
+        this.logger.warn(`Stage level for agentcis stage ${agentcisId} not found in mapping`);
       } else {
         this.logger.warn(`${type} Id ${agentcisId} not found in mapping`);
       }
@@ -157,6 +166,10 @@ export class IdResolver {
 
   async resolveWorkflowStagesName(agentcisStageId: number): Promise<string | null> {
     return this.resolve('workflowStageNames', agentcisStageId);
+  }
+
+  async resolveWorkflowStagesLevel(agentcisStageId: number): Promise<string | null> {
+    return this.resolve('workflowStageLevels', agentcisStageId);
   }
 
   async resolveAgentId(agentcisAgentId: number | undefined): Promise<string | null> {
