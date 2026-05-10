@@ -32,7 +32,8 @@ export class BatchProcessor {
     items: T[],
     entityType: EntityType,
     apiMethod: (batch: T[]) => Promise<BulkResponse>,
-    migrationId: string
+    migrationId: string,
+    batchSize?: number
   ): Promise<ProcessResult> {
     const results: ProcessResult = {
       successful: 0,
@@ -41,8 +42,10 @@ export class BatchProcessor {
       errors: [],
     };
 
+    const size = batchSize ?? this.batchSize;
+
     this.logger.info(`Processing ${items.length} ${entityType}`, {
-      batchSize: this.batchSize,
+      batchSize: size,
     });
 
     try {
@@ -133,7 +136,7 @@ export class BatchProcessor {
       this.logger.info(`Batch completed for ${entityType}`, {
         successful: successCount,
         failed: failedCount,
-        batchSize: items.length,
+        batchSize: size,
       });
     } catch (error: any) {
       await this.handleError(error, entityType, items, 0, results, migrationId);
@@ -153,13 +156,15 @@ export class BatchProcessor {
     entityType: EntityType,
     apiMethod: (batch: T[]) => Promise<BulkResponse>,
     maxConcurrent: number = 5,
-    migrationId: string
+    migrationId: string,
+    batchSize?: number
   ): Promise<ProcessResult> {
-    const chunks = this.chunkArray(items, this.batchSize);
+    const size = batchSize ?? this.batchSize;
+    const chunks = this.chunkArray(items, size);
     const limit = pLimit(maxConcurrent);
 
     this.logger.info(`Processing ${items.length} ${entityType} with concurrency ${maxConcurrent}`, {
-      batchSize: this.batchSize,
+      batchSize: size,
       totalBatches: chunks.length,
       maxConcurrent,
     });

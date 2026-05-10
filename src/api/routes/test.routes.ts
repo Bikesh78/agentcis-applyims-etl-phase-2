@@ -9,7 +9,6 @@ const router = Router();
 
 router.get('/contact-activities-transform', async (_req: Request, res: Response) => {
   try {
-    console.log('in here');
     const dbConnections = getDatabaseConnection();
 
     if (!dbConnections?.agentcisDb) {

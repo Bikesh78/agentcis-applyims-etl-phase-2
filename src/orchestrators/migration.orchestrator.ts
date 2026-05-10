@@ -293,7 +293,8 @@ export class MigrationOrchestrator {
         transformed as ApplyIMSContact[],
         entityType,
         handlers.apiMethod as (batch: ApplyIMSContact[]) => Promise<BulkResponse>,
-        migrationId
+        migrationId,
+        config.batchSize
       );
       const batchElapsedMs = Date.now() - batchStartTime;
 

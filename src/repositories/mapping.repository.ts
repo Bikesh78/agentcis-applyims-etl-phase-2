@@ -56,11 +56,9 @@ export class MappingRepository {
   async storeMapping(migrationId: string, input: StoreMappingInput): Promise<void> {
     switch (input.entityType) {
       case EntityType.CONTACTS:
-        console.log('input contacts', input);
         await this.storeContactMapping(migrationId, input.data);
         break;
       case EntityType.APPLICATIONS:
-        console.log('appli input data', input.data);
         await this.storeApplicationMapping(migrationId, input.data);
         break;
       case EntityType.OFFICE_VISITS:
