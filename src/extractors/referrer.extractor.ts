@@ -18,11 +18,11 @@ export interface ReferrerBatch {
 
 export class ReferrerExtractor extends BaseExtractor<ReferrerBatch> {
   constructor(dataSource: DataSource, config: ExtractorConfig) {
-    super(dataSource, 'Referrers', config);
+    super(dataSource, 'agents', config);
   }
 
-  async extractBatch(offset: number, limit: number): Promise<ReferrerBatch[]> {
-    const result = await this.dataSource
+  async extractBatch(lastProcessedId: number | null, limit: number): Promise<ReferrerBatch[]> {
+    const qb = this.dataSource
       .getRepository(Referrers)
       .createQueryBuilder('r')
       .leftJoin('related_offices', 'ro', 'r.id = ro.officeable_id')
@@ -38,12 +38,17 @@ export class ReferrerExtractor extends BaseExtractor<ReferrerBatch> {
         'r.country as country',
         'r.deleted_at as deletedAt',
       ])
-      .where('r.id IN (:...ids)', { ids: [UNMAPPED_REFERRERS] })
+      .where('r.id IN (:...ids)', { ids: [...UNMAPPED_REFERRERS] })
       .groupBy('r.id')
-      .offset(offset)
-      .limit(limit)
-      .withDeleted()
-      .getRawMany();
+      .orderBy('r.id', 'ASC')
+      .take(limit)
+      .withDeleted();
+
+    if (lastProcessedId !== null && lastProcessedId !== undefined) {
+      qb.andWhere('r.id > :lastProcessedId', { lastProcessedId });
+    }
+
+    const result = await qb.getRawMany();
     return result;
   }
 

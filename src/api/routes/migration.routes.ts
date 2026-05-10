@@ -39,7 +39,7 @@ function getServices(): Services {
     mappingRepository,
     errorRecoveryManager,
     logger,
-    100
+    500
   );
 
   const orchestrator = new MigrationOrchestrator(

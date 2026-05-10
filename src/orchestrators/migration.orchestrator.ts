@@ -212,11 +212,21 @@ export class MigrationOrchestrator {
     const { migrationId } = config;
     this.logger.info('Starting entity migration', { migrationId, entityType });
 
+    let lastProcessedId: number | null = null;
+
+    if (config.resumeFrom?.checkpointId) {
+      const checkpoint = await this.checkpointService.getCheckpoint(migrationId, entityType);
+      if (checkpoint && checkpoint.lastProcessedId && !checkpoint.completedAt) {
+        lastProcessedId = parseInt(checkpoint.lastProcessedId, 10);
+      }
+    }
+
     const extractorConfig: ExtractorConfig = {
       batchSize: config.batchSize,
       startDate: config.dateRange.start,
       endDate: config.dateRange.end,
       checkpointId: config.resumeFrom?.checkpointId,
+      lastProcessedId,
     };
 
     const handlers = this.getEntityHandlers(entityType, extractorConfig, migrationId);
@@ -343,6 +353,10 @@ export class MigrationOrchestrator {
         failed: result.failed,
       });
     }
+
+    await this.checkpointService.updateCheckpoint(migrationId, entityType, {
+      completedAt: new Date(),
+    });
 
     return {
       total: totalCount,

@@ -140,7 +140,28 @@ export class MigrationController {
       const originalConfig = originalJob.config as MigrationConfig | undefined;
       const checkpoints = await this.checkpointService.getAllCheckpoints(id);
 
-      const entities = (overrideConfig.entities ?? originalConfig?.entities ?? []) as EntityType[];
+      const requestedEntities = (overrideConfig.entities ??
+        originalConfig?.entities ??
+        []) as EntityType[];
+
+      const entities = requestedEntities.filter((entity) => {
+        const checkpoint = checkpoints.find((cp) => cp.entityType === entity);
+        return !checkpoint?.completedAt;
+      });
+
+      if (entities.length === 0) {
+        const completedEntities = requestedEntities.map((e) => {
+          const cp = checkpoints.find((c) => c.entityType === e);
+          return `${e} (completed: ${cp?.completedAt ? 'yes' : 'no'})`;
+        });
+        res.json({
+          status: 'completed',
+          message: 'All entities already completed',
+          migrationId: id,
+          entities: completedEntities,
+        });
+        return;
+      }
 
       const mergedConfig: MigrationConfig = {
         migrationId: id,
@@ -164,13 +185,16 @@ export class MigrationController {
         },
       };
 
-      const existingProgress = checkpoints.reduce((sum, cp) => sum + cp.processedCount, 0);
-      const totalCount = checkpoints.reduce((sum, cp) => sum + cp.totalCount, 0);
+      const entityCheckpoints = checkpoints.filter((cp) =>
+        entities.includes(cp.entityType as EntityType)
+      );
+      const existingProgress = entityCheckpoints.reduce((sum, cp) => sum + cp.processedCount, 0);
+      const totalCount = entityCheckpoints.reduce((sum, cp) => sum + cp.totalCount, 0);
 
       if (existingProgress >= totalCount && totalCount > 0) {
         res.json({
           status: 'completed',
-          message: 'Migration already completed',
+          message: 'All remaining entities already completed',
           migrationId: id,
           progress: {
             processed: existingProgress,
@@ -187,7 +211,7 @@ export class MigrationController {
       res.json({
         status: 'resumed',
         migrationId: id,
-        message: 'Migration resumed successfully',
+        message: `Migration resumed for ${entities.length} incomplete entity(s): ${entities.join(', ')}`,
         progress: {
           processed: existingProgress,
           total: totalCount,

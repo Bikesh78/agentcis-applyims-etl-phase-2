@@ -4,20 +4,24 @@ import { OfficeVisits } from 'entities/agentcis/office-visits.entity.js';
 
 export class OfficeVisitExtractor extends BaseExtractor<OfficeVisits> {
   constructor(dataSource: DataSource, config: ExtractorConfig) {
-    super(dataSource, 'OfficeVisits', config);
+    super(dataSource, 'office-visits', config);
   }
 
-  async extractBatch(offset: number, limit: number): Promise<OfficeVisits[]> {
-    return await this.dataSource
+  async extractBatch(lastProcessedId: number | null, limit: number): Promise<OfficeVisits[]> {
+    const qb = this.dataSource
       .getRepository(OfficeVisits)
       .createQueryBuilder('officeVisits')
       .leftJoinAndSelect('officeVisits.officeVisitAssignees', 'officeVisitAssignees')
       .where('officeVisits.created_at >= :startDate', { startDate: this.config.startDate })
       .andWhere('officeVisits.created_at <= :endDate', { endDate: this.config.endDate })
-      .orderBy('officeVisits.id')
-      .offset(offset)
-      .limit(limit)
-      .getMany();
+      .orderBy('officeVisits.id', 'ASC')
+      .take(limit);
+
+    if (lastProcessedId !== null && lastProcessedId !== undefined) {
+      qb.andWhere('officeVisits.id > :lastProcessedId', { lastProcessedId });
+    }
+
+    return await qb.getMany();
   }
 
   async getTotalCount(): Promise<number> {

@@ -25,7 +25,7 @@ export class BatchProcessor {
     private mappingRepository: MappingRepository,
     private errorRecoveryManager: ErrorRecoveryManager,
     private logger: Logger,
-    private batchSize: number = 100
+    private batchSize: number = 500
   ) {}
 
   async processBatch<T extends { agentcisClientId: string; id?: string }>(

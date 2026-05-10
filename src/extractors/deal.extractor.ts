@@ -16,15 +16,19 @@ export class DealExtractor extends BaseExtractor<TempMappedDeal> {
     this.migrationId = migrationId;
   }
 
-  async extractBatch(offset: number, limit: number): Promise<TempMappedDeal[]> {
-    return this.dataSource
+  async extractBatch(lastProcessedId: number | null, limit: number): Promise<TempMappedDeal[]> {
+    const qb = this.dataSource
       .getRepository(TempMappedDeal)
       .createQueryBuilder('deal')
       .where('deal.migration_id = :migrationId', { migrationId: this.migrationId })
-      .orderBy('deal.id')
-      .offset(offset)
-      .limit(limit)
-      .getMany();
+      .orderBy('deal.id', 'ASC')
+      .take(limit);
+
+    if (lastProcessedId !== null && lastProcessedId !== undefined) {
+      qb.andWhere('deal.id > :lastProcessedId', { lastProcessedId });
+    }
+
+    return qb.getMany();
   }
 
   async getTotalCount(): Promise<number> {

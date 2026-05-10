@@ -11,18 +11,22 @@ export const USER_MIGRATION_IDS: number[] = [
 
 export class UserExtractor extends BaseExtractor<Users> {
   constructor(dataSource: DataSource, config: ExtractorConfig) {
-    super(dataSource, 'Users', config);
+    super(dataSource, 'users', config);
   }
 
-  async extractBatch(offset: number, limit: number): Promise<Users[]> {
-    return this.dataSource
+  async extractBatch(lastProcessedId: number | null, limit: number): Promise<Users[]> {
+    const qb = this.dataSource
       .getRepository(Users)
       .createQueryBuilder('users')
       .where('users.id IN (:...ids)', { ids: USER_MIGRATION_IDS })
-      .orderBy('users.id')
-      .offset(offset)
-      .limit(limit)
-      .getMany();
+      .orderBy('users.id', 'ASC')
+      .take(limit);
+
+    if (lastProcessedId !== null && lastProcessedId !== undefined) {
+      qb.andWhere('users.id > :lastProcessedId', { lastProcessedId });
+    }
+
+    return qb.getMany();
   }
 
   async getTotalCount(): Promise<number> {

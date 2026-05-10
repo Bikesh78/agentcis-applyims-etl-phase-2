@@ -1,20 +1,19 @@
-import { DataSource, Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { logger, Logger } from 'utils/logger.js';
-import { MigrationCheckpoint } from 'entities/etlDb/migration-checkpoints.entity.js';
 
 export interface ExtractorConfig {
   batchSize: number;
   startDate: Date;
   endDate: Date;
   checkpointId?: string;
+  lastProcessedId?: number | null;
 }
 
-export abstract class BaseExtractor<T> {
+export abstract class BaseExtractor<T extends { id: number | string }> {
   protected readonly dataSource: DataSource;
   protected readonly logger: Logger;
   protected readonly config: ExtractorConfig;
   protected readonly entityType: string;
-  private checkPointRepo: Repository<MigrationCheckpoint>;
 
   constructor(
     dataSource: DataSource,
@@ -26,64 +25,69 @@ export abstract class BaseExtractor<T> {
     this.entityType = entityType;
     this.config = config;
     this.logger = loggerInstance ?? logger;
-    this.checkPointRepo = this.dataSource.getRepository(MigrationCheckpoint);
   }
 
-  abstract extractBatch(offset: number, limit: number): Promise<T[]>;
+  abstract extractBatch(lastProcessedId: number | null, limit: number): Promise<T[]>;
   abstract getTotalCount(): Promise<number>;
 
   async *extractAll(): AsyncGenerator<T[], void, unknown> {
     const total = await this.getTotalCount();
     const batchSize = this.config.batchSize;
-    const resumeOffset = await this.getResumeOffset();
+    const resumeId = this.getResumeId();
 
     this.logger.info(`Starting extraction for ${this.entityType}`, {
       total,
       batchSize,
-      resumeOffset,
+      resumeId,
       startDate: this.config.startDate,
       endDate: this.config.endDate,
     });
 
-    for (let offset = resumeOffset; offset < total; offset += batchSize) {
-      this.logger.info(`Extracting batch: ${offset}-${Math.min(offset + batchSize, total)}`);
-      const batch = await this.extractBatch(offset, batchSize);
-      yield batch;
+    let lastProcessedId: number | null = resumeId;
+    let hasMore = true;
+    let batchNumber = 0;
+
+    while (hasMore) {
+      this.logger.info(
+        `Extracting batch ${batchNumber + 1}: ${lastProcessedId ? `after id ${lastProcessedId}` : 'from beginning'}`
+      );
+      const batch = await this.extractBatch(lastProcessedId, batchSize);
+
+      if (batch.length === 0) {
+        hasMore = false;
+      } else {
+        const lastId = batch[batch.length - 1].id;
+        lastProcessedId = typeof lastId === 'number' ? lastId : parseInt(String(lastId), 10);
+        batchNumber++;
+        yield batch;
+
+        if (batch.length < batchSize) {
+          hasMore = false;
+        }
+      }
     }
 
     this.logger.info(`Extraction completed for ${this.entityType}`);
   }
 
-  private async getResumeOffset(): Promise<number> {
-    if (!this.config.checkpointId) {
-      return 0;
-    }
-
-    try {
-      const checkpoint = await this.checkPointRepo.findOne({
-        where: { migrationId: this.config.checkpointId, entityType: this.entityType },
-      });
-
-      if (checkpoint?.processedCount) {
-        const resumeOffset = checkpoint.processedCount;
-        this.logger.info(`Resuming from checkpoint: ${resumeOffset} processed records`, {
+  private getResumeId(): number | null {
+    if (this.config.lastProcessedId !== undefined && this.config.lastProcessedId !== null) {
+      this.logger.info(
+        `Resuming from checkpoint: lastProcessedId = ${this.config.lastProcessedId}`,
+        {
           checkpointId: this.config.checkpointId,
           entityType: this.entityType,
-        });
-        return resumeOffset;
-      } else {
-        this.logger.warn('Checkpoint not found or no processed count, starting from beginning', {
-          checkpointId: this.config.checkpointId,
-          entityType: this.entityType,
-        });
-      }
-    } catch (error) {
-      this.logger.warn('Failed to load checkpoint, starting from beginning', {
-        checkpointId: this.config.checkpointId,
-        error,
-      });
+          lastProcessedId: this.config.lastProcessedId,
+        }
+      );
+      return this.config.lastProcessedId;
     }
 
-    return 0;
+    this.logger.warn('No lastProcessedId provided in config, starting from beginning', {
+      checkpointId: this.config.checkpointId,
+      entityType: this.entityType,
+    });
+
+    return null;
   }
 }

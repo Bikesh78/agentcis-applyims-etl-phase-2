@@ -4,10 +4,10 @@ import { Applications } from 'entities/agentcis/applications.entity.js';
 
 export class ApplicationExtractor extends BaseExtractor<Applications> {
   constructor(dataSource: DataSource, config: ExtractorConfig) {
-    super(dataSource, 'Applications', config);
+    super(dataSource, 'applications', config);
   }
-  async extractBatch(offset: number, limit: number): Promise<Applications[]> {
-    return await this.dataSource
+  async extractBatch(lastProcessedId: number | null, limit: number): Promise<Applications[]> {
+    const qb = this.dataSource
       .getRepository(Applications)
       .createQueryBuilder('applications')
       .leftJoinAndSelect('applications.products', 'products')
@@ -16,10 +16,14 @@ export class ApplicationExtractor extends BaseExtractor<Applications> {
       .leftJoinAndSelect('applications.applicationAssignees', 'applicationAssignees')
       .where('applications.created_at >= :startDate', { startDate: this.config.startDate })
       .andWhere('applications.created_at <= :endDate', { endDate: this.config.endDate })
-      .orderBy('applications.id')
-      .offset(offset)
-      .limit(limit)
-      .getMany();
+      .orderBy('applications.id', 'ASC')
+      .take(limit);
+
+    if (lastProcessedId !== null && lastProcessedId !== undefined) {
+      qb.andWhere('applications.id > :lastProcessedId', { lastProcessedId });
+    }
+
+    return await qb.getMany();
   }
 
   async getTotalCount(): Promise<number> {

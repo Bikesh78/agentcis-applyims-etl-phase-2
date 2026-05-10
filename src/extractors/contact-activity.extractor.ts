@@ -18,11 +18,14 @@ export interface ApplicationActivityWithRelations extends Omit<
 
 export class ContactActivityExtractor extends BaseExtractor<ApplicationActivityWithRelations> {
   constructor(dataSource: DataSource, config: ExtractorConfig) {
-    super(dataSource, 'ApplicationActivity', config);
+    super(dataSource, 'contact-activities', config);
   }
 
-  async extractBatch(offset: number, limit: number): Promise<ApplicationActivityWithRelations[]> {
-    const results = await this.dataSource
+  async extractBatch(
+    lastProcessedId: number | null,
+    limit: number
+  ): Promise<ApplicationActivityWithRelations[]> {
+    const qb = this.dataSource
       .getRepository(ApplicationActivities)
       .createQueryBuilder('applicationActivities')
       .leftJoinAndSelect('applicationActivities.applicationStage', 'applicationStage')
@@ -36,10 +39,14 @@ export class ContactActivityExtractor extends BaseExtractor<ApplicationActivityW
       ])
       .where('applicationActivities.created_at >= :startDate', { startDate: this.config.startDate })
       .andWhere('applicationActivities.created_at <= :endDate', { endDate: this.config.endDate })
-      .orderBy('applicationActivities.id')
-      .offset(offset)
-      .limit(limit)
-      .getMany();
+      .orderBy('applicationActivities.id', 'ASC')
+      .take(limit);
+
+    if (lastProcessedId !== null && lastProcessedId !== undefined) {
+      qb.andWhere('applicationActivities.id > :lastProcessedId', { lastProcessedId });
+    }
+
+    const results = await qb.getMany();
 
     return results as unknown as ApplicationActivityWithRelations[];
   }
