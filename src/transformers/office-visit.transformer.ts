@@ -10,7 +10,10 @@ export class OfficeVisitTransformer extends BaseTransformer<OfficeVisits, ApplyI
     super(idResolver);
   }
 
-  protected async transformImpl(source: OfficeVisits, id: string): Promise<ApplyIMSOfficeVisit> {
+  protected async transformImpl(
+    source: OfficeVisits,
+    id: string
+  ): Promise<ApplyIMSOfficeVisit | null> {
     const contactId = await this.idResolver.resolveContactId(source.contactId);
     const assigneeId = source.assigneeId
       ? await this.idResolver.resolveUserId(source.assigneeId)

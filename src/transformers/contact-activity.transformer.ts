@@ -21,14 +21,13 @@ export class ContactActivityTransformer extends BaseTransformer<
   protected async transformImpl(
     source: ApplicationActivityWithRelations,
     id: string
-  ): Promise<ApplyIMSContactActivity> {
+  ): Promise<ApplyIMSContactActivity | null> {
     const clientId = source.applicationStage.application.clientId;
     const applicationId = source.applicationStage.application.id;
     const userId = await this.idResolver.resolveUserId(source.userId);
     const contactId = await this.idResolver.resolveContactId(clientId);
     const activitiesTypeId = await this.idResolver.resolveApplicationId(applicationId);
     const appIdentifier = await this.idResolver.resolveAppIdentifier(applicationId);
-    // const appIdentifier = "dsfsdfsd";
     const description: AgentcisDescription = source.description
       ? JSON.parse(source.description)
       : null;

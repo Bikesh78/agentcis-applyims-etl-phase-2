@@ -259,9 +259,11 @@ export class MigrationOrchestrator {
 
       for (let i = 0; i < transformResults.length; i++) {
         const result = transformResults[i];
-        if (result.status === 'fulfilled') {
+        if (result.status === 'fulfilled' && result.value !== null) {
           transformed.push(result.value);
-        } else {
+        } else if (result.status === 'fulfilled' && result.value === null) {
+          skippedCount++;
+        } else if (result.status === 'rejected') {
           const error =
             result.reason instanceof Error ? result.reason : new Error(String(result.reason));
           this.logger.error('Transform error for item', {

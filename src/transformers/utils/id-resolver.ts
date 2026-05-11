@@ -144,6 +144,18 @@ export class IdResolver {
     return applyimsId;
   }
 
+  private async silentResolve(type: EntityType, agentcisId: number): Promise<string | null> {
+    return this.strategies[type].resolve(agentcisId);
+  }
+
+  async checkApplicationId(agentcisApplicationId: number): Promise<string | null> {
+    return this.silentResolve('applications', agentcisApplicationId);
+  }
+
+  async checkContactId(agentcisContactId: number): Promise<string | null> {
+    return this.silentResolve('contacts', agentcisContactId);
+  }
+
   async resolveBranchId(agentcisBranchId: number): Promise<string | null> {
     return this.resolve('branches', agentcisBranchId);
   }
