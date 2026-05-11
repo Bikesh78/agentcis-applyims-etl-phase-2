@@ -4,7 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { ClientFollowers } from './client-followers.entity.js';
 
 export type AgentcisFirstPointOfContact = 'Phone' | 'Email' | 'In Person' | 'Webpage';
 
@@ -84,4 +86,7 @@ export class Clients {
 
   @Column({ name: 'passport_number', type: 'varchar', nullable: true })
   passportNumber: string | null;
+
+  @OneToMany(() => ClientFollowers, (follower) => follower.client)
+  followers: ClientFollowers[];
 }

@@ -10,6 +10,7 @@ export class ContactExtractor extends BaseExtractor<Clients> {
     const qb = this.dataSource
       .getRepository(Clients)
       .createQueryBuilder('clients')
+      .leftJoinAndSelect('clients.followers', 'followers')
       .where('clients.created_at >= :startDate', { startDate: this.config.startDate })
       .andWhere('clients.created_at <= :endDate', { endDate: this.config.endDate })
       .orderBy('clients.id', 'ASC')

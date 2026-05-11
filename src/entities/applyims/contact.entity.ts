@@ -29,4 +29,5 @@ export interface ApplyIMSContact {
   gender: string | null;
   nationality: string | null;
   country: string | null;
+  followers: { id: string }[];
 }

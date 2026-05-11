@@ -39,6 +39,10 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
       throw new Error('Both FirstName and LastName are required');
     }
 
+    const followerIds = source.followers?.map((f) => f.userId) ?? [];
+    const resolvedFollowers = await this.idResolver.resolveUserIds(followerIds);
+    const followers = resolvedFollowers.map((userId) => ({ id: userId }));
+
     return {
       ...source,
       id,
@@ -60,6 +64,7 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
       gender: null,
       nationality: null,
       country: source.country ? COUNTRIES_MAPS[source.country] : null,
+      followers,
     };
   }
 

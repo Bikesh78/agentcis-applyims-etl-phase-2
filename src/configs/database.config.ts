@@ -4,6 +4,7 @@ import 'dotenv/config';
 import config from 'config';
 import { logger } from 'utils/logger.js';
 import { Clients } from 'entities/agentcis/clients.entity.js';
+import { ClientFollowers } from 'entities/agentcis/client-followers.entity.js';
 import { Applications } from 'entities/agentcis/applications.entity.js';
 import { Products } from 'entities/agentcis/products.entity.js';
 import { OfficeVisits } from 'entities/agentcis/office-visits.entity.js';
@@ -104,6 +105,7 @@ export function createAgentcisConnectionOptions() {
     connectTimeout: CONNECTION_TIMEOUT,
     entities: [
       Clients,
+      ClientFollowers,
       Applications,
       Products,
       OfficeVisits,
