@@ -9,6 +9,7 @@ export interface ApiConfig {
   domain: string;
   origin: string;
   maxAuthRetries: number;
+  tenantId: string;
 }
 
 export const apiConfigSchema = Joi.object<ApiConfig>({
@@ -38,5 +39,8 @@ export const apiConfigSchema = Joi.object<ApiConfig>({
   maxAuthRetries: Joi.number().integer().min(0).default(3).messages({
     'number.integer': 'Max auth retries must be an integer',
     'number.min': 'Max auth retries must be at least 0',
+  }),
+  tenantId: Joi.string().required().messages({
+    'any.required': 'Tenant ID is required',
   }),
 });

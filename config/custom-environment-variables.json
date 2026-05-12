@@ -24,7 +24,8 @@
     "timeout": "APPLYIMS_API_TIMEOUT",
     "rateLimitRps": "RATE_LIMIT_RPS",
     "domain": "APPLYIMS_API_DOMAIN",
-    "origin": "APPLYIMS_API_ORIGIN"
+    "origin": "APPLYIMS_API_ORIGIN",
+    "tenantId":"TENANT_COMPANY_ID"
   },
   "logger": {
     "logLevel": "LOG_LEVEL",
