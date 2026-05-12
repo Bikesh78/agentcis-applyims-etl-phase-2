@@ -51,7 +51,7 @@ export class ApplyIMSApiClient {
       timeout: config.timeout,
       headers: {
         'Content-Type': 'application/json',
-        // Origin: config.origin,
+        Origin: config.origin,
         'X-Tenant-Id': config.tenantId,
       },
     });
@@ -90,7 +90,7 @@ export class ApplyIMSApiClient {
       },
       {
         headers: {
-          // Origin: this.config.origin,
+          Origin: this.config.origin,
           'X-Tenant-Id': this.config.tenantId,
         },
       }
