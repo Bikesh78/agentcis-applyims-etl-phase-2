@@ -24,9 +24,12 @@ export const apiConfigSchema = Joi.object<ApiConfig>({
   password: Joi.string().required().messages({
     'any.required': 'API password is required',
   }),
-  timeout: Joi.number().positive().default(30000).messages({
-    'number.positive': 'API timeout must be a positive number',
-  }),
+  timeout: Joi.number()
+    .positive()
+    .default(60 * 1000 * 12)
+    .messages({
+      'number.positive': 'API timeout must be a positive number',
+    }),
   rateLimitRps: Joi.number().positive().default(60).messages({
     'number.positive': 'Rate limit RPS must be a positive number',
   }),

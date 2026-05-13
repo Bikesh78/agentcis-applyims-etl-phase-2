@@ -52,7 +52,7 @@ export class ApplyIMSApiClient {
       headers: {
         'Content-Type': 'application/json',
         Origin: config.origin,
-        'X-Tenant-Id': config.tenantId,
+        'x-tenant-id': this.config.tenantId,
       },
     });
 
@@ -90,8 +90,7 @@ export class ApplyIMSApiClient {
       },
       {
         headers: {
-          Origin: this.config.origin,
-          'X-Tenant-Id': this.config.tenantId,
+          'x-tenant-id': this.config.tenantId,
         },
       }
     );
@@ -121,7 +120,12 @@ export class ApplyIMSApiClient {
         return response;
       },
       async (error: AxiosError) => {
-        console.log('error', error);
+        console.log(
+          'error status:',
+          error.response?.status,
+          '\nerror body:',
+          JSON.stringify(error.response?.data, null, 2)
+        );
         const maxRetries = this.config.maxAuthRetries ?? 3;
         if (error.response?.status === 401) {
           if (this.authRetryCount >= maxRetries) {
