@@ -27,7 +27,7 @@ export class DealTransformer {
         services: [],
       },
       enquiryId: null,
-      createdAt: new Date(),
+      createdAt: mappedDeal.minimumDate as Date,
       updatedAt: new Date(),
     };
   }
