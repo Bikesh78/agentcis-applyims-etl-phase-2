@@ -41,8 +41,10 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
     const institutionId = await this.idResolver.resolveInstitutions(source.products.vendorId);
 
     const assigneeIds = source.applicationAssignees?.map((a) => a.assigneeId) ?? [];
-    const assignees = await this.idResolver.resolveUserIds(assigneeIds);
     const dealId = await this.idResolver.resolveDealId(source.id);
+    const resolvedAssignees = await this.idResolver.resolveUserIds(assigneeIds);
+
+    const assignees = resolvedAssignees.map((id) => ({ id }));
 
     if (!contactId) {
       throw new Error(`Cannot resolve contactId ${source.clientId}`);

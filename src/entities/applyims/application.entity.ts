@@ -41,6 +41,6 @@ export interface ApplyIMSApplication {
   productFeeCurrency: string;
   institutionBranchId: string;
   dealId: string;
-  assignees: string[];
+  assignees: { id: string }[];
   agentPartner: AgentPartner;
 }
