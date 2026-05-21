@@ -11,6 +11,7 @@ import {
   ApplicationActivityWithRelations,
 } from '../extractors/contact-activity.extractor.js';
 import { UserExtractor } from '../extractors/user.extractor.js';
+import { NoteExtractor, AgentcisNoteWithRelations } from '../extractors/note.extractor.js';
 import { ContactTransformer } from '../transformers/contact.transformer.js';
 import { ApplicationTransformer } from '../transformers/application.transformer.js';
 import { DealTransformer } from '../transformers/deal.transformer.js';
@@ -19,6 +20,7 @@ import { AttachmentTransformer } from '../transformers/attachment.transformer.js
 import { AgentTransformer } from '../transformers/agent.transformer.js';
 import { ContactActivityTransformer } from '../transformers/contact-activity.transformer.js';
 import { UserTransformer } from '../transformers/user.transformer.js';
+import { NoteTransformer } from '../transformers/note.transformer.js';
 import { IdResolver } from '../transformers/utils/id-resolver.js';
 import { ProductTypeResolver } from '../transformers/utils/product-type-resolver.js';
 import { FieldMapper } from '../transformers/utils/field-mappers.js';
@@ -46,6 +48,7 @@ import { ApplyIMSMedia } from '../entities/applyims/media.entity.js';
 import { ApplyIMSAgentPartner } from '../entities/applyims/agent.entity.js';
 import { ApplyIMSContactActivity } from '../entities/applyims/contact-activity.entity.js';
 import { ApplyIMSUser } from '../entities/applyims/user.entity.js';
+import { ApplyIMSNote } from '../entities/applyims/note.entity.js';
 import { Users } from '../entities/agentcis/users.entity.js';
 import { ReferrerBatch } from '../extractors/referrer.extractor.js';
 import { MappingRepository, DealMappingData } from 'repositories/mapping.repository.js';
@@ -87,7 +90,8 @@ type TargetEntity =
   | ApplyIMSMedia
   | ApplyIMSAgentPartner
   | ApplyIMSContactActivity
-  | ApplyIMSUser;
+  | ApplyIMSUser
+  | ApplyIMSNote;
 
 interface EntityHandlers {
   extractor: BaseExtractor<SourceEntity>;
@@ -477,6 +481,20 @@ export class MigrationOrchestrator {
             transform: (item) => transformer.transform(item as Users) as Promise<TargetEntity>,
           },
           apiMethod: (batch) => this.apiClient.bulkCreateUsers(batch as ApplyIMSUser[]),
+        };
+      }
+      case EntityType.NOTES: {
+        const extractor = new NoteExtractor(this.agentcisDb, config);
+        const transformer = new NoteTransformer(this.createIdResolver());
+        return {
+          extractor: extractor as unknown as BaseExtractor<SourceEntity>,
+          transformer: {
+            transform: (item) =>
+              transformer.transform(
+                item as unknown as AgentcisNoteWithRelations
+              ) as Promise<ApplyIMSNote>,
+          },
+          apiMethod: (batch) => this.apiClient.bulkCreateNotes(batch as ApplyIMSNote[]),
         };
       }
       default:

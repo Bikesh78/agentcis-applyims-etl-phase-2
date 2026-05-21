@@ -6,6 +6,7 @@ import { TempMappedOfficeVisit } from '../entities/etlDb/temp-mapped-office-visi
 import { TempMappedMedia } from '../entities/etlDb/temp-mapped-medias.entity.js';
 import { TempMappedContactActivity } from 'entities/etlDb/temp-mapped-contact-activities.entity.js';
 import { TempMappedUser } from '../entities/etlDb/temp-mapped-users.entity.js';
+import { TempMappedNote } from '../entities/etlDb/temp-mapped-notes.entity.js';
 import { EntityType } from '../constants/entity-types.js';
 
 export interface BaseMappingData {
@@ -40,6 +41,8 @@ export interface DealMappingData {
   serviceId: string | null;
 }
 
+export type NoteMappingData = BaseMappingData;
+
 export type StoreMappingInput =
   | { entityType: EntityType.CONTACTS; data: ContactMappingData }
   | { entityType: EntityType.APPLICATIONS; data: ApplicationMappingData }
@@ -47,6 +50,7 @@ export type StoreMappingInput =
   | { entityType: EntityType.ATTACHMENTS; data: MediaMappingData }
   | { entityType: EntityType.CONTACT_ACTIVITIES; data: ContactActivityMappingData }
   | { entityType: EntityType.USERS; data: UserMappingData }
+  | { entityType: EntityType.NOTES; data: NoteMappingData }
   | { entityType: EntityType.DEALS; data: BaseMappingData }
   | { entityType: EntityType.AGENTS; data: BaseMappingData };
 
@@ -72,6 +76,9 @@ export class MappingRepository {
         break;
       case EntityType.USERS:
         await this.storeUserMapping(migrationId, input.data);
+        break;
+      case EntityType.NOTES:
+        await this.storeNoteMapping(migrationId, input.data);
         break;
       case EntityType.DEALS:
       case EntityType.AGENTS:
@@ -155,6 +162,20 @@ export class MappingRepository {
       },
       {
         conflictPaths: ['agentcisContactActivityId'],
+        skipUpdateIfNoValuesChanged: true,
+      }
+    );
+  }
+
+  async storeNoteMapping(migrationId: string, data: NoteMappingData): Promise<void> {
+    await this.etlDb.getRepository(TempMappedNote).upsert(
+      {
+        agentcisNoteId: parseInt(data.agentcisId),
+        applyimsNoteId: data.applyimsId,
+        migrationId: migrationId,
+      },
+      {
+        conflictPaths: ['agentcisNoteId'],
         skipUpdateIfNoValuesChanged: true,
       }
     );

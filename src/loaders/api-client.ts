@@ -11,6 +11,7 @@ import { ApplyIMSMedia } from 'entities/applyims/media.entity.js';
 import { ApplyIMSAgentPartner } from 'entities/applyims/agent.entity.js';
 import { ApplyIMSContactActivity } from 'entities/applyims/contact-activity.entity.js';
 import { ApplyIMSUser } from 'entities/applyims/user.entity.js';
+import { ApplyIMSNote } from 'entities/applyims/note.entity.js';
 
 export interface ExistingContactInfo {
   id: string;
@@ -180,6 +181,11 @@ export class ApplyIMSApiClient {
 
   async bulkCreateUsers(users: ApplyIMSUser[]): Promise<BulkResponse> {
     const response = await this.axiosInstance.post('/v1/users/bulk', { users });
+    return response.data.data;
+  }
+
+  async bulkCreateNotes(notes: ApplyIMSNote[]): Promise<BulkResponse> {
+    const response = await this.axiosInstance.post('/v1/notes/bulk', { notes });
     return response.data.data;
   }
 

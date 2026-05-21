@@ -27,7 +27,9 @@ import { ApplicationActivities } from 'entities/agentcis/application-activities.
 import { TempMappedContactActivity } from 'entities/etlDb/temp-mapped-contact-activities.entity.js';
 import { ApplicationStages } from 'entities/agentcis/application-stages.entity.js';
 import { Users } from 'entities/agentcis/users.entity.js';
+import { Notes } from 'entities/agentcis/notes.entity.js';
 import { TempMappedUser } from 'entities/etlDb/temp-mapped-users.entity.js';
+import { TempMappedNote } from 'entities/etlDb/temp-mapped-notes.entity.js';
 
 export interface DatabaseConfig {
   host: string;
@@ -119,6 +121,7 @@ export function createAgentcisConnectionOptions() {
       ApplicationActivities,
       ApplicationStages,
       Users,
+      Notes,
     ],
   } as DataSourceOptions;
 }
@@ -148,6 +151,7 @@ export function createEtlConnectionOptions() {
       MigrationJob,
       TempMappedContactActivity,
       TempMappedUser,
+      TempMappedNote,
     ],
   } as DataSourceOptions;
 }
