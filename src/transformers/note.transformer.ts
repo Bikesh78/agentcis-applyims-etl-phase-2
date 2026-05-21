@@ -33,6 +33,7 @@ export class NoteTransformer extends BaseTransformer<AgentcisNoteWithRelations, 
       createdById,
       createdAt: source.createdAt,
       updatedAt: source.updatedAt,
+      agentcisId: source.id,
     };
 
     if (source.notableType === 'application_stage') {
@@ -50,14 +51,12 @@ export class NoteTransformer extends BaseTransformer<AgentcisNoteWithRelations, 
         );
       }
       note.applicationId = applicationId;
-    } else if (source.notableType == 'client') {
+    } else {
       const contactId = await this.idResolver.resolveContactId(source.notableId);
       if (!contactId) {
         throw new Error(`Cannot resolve contactId for notable_id ${source.notableId}`);
       }
       note.contactId = contactId;
-    } else {
-      throw new Error(`Note skipped for notable type ${source.notableType}`);
     }
 
     return note;

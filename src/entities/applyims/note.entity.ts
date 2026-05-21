@@ -7,4 +7,5 @@ export interface ApplyIMSNote {
   contactId?: string;
   createdAt: Date;
   updatedAt: Date;
+  agentcisId: number;
 }
