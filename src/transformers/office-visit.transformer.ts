@@ -4,6 +4,7 @@ import { isUuid } from './utils/validators.js';
 import { ApplyIMSOfficeVisit } from '../entities/applyims/office-visit.entity.js';
 import { getConfig } from '../configs/index.js';
 import { OfficeVisitWithNotes } from '../extractors/office-visit.extractor.js';
+import { logger } from '../utils/logger.js';
 
 export class OfficeVisitTransformer extends BaseTransformer<
   OfficeVisitWithNotes,
@@ -71,16 +72,29 @@ export class OfficeVisitTransformer extends BaseTransformer<
   }
 
   private buildSessionNotes(source: OfficeVisitWithNotes): string {
-    const fmt = (d: Date) => d.toISOString().replace('T', ' ').slice(0, 19);
+    let out = `--- VISIT PURPOSE ---\n\n${source.createdByName} : ${source.visitCreatedAtFormatted} : ${source.visitPurpose ?? ''}`;
 
-    let out = `--- VISIT PURPOSE ---\n\n${source.createdByName} : ${fmt(source.createdAt)} : ${source.visitPurpose ?? ''}`;
+    if (source.activityNotes.length === 0) {
+      return out;
+    }
 
-    const notes = source.activityNotes.filter((n) => n.noteText);
-    if (notes.length > 0) {
-      const lines = notes
-        .map((n) => `${n.authorName} : ${fmt(n.createdAt)} : ${n.noteText}`)
-        .join('\n\n');
-      out += `\n\n--- SESSION NOTES ---\n\n${lines}`;
+    const lines: string[] = [];
+    for (const n of source.activityNotes) {
+      if (!n.noteText) {
+        logger.warn('Skipping office-visit activity note: unparseable attributes', {
+          agentcisOfficeVisitId: source.id,
+          authorName: n.authorName,
+          createdAt: n.createdAtFormatted,
+          rawAttributes: n.rawAttributes,
+        });
+        continue;
+      }
+      lines.push(`${n.authorName} : ${n.createdAtFormatted} : ${n.noteText}`);
+    }
+
+    out += `\n\n--- SESSION NOTES ---`;
+    if (lines.length > 0) {
+      out += `\n\n${lines.join('\n\n')}`;
     }
 
     return out;
