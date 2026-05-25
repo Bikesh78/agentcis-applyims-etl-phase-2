@@ -7,6 +7,7 @@ import { TempMappedMedia } from '../entities/etlDb/temp-mapped-medias.entity.js'
 import { TempMappedContactActivity } from 'entities/etlDb/temp-mapped-contact-activities.entity.js';
 import { TempMappedUser } from '../entities/etlDb/temp-mapped-users.entity.js';
 import { TempMappedNote } from '../entities/etlDb/temp-mapped-notes.entity.js';
+import { TempMappedCheckin } from '../entities/etlDb/temp-mapped-checkins.entity.js';
 import { EntityType } from '../constants/entity-types.js';
 
 export interface BaseMappingData {
@@ -42,6 +43,7 @@ export interface DealMappingData {
 }
 
 export type NoteMappingData = BaseMappingData;
+export type CheckinMappingData = BaseMappingData;
 
 export type StoreMappingInput =
   | { entityType: EntityType.CONTACTS; data: ContactMappingData }
@@ -52,7 +54,8 @@ export type StoreMappingInput =
   | { entityType: EntityType.USERS; data: UserMappingData }
   | { entityType: EntityType.NOTES; data: NoteMappingData }
   | { entityType: EntityType.DEALS; data: BaseMappingData }
-  | { entityType: EntityType.AGENTS; data: BaseMappingData };
+  | { entityType: EntityType.AGENTS; data: BaseMappingData }
+  | { entityType: EntityType.CHECKINS; data: CheckinMappingData };
 
 export class MappingRepository {
   constructor(private readonly etlDb: DataSource) {}
@@ -79,6 +82,9 @@ export class MappingRepository {
         break;
       case EntityType.NOTES:
         await this.storeNoteMapping(migrationId, input.data);
+        break;
+      case EntityType.CHECKINS:
+        await this.storeCheckinMapping(migrationId, input.data);
         break;
       case EntityType.DEALS:
       case EntityType.AGENTS:
@@ -176,6 +182,20 @@ export class MappingRepository {
       },
       {
         conflictPaths: ['agentcisNoteId'],
+        skipUpdateIfNoValuesChanged: true,
+      }
+    );
+  }
+
+  async storeCheckinMapping(migrationId: string, data: CheckinMappingData): Promise<void> {
+    await this.etlDb.getRepository(TempMappedCheckin).upsert(
+      {
+        agentcisCheckinUuid: data.agentcisId,
+        applyimsOfficeVisitId: data.applyimsId,
+        migrationId: migrationId,
+      },
+      {
+        conflictPaths: ['agentcisCheckinUuid'],
         skipUpdateIfNoValuesChanged: true,
       }
     );

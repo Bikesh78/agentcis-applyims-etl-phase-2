@@ -16,6 +16,7 @@ export interface AppConfig {
   s3Bucket: S3BucketConfig;
   tenant: TenantConfig;
   visitPurposeId: string;
+  migrationAdminUserId: string;
 }
 
 const appConfigSchema = Joi.object<AppConfig>({
@@ -37,6 +38,10 @@ const appConfigSchema = Joi.object<AppConfig>({
     'any.required': 'VISIT_PURPOSE_ID is required',
     'string.guid': 'VISIT_PURPOSE_ID must be a valid UUID',
   }),
+  migrationAdminUserId: Joi.string().uuid().required().messages({
+    'any.required': 'MIGRATION_ADMIN_USER_ID is required',
+    'string.guid': 'MIGRATION_ADMIN_USER_ID must be a valid UUID',
+  }),
 });
 
 let validatedConfig: AppConfig | null = null;
@@ -56,6 +61,7 @@ export function loadConfig(): AppConfig {
     s3Bucket: config.get('s3Bucket'),
     tenant: config.get('tenant'),
     visitPurposeId: config.get('visitPurposeId'),
+    migrationAdminUserId: config.get('migrationAdminUserId'),
   };
 
   const { error, value } = appConfigSchema.validate(rawConfig, {

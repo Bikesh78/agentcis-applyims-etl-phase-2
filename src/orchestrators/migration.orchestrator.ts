@@ -3,7 +3,12 @@ import { BaseExtractor, ExtractorConfig } from '../extractors/base.extractor.js'
 import { ContactExtractor } from '../extractors/contact.extractor.js';
 import { ApplicationExtractor } from '../extractors/application.extractor.js';
 import { DealExtractor } from '../extractors/deal.extractor.js';
-import { OfficeVisitExtractor } from '../extractors/office-visit.extractor.js';
+import {
+  OfficeVisitExtractor,
+  OfficeVisitWithNotes,
+} from '../extractors/office-visit.extractor.js';
+import { CheckinExtractor, CheckinWithContext } from '../extractors/checkin.extractor.js';
+import { CheckinTransformer } from '../transformers/checkin.transformer.js';
 import { AttachmentExtractor } from '../extractors/attachment.extractor.js';
 import { ReferrerExtractor } from '../extractors/referrer.extractor.js';
 import {
@@ -38,7 +43,6 @@ import {
 } from '../constants/entity-types.js';
 import { Clients } from '../entities/agentcis/clients.entity.js';
 import { Applications } from '../entities/agentcis/applications.entity.js';
-import { OfficeVisits } from '../entities/agentcis/office-visits.entity.js';
 import { Attachment } from '../entities/agentcis/attachments.entity.js';
 import { ApplyIMSContact } from '../entities/applyims/contact.entity.js';
 import { ApplyIMSApplication } from '../entities/applyims/application.entity.js';
@@ -76,7 +80,8 @@ export interface MigrationResult {
 type SourceEntity =
   | Clients
   | Applications
-  | OfficeVisits
+  | OfficeVisitWithNotes
+  | CheckinWithContext
   | Attachment
   | ReferrerBatch
   | ApplicationActivities
@@ -427,7 +432,20 @@ export class MigrationOrchestrator {
           extractor: extractor as unknown as BaseExtractor<SourceEntity>,
           transformer: {
             transform: (item) =>
-              transformer.transform(item as OfficeVisits) as Promise<ApplyIMSOfficeVisit>,
+              transformer.transform(item as OfficeVisitWithNotes) as Promise<ApplyIMSOfficeVisit>,
+          },
+          apiMethod: (batch) =>
+            this.apiClient.bulkCreateOfficeVisits(batch as ApplyIMSOfficeVisit[]),
+        };
+      }
+      case EntityType.CHECKINS: {
+        const extractor = new CheckinExtractor(this.agentcisDb, config);
+        const transformer = new CheckinTransformer(this.createIdResolver());
+        return {
+          extractor: extractor as unknown as BaseExtractor<SourceEntity>,
+          transformer: {
+            transform: (item) =>
+              transformer.transform(item as CheckinWithContext) as Promise<ApplyIMSOfficeVisit>,
           },
           apiMethod: (batch) =>
             this.apiClient.bulkCreateOfficeVisits(batch as ApplyIMSOfficeVisit[]),

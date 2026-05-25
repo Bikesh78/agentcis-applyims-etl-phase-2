@@ -28,8 +28,11 @@ import { TempMappedContactActivity } from 'entities/etlDb/temp-mapped-contact-ac
 import { ApplicationStages } from 'entities/agentcis/application-stages.entity.js';
 import { Users } from 'entities/agentcis/users.entity.js';
 import { Notes } from 'entities/agentcis/notes.entity.js';
+import { Checkins } from 'entities/agentcis/checkins.entity.js';
+import { CheckinComments } from 'entities/agentcis/checkin-comments.entity.js';
 import { TempMappedUser } from 'entities/etlDb/temp-mapped-users.entity.js';
 import { TempMappedNote } from 'entities/etlDb/temp-mapped-notes.entity.js';
+import { TempMappedCheckin } from 'entities/etlDb/temp-mapped-checkins.entity.js';
 
 export interface DatabaseConfig {
   host: string;
@@ -122,6 +125,8 @@ export function createAgentcisConnectionOptions() {
       ApplicationStages,
       Users,
       Notes,
+      Checkins,
+      CheckinComments,
     ],
   } as DataSourceOptions;
 }
@@ -152,6 +157,7 @@ export function createEtlConnectionOptions() {
       TempMappedContactActivity,
       TempMappedUser,
       TempMappedNote,
+      TempMappedCheckin,
     ],
   } as DataSourceOptions;
 }

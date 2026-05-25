@@ -38,6 +38,7 @@
     "awsRegion": "AWS_REGION"
   },
   "visitPurposeId": "VISIT_PURPOSE_ID",
+  "migrationAdminUserId": "MIGRATION_ADMIN_USER_ID",
   "tenant": {
     "companyId": "TENANT_COMPANY_ID",
     "domain": "TENANT_DOMAIN"
