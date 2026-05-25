@@ -20,6 +20,32 @@ export interface ExistingContactInfo {
   email: string;
 }
 
+export interface CreateContactRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  countryCode?: string;
+  assigneeId?: string;
+  branchId?: string;
+  secondaryBranches?: { id: string }[];
+  createdBy?: { id: string };
+  internalId?: string;
+  source?: string;
+  gender?: string;
+  dateOfBirth?: string;
+  nationality?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  countryOfPassport?: string;
+}
+
+export interface CreateContactResponse {
+  id: string;
+  [key: string]: unknown;
+}
+
 export interface BulkResponse {
   successful: Array<{ id: string; internalId: string; appIdentifier?: string }>;
   failed: Array<{
@@ -147,6 +173,11 @@ export class ApplyIMSApiClient {
         throw error;
       }
     );
+  }
+
+  async createContact(payload: CreateContactRequest): Promise<CreateContactResponse> {
+    const response = await this.axiosInstance.post('/v1/contacts', payload);
+    return response.data.data;
   }
 
   async bulkCreateContacts(contacts: ApplyIMSContact[]): Promise<BulkResponse> {

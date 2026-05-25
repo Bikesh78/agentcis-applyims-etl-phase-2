@@ -259,7 +259,11 @@ router.get('/checkin-transform', async (_req: Request, res: Response) => {
       endDate: new Date(),
     };
 
-    const extractor = new CheckinExtractor(dbConnections.agentcisDb, extractorConfig);
+    const extractor = new CheckinExtractor(
+      dbConnections.agentcisDb,
+      dbConnections.etlDb,
+      extractorConfig
+    );
     const idResolver = IdResolver.createPhaseResolver(dbConnections.etlDb, logger);
     const transformer = new CheckinTransformer(idResolver);
 

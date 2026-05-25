@@ -33,6 +33,7 @@ import { CheckinComments } from 'entities/agentcis/checkin-comments.entity.js';
 import { TempMappedUser } from 'entities/etlDb/temp-mapped-users.entity.js';
 import { TempMappedNote } from 'entities/etlDb/temp-mapped-notes.entity.js';
 import { TempMappedCheckin } from 'entities/etlDb/temp-mapped-checkins.entity.js';
+import { TempMappedWalkinContact } from 'entities/etlDb/temp-mapped-walkin-contacts.entity.js';
 
 export interface DatabaseConfig {
   host: string;
@@ -158,6 +159,7 @@ export function createEtlConnectionOptions() {
       TempMappedUser,
       TempMappedNote,
       TempMappedCheckin,
+      TempMappedWalkinContact,
     ],
   } as DataSourceOptions;
 }

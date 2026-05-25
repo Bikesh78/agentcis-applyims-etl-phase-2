@@ -8,6 +8,7 @@ import { TempMappedContactActivity } from 'entities/etlDb/temp-mapped-contact-ac
 import { TempMappedUser } from '../entities/etlDb/temp-mapped-users.entity.js';
 import { TempMappedNote } from '../entities/etlDb/temp-mapped-notes.entity.js';
 import { TempMappedCheckin } from '../entities/etlDb/temp-mapped-checkins.entity.js';
+import { TempMappedWalkinContact } from '../entities/etlDb/temp-mapped-walkin-contacts.entity.js';
 import { EntityType } from '../constants/entity-types.js';
 
 export interface BaseMappingData {
@@ -185,6 +186,25 @@ export class MappingRepository {
         skipUpdateIfNoValuesChanged: true,
       }
     );
+  }
+
+  async storeWalkInContactMappingsBatch(
+    rows: { email: string; applyimsContactId: string }[],
+    migrationId: string
+  ): Promise<void> {
+    if (rows.length === 0) return;
+    const batchSize = 500;
+    for (let i = 0; i < rows.length; i += batchSize) {
+      const slice = rows.slice(i, i + batchSize).map((r) => ({
+        email: r.email,
+        applyimsContactId: r.applyimsContactId,
+        migrationId,
+      }));
+      await this.etlDb.getRepository(TempMappedWalkinContact).upsert(slice, {
+        conflictPaths: ['email'],
+        skipUpdateIfNoValuesChanged: true,
+      });
+    }
   }
 
   async storeCheckinMapping(migrationId: string, data: CheckinMappingData): Promise<void> {

@@ -21,11 +21,16 @@ export interface CheckinWithContext {
   completedTime: Date | null;
   clientId: number | null;
   hostUserId: number | null;
+  walkInContactUuid: string | null;
   comments: CheckinComment[];
 }
 
 export class CheckinExtractor extends BaseExtractor<CheckinWithContext> {
-  constructor(dataSource: DataSource, config: ExtractorConfig) {
+  constructor(
+    dataSource: DataSource,
+    private readonly etlDb: DataSource,
+    config: ExtractorConfig
+  ) {
     super(dataSource, 'checkins', config);
   }
 
@@ -117,6 +122,16 @@ export class CheckinExtractor extends BaseExtractor<CheckinWithContext> {
       for (const r of userRows) userIdByEmail.set(r.email, Number(r.id));
     }
 
+    const unmatchedEmails = attendeeEmails.filter((e) => !clientIdByEmail.has(e));
+    const walkInUuidByEmail = new Map<string, string>();
+    if (unmatchedEmails.length > 0) {
+      const walkInRows: { email: string; applyimsContactId: string }[] = await this.etlDb.query(
+        `SELECT email, applyims_contact_id AS "applyimsContactId" FROM temp_mapped_walkin_contacts WHERE email = ANY($1)`,
+        [unmatchedEmails]
+      );
+      for (const r of walkInRows) walkInUuidByEmail.set(r.email, r.applyimsContactId);
+    }
+
     const commentRows: {
       checkInUuid: string;
       commentByName: string | null;
@@ -153,6 +168,7 @@ export class CheckinExtractor extends BaseExtractor<CheckinWithContext> {
       ...v,
       clientId: v.attendeeEmail ? (clientIdByEmail.get(v.attendeeEmail) ?? null) : null,
       hostUserId: v.hostEmail ? (userIdByEmail.get(v.hostEmail) ?? null) : null,
+      walkInContactUuid: v.attendeeEmail ? (walkInUuidByEmail.get(v.attendeeEmail) ?? null) : null,
       comments: commentsByUuid.get(v.uuid) ?? [],
     }));
   }

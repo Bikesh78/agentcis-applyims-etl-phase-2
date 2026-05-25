@@ -23,11 +23,13 @@ export class CheckinTransformer extends BaseTransformer<CheckinWithContext, Appl
       return null;
     }
 
-    if (source.clientId == null) {
-      return null;
+    let contactId: string | null = null;
+    if (source.clientId != null) {
+      contactId = await this.idResolver.resolveContactId(source.clientId);
+    } else if (source.walkInContactUuid) {
+      contactId = source.walkInContactUuid;
     }
 
-    const contactId = await this.idResolver.resolveContactId(source.clientId);
     if (!contactId) {
       return null;
     }
