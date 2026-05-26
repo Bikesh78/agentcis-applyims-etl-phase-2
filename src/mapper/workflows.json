@@ -1,357 +1,227 @@
 [
   {
-    "agentcis_id": 12,
-    "identifier": "Australia",
-    "applyims_id": "425b171e-353b-44cb-aaf4-7bcdcac9cdf5"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Nepal",
-    "applyims_id": "98ff3e6d-9919-409a-9dc7-0dc5af641bf2"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "India",
-    "applyims_id": "43ee3c33-112c-4e7f-bca3-46e65eec0d39"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Sri Lanka",
-    "applyims_id": "e1193493-8bdc-4e4f-ae7c-36e410690105"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Bangladesh",
-    "applyims_id": "6da985a3-5544-4382-9ed6-2a6e5d05fed6"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Indonesia",
-    "applyims_id": "19dcaed3-e55d-4332-b768-9f56560c39e6"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Myanmar",
-    "applyims_id": "e46a9f07-355d-4d71-90a3-3b8d5055ee79"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Bhutan",
-    "applyims_id": "37bf59ba-9962-4fb7-b567-aa57603b6377"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Vietnam",
-    "applyims_id": "838e226c-3fdd-4a9a-936b-5f37dbbda093"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Nigeria",
-    "applyims_id": "4f980fef-a97c-4c4a-8510-8c496fef78ea"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Cambodia",
-    "applyims_id": "a4a81ab6-57fa-4e5b-a979-add2bde73dbe"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Philippines",
-    "applyims_id": "39b5f54c-1068-43a0-8920-27aceba14e0d"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Thailand",
-    "applyims_id": "56584854-b46f-4a1e-a65f-ddd26deb897f"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Laos",
-    "applyims_id": "42c03a25-0c1c-4c45-bfb8-ebfa4b30a996"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Kenya",
-    "applyims_id": "9cdc2e8e-2320-42aa-8bc6-3ec12708e022"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Australia",
-    "applyims_id": "91f01ecc-a769-4d13-8915-f859effe19b0"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Nepal",
-    "applyims_id": "5bd22017-5e2d-4c51-bb61-caf054afcbe5"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "India",
-    "applyims_id": "311d646a-2398-4ab8-81ac-293c9649bb6c"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Sri Lanka",
-    "applyims_id": "4e049892-942e-43c9-85c7-05784ed19e67"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Bangladesh",
-    "applyims_id": "ba53044c-dff8-4a11-b0ff-e9bb39d51931"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Indonesia",
-    "applyims_id": "71a02765-fb51-4582-afba-926bc5b269a7"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Myanmar",
-    "applyims_id": "6d8a222f-92f1-44b9-ae1c-8e354652dced"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Bhutan",
-    "applyims_id": "0afddca9-b830-4d95-976e-3daeedc1e02b"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Vietnam",
-    "applyims_id": "56411fde-c100-412b-9098-60c8f05fac0f"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Nigeria",
-    "applyims_id": "67c2002c-bc26-4dbf-97b7-8edcd4480190"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Cambodia",
-    "applyims_id": "5e5ae94a-77b9-47e8-af94-f8fcbcb2f6e0"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Philippines",
-    "applyims_id": "fa0019be-65ef-4445-833a-273a894c8d82"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Kenya",
-    "applyims_id": "940655a2-89d6-4287-8eab-636feac46741"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Thailand",
-    "applyims_id": "c66aa37c-1fb5-4d44-a06c-ec0a5dcb4566"
-  },
-  {
-    "agentcis_id": 12,
-    "identifier": "Laos",
-    "applyims_id": "723c6613-926b-4637-b4fa-3420a0fcc3b6"
-  },
-  {
-    "agentcis_id": 19,
-    "identifier": "Australia",
-    "applyims_id": "d6fab833-bb5d-452b-82b6-ca5f2bd2741c"
-  },
-  {
-    "agentcis_id": 18,
-    "identifier": "Australia",
-    "applyims_id": "f58d18dc-adb4-43dc-83a0-551c79133a04"
-  },
-  {
     "agentcis_id": 8,
-    "identifier": "Australia",
-    "applyims_id": "a7f300a2-5b21-429e-ad9a-9ca58a372261"
-  },
-  {
-    "agentcis_id": 11,
-    "identifier": "Australia",
-    "applyims_id": "1c566436-1b41-4e94-9f11-bd87a6559885"
-  },
-  {
-    "agentcis_id": 14,
-    "identifier": "Australia",
-    "applyims_id": "56757586-3628-45da-88ac-bab09561596c"
-  },
-  {
-    "agentcis_id": 17,
-    "identifier": "Australia",
-    "applyims_id": "56757586-3628-45da-88ac-bab09561596c"
-  },
-  {
-    "agentcis_id": 13,
-    "identifier": "Australia",
-    "applyims_id": "56757586-3628-45da-88ac-bab09561596c"
-  },
-  {
-    "agentcis_id": 20,
-    "identifier": "Australia",
-    "applyims_id": "56757586-3628-45da-88ac-bab09561596c"
-  },
-  {
-    "agentcis_id": 29,
-    "identifier": "Australia",
-    "applyims_id": "56757586-3628-45da-88ac-bab09561596c"
-  },
-  {
-    "agentcis_id": 16,
-    "identifier": "Australia",
-    "applyims_id": "56757586-3628-45da-88ac-bab09561596c"
-  },
-  {
-    "agentcis_id": 23,
-    "identifier": "Canada",
-    "applyims_id": "91c23431-bd6b-4e0f-b219-ba9df0d49abd"
-  },
-  {
-    "agentcis_id": 26,
-    "identifier": "Canada",
-    "applyims_id": "91c23431-bd6b-4e0f-b219-ba9df0d49abd"
-  },
-  {
-    "agentcis_id": 51,
-    "identifier": "Canada",
-    "applyims_id": "91c23431-bd6b-4e0f-b219-ba9df0d49abd"
-  },
-  {
-    "agentcis_id": 34,
-    "identifier": "Canada",
-    "applyims_id": "91c23431-bd6b-4e0f-b219-ba9df0d49abd"
-  },
-  {
-    "agentcis_id": 38,
-    "identifier": "New Zealand",
-    "applyims_id": "7ddf7905-5c7c-49c0-8812-87c62b507887"
-  },
-  {
-    "agentcis_id": 45,
-    "identifier": "United States",
-    "applyims_id": "1ead71fa-c195-4e92-8899-c223eeb8634b"
-  },
-  {
-    "agentcis_id": 39,
-    "identifier": "United States",
-    "applyims_id": "74fa63fe-7e81-4aed-9c28-01848fb899ec"
-  },
-  {
-    "agentcis_id": 36,
-    "identifier": "Malaysia",
-    "applyims_id": "0cd6ea2e-69c1-4aa4-b54d-d08fc425ad8a"
-  },
-  {
-    "agentcis_id": 27,
-    "identifier": "Australia",
-    "applyims_id": "8d5d9969-501d-4625-9a54-80a39b65b1db"
-  },
-  {
-    "agentcis_id": 28,
-    "identifier": "United Kingdom",
-    "applyims_id": "af861800-7167-48fa-86de-1fa9e15e095b"
-  },
-  {
-    "agentcis_id": 37,
-    "identifier": "Singapore",
-    "applyims_id": "8601c0c6-3618-4bc8-80c1-fad811c7410d"
-  },
-  {
-    "agentcis_id": 52,
-    "identifier": "Switzerland",
-    "applyims_id": "5a362640-cd9b-4f49-8b90-74340c550deb"
-  },
-  {
-    "agentcis_id": 10,
-    "identifier": "Australia",
-    "applyims_id": "7058d0a5-a9b3-4416-8a47-f0cadf1087cb"
-  },
-  {
-    "agentcis_id": 49,
-    "identifier": "Czech Republic",
-    "applyims_id": "f5d5e76f-7053-439c-8cf4-91171e85b678"
-  },
-  {
-    "agentcis_id": 40,
-    "identifier": "Thailand",
-    "applyims_id": "1af46753-07c5-46ac-9454-cd00299775e4"
-  },
-  {
-    "agentcis_id": 42,
-    "identifier": "Ireland",
-    "applyims_id": "54f8d872-76d4-44d3-af8c-468b97fe6628"
-  },
-  {
-    "agentcis_id": 48,
-    "identifier": "Vietnam",
-    "applyims_id": "9566704c-2575-4100-b690-11742a9d5701"
-  },
-  {
-    "agentcis_id": 41,
-    "identifier": "Poland",
-    "applyims_id": "63f88749-0a28-4feb-ad96-913b7bae8607"
-  },
-  {
-    "agentcis_id": 44,
-    "identifier": "New Zealand",
-    "applyims_id": "f115953e-44d6-4738-a4a1-9f0e0cdf465b"
-  },
-  {
-    "agentcis_id": 46,
-    "identifier": "Germany",
-    "applyims_id": "aaa635af-f6e9-44eb-ba56-30de32b48893"
-  },
-  {
-    "agentcis_id": 35,
-    "identifier": "United States",
-    "applyims_id": "ba68cd5b-6037-4d10-8f88-2887d1577e7f"
-  },
-  {
-    "agentcis_id": 43,
-    "identifier": "United Arab Emirates",
-    "applyims_id": "a82c882c-b91f-4d90-81c6-f1fc3877ec28"
-  },
-  {
-    "agentcis_id": 55,
-    "identifier": "Spain",
-    "applyims_id": "a2947d11-f1a9-4cbe-b940-ee72cb757492"
-  },
-  {
-    "agentcis_id": 54,
-    "identifier": "Malta",
-    "applyims_id": "2fd29199-76f0-4d2f-ba12-fafd1da1d04f"
-  },
-  {
-    "agentcis_id": 50,
-    "identifier": "France",
-    "applyims_id": "845c27b6-9a31-44f0-8b6a-80a86d24a616"
-  },
-  {
-    "agentcis_id": 47,
-    "identifier": "Netherlands",
-    "applyims_id": "e327bcac-1684-4aef-830b-a23972e4a5f0"
+    "applyims_id": "a7f300a2-5b21-429e-ad9a-9ca58a372261",
+    "workflow_type_id": "295f57a5-0df1-489a-a0c4-d5c093133abb"
   },
   {
     "agentcis_id": 9,
-    "identifier": "Australia",
-    "applyims_id": "3da9b840-a19a-414d-be82-d432a37b9916"
+    "applyims_id": "3da9b840-a19a-414d-be82-d432a37b9916",
+    "workflow_type_id": "d839a66c-53f2-4e9e-a967-5d6747255f3c"
+  },
+  {
+    "agentcis_id": 10,
+    "applyims_id": "7058d0a5-a9b3-4416-8a47-f0cadf1087cb",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
   },
   {
     "agentcis_id": 11,
-    "identifier": "Australia",
-    "applyims_id": "49a14616-7638-463e-9fcd-1e53abb262da"
+    "applyims_id": "49a14616-7638-463e-9fcd-1e53abb262da",
+    "workflow_type_id": "859eaa91-21a5-4e45-8923-712cb2d4da88"
   },
   {
-    "agentcis_id": 18,
-    "identifier": "Australia",
-    "applyims_id": "13318f6f-7c47-4396-a296-66041a362e65"
+    "agentcis_id": 12,
+    "applyims_id": "91f01ecc-a769-4d13-8915-f859effe19b0",
+    "workflow_type_id": "4e375cee-cbf9-4893-b902-0a57f6c91576"
   },
   {
-    "agentcis_id": 22,
-    "identifier": "Australia",
-    "applyims_id": "653e7897-10b2-4e6b-9937-0b9c03350c98"
+    "agentcis_id": 13,
+    "applyims_id": "56757586-3628-45da-88ac-bab09561596c",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 14,
+    "applyims_id": "56757586-3628-45da-88ac-bab09561596c",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
   },
   {
     "agentcis_id": 15,
-    "identifier": "Australia",
-    "applyims_id": "ada0bffc-a153-4470-903f-3ea60ede9d11"
+    "applyims_id": "ada0bffc-a153-4470-903f-3ea60ede9d11",
+    "workflow_type_id": "064c9bfd-1cb4-48e7-93c8-69b376d5f965"
+  },
+  {
+    "agentcis_id": 16,
+    "applyims_id": "56757586-3628-45da-88ac-bab09561596c",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 17,
+    "applyims_id": "56757586-3628-45da-88ac-bab09561596c",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 18,
+    "applyims_id": "f58d18dc-adb4-43dc-83a0-551c79133a04",
+    "workflow_type_id": "575e0446-9eeb-4ccf-982f-94df78b8f630"
+  },
+  {
+    "agentcis_id": 19,
+    "applyims_id": "d6fab833-bb5d-452b-82b6-ca5f2bd2741c",
+    "workflow_type_id": "793be9bc-13fe-488d-9f9c-8e72306c4883"
+  },
+  {
+    "agentcis_id": 20,
+    "applyims_id": "56757586-3628-45da-88ac-bab09561596c",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 22,
+    "applyims_id": "653e7897-10b2-4e6b-9937-0b9c03350c98",
+    "workflow_type_id": "f5f78607-306f-401d-a34a-f39fbf1e8c4f"
+  },
+  {
+    "agentcis_id": 23,
+    "applyims_id": "91c23431-bd6b-4e0f-b219-ba9df0d49abd",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 24,
+    "applyims_id": "429ab65a-782c-4292-9b21-004c1c934c4d",
+    "workflow_type_id": "dfe78980-87dc-4216-9564-ab9eca5258ea"
+  },
+  {
+    "agentcis_id": 25,
+    "applyims_id": "17438c66-b81b-4254-a235-8af36741a36c",
+    "workflow_type_id": "b9fe5bb1-9587-464b-bfc2-a98d8e494cd6"
+  },
+  {
+    "agentcis_id": 26,
+    "applyims_id": "91c23431-bd6b-4e0f-b219-ba9df0d49abd",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 26,
+    "applyims_id": "e963e3a5-fa43-42bc-8f80-bd66a4a3d325",
+    "workflow_type_id": "4a1c31cf-e4e5-483a-bc64-4416619997a1"
+  },
+  {
+    "agentcis_id": 27,
+    "applyims_id": "8d5d9969-501d-4625-9a54-80a39b65b1db",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 28,
+    "applyims_id": "af861800-7167-48fa-86de-1fa9e15e095b",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 29,
+    "applyims_id": "56757586-3628-45da-88ac-bab09561596c",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 32,
+    "applyims_id": "e6fdb934-f8c4-4b71-87ca-ae4f6fcf570d",
+    "workflow_type_id": "c5ed07fb-054c-4451-9a36-94a463cfec9d"
+  },
+  {
+    "agentcis_id": 33,
+    "applyims_id": "90e384b5-7cf1-4028-b390-ae88044b563d",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 34,
+    "applyims_id": "91c23431-bd6b-4e0f-b219-ba9df0d49abd",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 35,
+    "applyims_id": "ba68cd5b-6037-4d10-8f88-2887d1577e7f",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 36,
+    "applyims_id": "0cd6ea2e-69c1-4aa4-b54d-d08fc425ad8a",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 37,
+    "applyims_id": "8601c0c6-3618-4bc8-80c1-fad811c7410d",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 38,
+    "applyims_id": "7ddf7905-5c7c-49c0-8812-87c62b507887",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 39,
+    "applyims_id": "74fa63fe-7e81-4aed-9c28-01848fb899ec",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 40,
+    "applyims_id": "1af46753-07c5-46ac-9454-cd00299775e4",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 41,
+    "applyims_id": "63f88749-0a28-4feb-ad96-913b7bae8607",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 42,
+    "applyims_id": "54f8d872-76d4-44d3-af8c-468b97fe6628",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 43,
+    "applyims_id": "a82c882c-b91f-4d90-81c6-f1fc3877ec28",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 44,
+    "applyims_id": "f115953e-44d6-4738-a4a1-9f0e0cdf465b",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 45,
+    "applyims_id": "74fa63fe-7e81-4aed-9c28-01848fb899ec",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 46,
+    "applyims_id": "aaa635af-f6e9-44eb-ba56-30de32b48893",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 47,
+    "applyims_id": "e327bcac-1684-4aef-830b-a23972e4a5f0",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 48,
+    "applyims_id": "9566704c-2575-4100-b690-11742a9d5701",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 49,
+    "applyims_id": "f5d5e76f-7053-439c-8cf4-91171e85b678",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 50,
+    "applyims_id": "845c27b6-9a31-44f0-8b6a-80a86d24a616",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 51,
+    "applyims_id": "91c23431-bd6b-4e0f-b219-ba9df0d49abd",
+    "workflow_type_id": "532a4712-4e55-449e-94fd-c876c16e9b71"
+  },
+  {
+    "agentcis_id": 52,
+    "applyims_id": "5a362640-cd9b-4f49-8b90-74340c550deb",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 54,
+    "applyims_id": "2fd29199-76f0-4d2f-ba12-fafd1da1d04f",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
+  },
+  {
+    "agentcis_id": 55,
+    "applyims_id": "a2947d11-f1a9-4cbe-b940-ee72cb757492",
+    "workflow_type_id": "8bfff157-290c-485f-b48c-03e1a5cabc83"
   }
 ]

@@ -445,57 +445,57 @@
   },
   {
     "agentcis_id": 87,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "429ab65a-782c-4292-9b21-004c1c934c4d",
+    "service_stage_name": "Documentation & Payment",
+    "level": 0
   },
   {
     "agentcis_id": 88,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "429ab65a-782c-4292-9b21-004c1c934c4d",
+    "service_stage_name": "Application Lodgement",
+    "level": 1
   },
   {
     "agentcis_id": 89,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "429ab65a-782c-4292-9b21-004c1c934c4d",
+    "service_stage_name": "Result",
+    "level": 2
   },
   {
     "agentcis_id": 90,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "adb69991-94db-4d6e-b1e1-ac14d79dae50",
+    "service_stage_name": "Documentation & Payment",
+    "level": 0
   },
   {
     "agentcis_id": 91,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "bce6c118-2fb3-48cc-b3e0-e09b00861c3c",
+    "service_stage_name": "Application Lodgement",
+    "level": 1
   },
   {
     "agentcis_id": 92,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "d8805c3e-ae67-4215-9ec9-79cb0c25ae70",
+    "service_stage_name": "ITA Received",
+    "level": 2
   },
   {
     "agentcis_id": 93,
     "applyims_id": "1b125145-e767-41ea-aa6e-005934bf3b47",
     "service_stage_name": "Finalise Application",
-    "level": 7
+    "level": 0
   },
   {
     "agentcis_id": 94,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "0952aab8-71f2-4a28-a604-8a61f10a2a86",
+    "service_stage_name": "Visa Lodgement",
+    "level": 0
   },
   {
     "agentcis_id": 95,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "83361fb3-f21e-4272-839f-418a28b2de23",
+    "service_stage_name": "Visa Grant",
+    "level": 1
   },
   {
     "agentcis_id": 96,
@@ -649,21 +649,21 @@
   },
   {
     "agentcis_id": 126,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "dfae1279-6314-4483-996f-7bff0770794c",
+    "service_stage_name": "Refund Request",
+    "level": 0
   },
   {
     "agentcis_id": 127,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "a3f664c0-05da-4df6-86ff-1aa82ddcd239",
+    "service_stage_name": "Institution's Approval",
+    "level": 1
   },
   {
     "agentcis_id": 128,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "b634cb31-cc56-4966-bd3c-be6ea4325212",
+    "service_stage_name": "Refund",
+    "level": 2
   },
   {
     "agentcis_id": 129,
@@ -817,33 +817,33 @@
   },
   {
     "agentcis_id": 154,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "7f4f8488-c802-4fc1-bc7a-ca0d6300a840",
+    "service_stage_name": "Document Collection",
+    "level": 1
   },
   {
     "agentcis_id": 155,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "7f4f8488-c802-4fc1-bc7a-ca0d6300a840",
+    "service_stage_name": "Document Collection",
+    "level": 1
   },
   {
     "agentcis_id": 156,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "8b3eb109-1f92-42d5-a322-02989ea63fb6",
+    "service_stage_name": "Visa Application",
+    "level": 2
   },
   {
     "agentcis_id": 157,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "839d7985-4847-4e44-bd75-3e69c58ccca5",
+    "service_stage_name": "Visa Submission",
+    "level": 3
   },
   {
     "agentcis_id": 158,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "c820f1ec-25df-41ef-85d1-da661af3abe2",
+    "service_stage_name": "Visa Decision",
+    "level": 4
   },
   {
     "agentcis_id": 159,
@@ -913,51 +913,51 @@
   },
   {
     "agentcis_id": 170,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "211b09f1-e673-4ec3-97d7-f6b7b93b5a2b",
+    "service_stage_name": "Application",
+    "level": 0
   },
   {
     "agentcis_id": 171,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "92832646-70db-44d4-b6e4-a95ac94786d7",
+    "service_stage_name": "Conditional Offer Letter",
+    "level": 1
   },
   {
     "agentcis_id": 172,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "9133928b-1420-4d19-b946-72a1c634bf5d",
+    "service_stage_name": "Unconditional Offer Letter",
+    "level": 2
   },
   {
     "agentcis_id": 173,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "6dfc2fc6-a85a-401e-b7cc-94cc77c1d0cd",
+    "service_stage_name": "Payment",
+    "level": 3
   },
   {
     "agentcis_id": 174,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "11ad9d9a-5a84-49af-af6a-3e9816cf6dca",
+    "service_stage_name": "Letter of Acceptance",
+    "level": 4
   },
   {
     "agentcis_id": 175,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "64444499-5f96-4fae-9010-ea31c2a48357",
+    "service_stage_name": "Health Insurance",
+    "level": 5
   },
   {
     "agentcis_id": 176,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "ef94e26f-9add-4f6f-8300-423ffab7265b",
+    "service_stage_name": "Visa Processing",
+    "level": 6
   },
   {
     "agentcis_id": 177,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "ef94e26f-9add-4f6f-8300-423ffab7265b",
+    "service_stage_name": "Visa Processing",
+    "level": 6
   },
   {
     "agentcis_id": 178,
@@ -1117,9 +1117,9 @@
   },
   {
     "agentcis_id": 204,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "2460c7ce-e626-4204-b8f0-e44b92f86d66",
+    "service_stage_name": "Payment",
+    "level": 2
   },
   {
     "agentcis_id": 205,
@@ -1225,9 +1225,9 @@
   },
   {
     "agentcis_id": 222,
-    "applyims_id": "",
-    "service_stage_name": "",
-    "level": null
+    "applyims_id": "8852f1fd-10b8-4910-966c-54eb78158fbf",
+    "service_stage_name": "Application Submission",
+    "level": 0
   },
   {
     "agentcis_id": 223,
