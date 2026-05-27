@@ -1,4 +1,12 @@
-import { Unique, Index, Column, Entity, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import {
+  Unique,
+  Index,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('temp_mapped_medias')
 @Unique(['agentcisMediaId'])
@@ -30,4 +38,7 @@ export class TempMappedMedia {
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
+  updatedAt: Date;
 }
