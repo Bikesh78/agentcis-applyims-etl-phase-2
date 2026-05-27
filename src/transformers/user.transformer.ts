@@ -50,15 +50,12 @@ export class UserTransformer extends BaseTransformer<Users, ApplyIMSUser> {
       updatedAt: source.updatedAt,
       roleId: null,
       totalLogin: 0,
-
-      agentcisClientId: `USER-${source.id}`,
-      agentcisInternalId: source.id,
     };
   }
 
   protected validate(target: ApplyIMSUser): void {
     if (!target.email) {
-      throw new Error(`Invalid email for user agentcis_id=${target.agentcisInternalId}`);
+      throw new Error(`Invalid email for user agentcis_id=${target.agentcisId}`);
     }
     if (!isUuid(target.id)) {
       throw new Error(`Invalid UUID: ${target.id}`);

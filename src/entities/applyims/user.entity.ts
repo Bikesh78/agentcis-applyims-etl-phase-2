@@ -28,7 +28,4 @@ export interface ApplyIMSUser {
   updatedAt: Date;
   roleId: string | null;
   totalLogin: number;
-
-  agentcisClientId: string;
-  agentcisInternalId: number;
 }
