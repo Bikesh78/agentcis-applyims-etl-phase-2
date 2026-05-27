@@ -88,14 +88,14 @@ export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSM
   private async resolvePath(source: Attachment): Promise<string> {
     switch (source.attachmentableType) {
       case 'client':
-        return `contact__agentcis_${source.attachmentableId}/Contact-Documents/${source.originalName}`;
+        return `contact__agentcis_${source.attachmentableId}/Contact-Documents`;
       case 'application_stage': {
         const agentcisAppId = source.attachmentableId;
         const clientId = await this.mappingRepo.getClientIdByApplication(agentcisAppId);
         if (!clientId) {
           throw new Error(`Cannot resolve client ID for application ${agentcisAppId}`);
         }
-        return `contacts/contact__agentcis_${clientId}/applications/application__agentcis-${source.attachmentableId}/stage__application/supporting-documents/${source.originalName}`;
+        return `contacts/contact__agentcis_${clientId}/applications/application__agentcis-${source.attachmentableId}/stage__application/supporting-documents`;
       }
       default:
         throw new Error(`Unsupported attachmentableType: ${source.attachmentableType}`);
