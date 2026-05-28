@@ -31,7 +31,15 @@ export class CheckinTransformer extends BaseTransformer<CheckinWithContext, Appl
     }
 
     if (!contactId) {
-      return null;
+      if (source.clientId != null) {
+        throw new Error(
+          `Checkin ${source.uuid}: clientId ${source.clientId} (email: ${source.attendeeEmail}) could not be resolved to an ApplyIMS contact`
+        );
+      } else {
+        throw new Error(
+          `Checkin ${source.uuid}: attendee email '${source.attendeeEmail}' is not a registered client — skipping walk-in checkin`
+        );
+      }
     }
 
     const branchAgentcisId = this.parseBranchIdFromOfficeName(source.officeName);

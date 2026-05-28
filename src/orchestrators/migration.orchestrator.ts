@@ -32,12 +32,10 @@ import { FieldMapper } from '../transformers/utils/field-mappers.js';
 import { BatchProcessor, ProcessResult } from '../loaders/batch-processor.js';
 import { CheckpointService } from '../services/checkpoint.service.js';
 import { ErrorRecoveryManager, ErrorCategory } from '../loaders/error-recovery.js';
-import { ApplyIMSApiClient, BulkResponse, CreateContactRequest } from '../loaders/api-client.js';
-import pLimit from 'p-limit';
+import { ApplyIMSApiClient, BulkResponse } from '../loaders/api-client.js';
 import { Logger } from '../utils/logger.js';
 import { MigrationJob, MigrationStatus } from '../entities/etlDb/migration-jobs.entity.js';
 import { MigrationConfig } from '../configs/migration.config.js';
-import { getConfig } from '../configs/index.js';
 import {
   EntityType,
   ENTITY_DEPENDENCY_ORDER,
@@ -163,10 +161,6 @@ export class MigrationOrchestrator {
         if (this.isCancelled) {
           this.logger.warn('Migration cancelled', { migrationId });
           break;
-        }
-
-        if (entityType === EntityType.CHECKINS) {
-          await this.populateWalkInContacts(config);
         }
 
         const entityStartTime = Date.now();
@@ -621,134 +615,6 @@ export class MigrationOrchestrator {
 
     await this.mappingRepository.storeDealStagingBatch(migrationId, dealRows);
     this.logger.info('Deal staging populated', { migrationId, rowCount: dealRows.length });
-  }
-
-  private async populateWalkInContacts(config: MigrationConfig): Promise<void> {
-    const { migrationId } = config;
-    this.logger.info('Populating walk-in contacts for checkins', { migrationId });
-
-    const rows: {
-      attendeeEmail: string;
-      attendeeName: string | null;
-      officeName: string | null;
-    }[] = await this.agentcisDb.query(`
-      SELECT
-        c.attendee_email AS attendeeEmail,
-        MAX(c.attendee_name) AS attendeeName,
-        MAX(c.office_name)   AS officeName
-      FROM checkins c
-      LEFT JOIN clients cl ON cl.email = c.attendee_email
-      WHERE c.old_id IS NULL
-        AND c.check_in_time IS NOT NULL
-        AND c.attendee_email IS NOT NULL
-        AND c.attendee_email <> ''
-        AND cl.id IS NULL
-      GROUP BY c.attendee_email
-    `);
-
-    if (rows.length === 0) {
-      this.logger.info('No walk-in contacts to create', { migrationId });
-      return;
-    }
-
-    const existing: { email: string }[] = await this.etlDb.query(
-      `SELECT email FROM temp_mapped_walkin_contacts WHERE email = ANY($1)`,
-      [rows.map((r) => r.attendeeEmail)]
-    );
-    const alreadyMapped = new Set(existing.map((r) => r.email));
-
-    const toCreate = rows.filter((r) => !alreadyMapped.has(r.attendeeEmail));
-    this.logger.info('Walk-in contact pre-flight scope', {
-      migrationId,
-      totalUnmatched: rows.length,
-      alreadyMapped: alreadyMapped.size,
-      toCreate: toCreate.length,
-    });
-
-    if (toCreate.length === 0) return;
-
-    const adminUserId = getConfig().migrationAdminUserId;
-    const idResolver = this.createIdResolver();
-    const limit = pLimit(5);
-    const created: { email: string; applyimsContactId: string }[] = [];
-    let failedCount = 0;
-
-    await Promise.all(
-      toCreate.map((r) =>
-        limit(async () => {
-          try {
-            const branchAgentcisId = this.parseBranchFromOfficeName(r.officeName);
-            const branchId = branchAgentcisId
-              ? await idResolver.resolveBranchId(branchAgentcisId)
-              : null;
-
-            const { firstName, lastName } = this.splitName(r.attendeeName ?? '');
-
-            const payload: CreateContactRequest = {
-              firstName,
-              lastName,
-              email: r.attendeeEmail,
-              createdBy: { id: adminUserId },
-              internalId: `WALKIN-${r.attendeeEmail}`,
-              source: 'checkins',
-              ...(branchId ? { branchId } : {}),
-            };
-
-            const response = await this.apiClient.createContact(payload);
-            created.push({ email: r.attendeeEmail, applyimsContactId: response.id });
-            this.logger.info('Walk-in contact created', {
-              migrationId,
-              email: r.attendeeEmail,
-              attendeeName: r.attendeeName,
-              applyimsContactId: response.id,
-              branchId: branchId ?? null,
-            });
-          } catch (err) {
-            failedCount++;
-            const error = err instanceof Error ? err : new Error(String(err));
-            this.logger.error('Walk-in contact creation failed', {
-              migrationId,
-              email: r.attendeeEmail,
-              error: error.message,
-            });
-            await this.errorRecoveryManager.logError(
-              migrationId,
-              EntityType.CHECKINS,
-              `walkin:${r.attendeeEmail}`,
-              error,
-              ErrorCategory.API_ERROR,
-              { attendeeEmail: r.attendeeEmail, attendeeName: r.attendeeName }
-            );
-          }
-        })
-      )
-    );
-
-    await this.mappingRepository.storeWalkInContactMappingsBatch(created, migrationId);
-
-    this.logger.info('Walk-in contact pre-flight complete', {
-      migrationId,
-      created: created.length,
-      failed: failedCount,
-    });
-  }
-
-  private parseBranchFromOfficeName(officeName: string | null): number | null {
-    if (!officeName) return null;
-    const match = officeName.match(/-(\d+)$/);
-    if (!match) return null;
-    const parsed = parseInt(match[1], 10);
-    return Number.isNaN(parsed) ? null : parsed;
-  }
-
-  private splitName(name: string): { firstName: string; lastName: string } {
-    const trimmed = name.trim();
-    if (!trimmed) return { firstName: '.', lastName: '.' };
-    const spaceIdx = trimmed.indexOf(' ');
-    if (spaceIdx === -1) return { firstName: trimmed, lastName: '.' };
-    const first = trimmed.slice(0, spaceIdx);
-    const rest = trimmed.slice(spaceIdx + 1).trim();
-    return { firstName: first, lastName: rest || '.' };
   }
 
   private generateDealName(startDate: Date, endDate: Date): string {
