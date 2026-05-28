@@ -1,0 +1,2045 @@
+ ▐▛███▜▌   Claude Code v2.1.150
+▝▜█████▛▘  Opus 4.7 · Claude Team
+  ▘▘ ▝▝    ~/Documents/heubort/agentcis-applyims-etl-phase-2
+
+❯ /model 
+  ⎿  Kept model as Opus 4.7 (1M context)
+
+❯ go through the migration and error logs in ./logs and analyze the logs for    
+  migration with id 5c9e6662-7714-4fb2-ab30-092b255ece43                        
+
+  Listed 1 directory (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+
+● The logs directory doesn't exist at ./logs. Let me explore the codebase to
+  find where logs are actually stored.
+
+  Listed 1 directory (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+
+● Bash(pwd && ls -la)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿  /home/bikesh/Documents/heubort/agentcis-applyims-etl-phase-2
+     total 716
+     drwxrwxr-x  11 bikesh bikesh   4096 May 28 20:58 .
+     … +27 lines (ctrl+o to expand)
+
+  Listed 1 directory (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+
+● I found the logs directory. Let me explore the log structure and previous
+  analysis to understand the format.
+
+  Read 1 file (ctrl+o to expand)
+
+● Now I understand the expected output format. Let me search for the migration
+  ID in the log files to scope the analysis.
+
+● Bash(cd /home/bikesh/Documents/heubort/agentcis-applyims-etl-phase-2/logs &&
+      for f in migration-2026-05-28.log.17 error-2026-05-28.log.7; do echo "===
+      $f ==="; grep…)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿  === migration-2026-05-28.log.17 ===
+     955
+     === error-2026-05-28.log.7 ===
+     80985
+
+● Bash(cd /home/bikesh/Documents/heubert/agentcis-applyims-etl-phase-2/logs &&
+      for f in migration-2026-05-28.log.*.gz error-2026-05-28.log.*.gz; do
+      count=$(zgrep -c "5…)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿  Error: Exit code 1
+     (eval):cd:1: no such file or directory: 
+     /home/bikesh/Documents/heubert/agentcis-applyims-etl-phase-2/logs
+
+● Bash(for f in migration-2026-05-28.log.*.gz error-2026-05-28.log.*.gz; do
+      count=$(zgrep -c "5c9e6662-7714-4fb2-ab30-092b255ece43" "$f" 2>/dev/null);
+       if [ "$count" !=…)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿  migration-2026-05-28.log.10.gz: 1061
+     migration-2026-05-28.log.11.gz: 15912
+     migration-2026-05-28.log.12.gz: 22948
+     … +19 lines (ctrl+o to expand)
+
+● I have enough scope information. This migration appears across all 17
+  migration log rotations and 7 error log rotations. Let me write the plan.
+
+● Updated plan
+  ⎿  PreToolUse:Write hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/secret-scan.sh: not found
+  ⎿  /plan to preview
+
+● User answered Claude's questions:
+  ⎿  · How deep should the analysis go? → Deep dive
+     · Where should the report be written? → Repo root, dated + id
+     · Should I compare against the 2026-05-12 baseline? → No — treat this run 
+     standalone
+● Updated plan
+  ⎿  PreToolUse:Edit hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/secret-scan.sh: not found
+  ⎿  /plan to preview
+
+● Updated plan
+  ⎿  PreToolUse:Edit hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/secret-scan.sh: not found
+  ⎿  /plan to preview
+
+● User approved Claude's plan
+  ⎿  Plan saved to: ~/.claude/plans/lovely-cooking-umbrella.md · /plan to edit
+     Plan — Migration & Error Log Analysis for 
+     5c9e6662-7714-4fb2-ab30-092b255ece43
+
+     Context
+
+     The user wants an end-to-end forensic of a single ETL run (migration id
+     5c9e6662-7714-4fb2-ab30-092b255ece43) using the rotated logs under ./logs/.
+      The deliverable is a markdown report in the same shape as
+     2026-05-12-log-analysis.md (summary → aggregate error counts → numbered
+     issue blocks → pattern correlation → recommendations).
+
+     Why now: this run dominates the early rotations on 2026-05-28 — ~3M
+     migration-log lines and ~2.3M error-log lines reference its id, so its
+     outcomes likely contain the failure modes the operator is currently
+     chasing.
+
+     Scope (what I already know from a quick scan)
+
+     - Migration id appears in: migration-2026-05-28.log.{1..17} (densest in
+     .1–.9, ~270K lines each) and error-2026-05-28.log.{1..7} (densest in .1–.6,
+      ~390K lines each).
+     - Total references ≈ 3.0M migration log lines, 2.3M error log lines, so
+     this is a long single run, not a series of retries.
+     - Latest rotations (*.17, error.*.7) only have small tails — the run likely
+      ended mid-rotation .9–.10 and the remaining tail is wind-down + start of
+     the next migration id.
+
+     Approach (deep dive, standalone — no comparison to prior run)
+
+     1. Bound the run. Find earliest and latest timestamps that carry
+     5c9e6662-7714-4fb2-ab30-092b255ece43 across the gz set. Use zgrep for the
+     first line in .1.gz and the last in .17 / error.*.7. Note start/end UTC,
+     total wall time, and which rotations the run spans.
+     2. Entity outcome table. For each EntityType, grep orchestrator lifecycle
+     log lines (look for successful= / total= / failed= / completion strings —
+     confirmed in migration.orchestrator.ts). Emit a per-entity row: total /
+     successful / failed / % success / first-timestamp / last-timestamp so the
+     per-entity duration is visible.
+     3. Per-batch failure timeline (deep-dive extension). For each entity, walk
+     every batch log entry and capture: batch number, batch size, successful
+     count, failure count, the first failure message in that batch. Render as a
+     compact timeline so operator can see exactly when an entity's failure rate
+     spiked. Keep one row per batch; cap output if entity has >500 batches with
+     a "(+N more batches)" footer.
+     4. Error rollup. Use zgrep + jq (logs are line-JSON) on the error files
+     filtered to this migrationId:
+       - count by category (TRANSFORMATION_ERROR vs API_ERROR vs others),
+       - count by entityType,
+       - full error message catalog (NOT just top N) — template variable id
+     portions to <id> so identical errors collapse. Order by count desc.
+     5. Root-cause analysis. For every error message in the catalog, cite a
+     concrete source file:line where the message is thrown. Trace back to the
+     transformer/api-client/batch-processor code path. If a message is novel (no
+      obvious source match), call it out explicitly so the operator can grep.
+     6. Pattern correlation + ranked recommendations + confidence. Standalone —
+     derive cascades purely from this run's data (e.g. "users 0/N →
+     temp_mapped_users empty → all downstream Cannot resolve userId errors").
+
+     Critical files (read-only references)
+
+     - src/orchestrators/migration.orchestrator.ts — entity loop, checkpoint log
+      lines, completion totals.
+     - src/loaders/api-client.ts — auth/login, retry/timeout behavior, bulk*
+     methods (for API error attribution).
+     - src/loaders/batch-processor.ts — how successes/failures are counted and
+     written to migration_errors.
+     - src/transformers/contact-activity.transformer.ts,
+     application.transformer.ts, office-visit.transformer.ts — host the top
+     recurring transformation errors from the 2026-05-12 baseline.
+     - 2026-05-12-log-analysis.md — template for the report layout and prior-run
+      reference for delta analysis.
+
+     Output
+
+     Single markdown file in repo root: 2026-05-28-log-analysis-5c9e6662.md (the
+      date the logs cover; the short id disambiguates from any future per-run
+     reports). Standalone — no cross-references to prior run reports. No code
+     changes, no new tests — read-only analysis only.
+
+     Expected length: deep dive will push past the 250-line target. That is
+     acceptable per user direction — completeness > brevity here.
+
+     Verification
+
+     - Numbers reconcile: per-entity successful + failed = total (or note the
+     discrepancy, e.g. the agents 12/10 cosmetic bug from 2026-05-12).
+     - Every "Root Cause" cites a concrete log line or source-file reference.
+     - Every "Recommended Fix" maps to an Affected Component path in src/.
+     - Report stays under ~250 lines so it's scannable like the prior one.
+
+● Let me start by understanding the log format and bounding the run.
+
+● Bash(zcat migration-2026-05-28.log.1.gz | head -1)
+  ⎿  PreToolUse:Bash hook error                                           ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿  {
+       "batchElapsedMs": 849,
+       "elapsedMs": 838966,
+     … +11 lines (ctrl+o to expand)
+
+● Bash(zcat migration-2026-05-28.log.1.gz 2>/dev/null | head -5 | jq -c '{ts:
+      .timestamp, msg: .message, lvl: .level, ent: .entityType}' 2>/dev/null
+      echo "---"…)
+  ⎿  PreToolUse:Bash hook error                                           ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿  {
+       "ts": "2026-05-27T19:56:01.724Z",
+       "msg": "Entity progress update",
+     … +69 lines (ctrl+o to expand)
+
+● Bash(# Find all distinct lifecycle/start/end-style messages for this migration
+      for f in migration-2026-05-28.log.{1..9}.gz; do…)
+  ⎿  PreToolUse:Bash hook error                                           ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿  2026-05-27T19:56:01.724Z | progress | contact-activities | Entity prog
+     ress update
+     2026-05-27T19:56:01.779Z | error | contact-activities | Migration erro
+     … +170 lines (ctrl+o to expand)
+
+● Bash(# Check the 2026-05-27 log too
+      echo "=== 2026-05-27 migration log ==="…)
+  ⎿  PreToolUse:Bash hook error                                           ⎿  Failed with non-blocking status code: /bin/sh: 1:   ⎿  === 2026-05-27 migration log ===
+     78987
+     === 2026-05-27 error log ===
+     77192
+
+● Bash(# Find the very first appearance of this migration ID across all logs
+      echo "=== First appearance in migration-2026-05-27.log.gz ==="…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  === First appearance in migration-2026-05-27.log.gz ===
+     2026-05-27T12:43:58.229Z
+     2026-05-27T18:14:59.174Z
+     … +64 lines (ctrl+o to expand)
+
+● Bash(# Get all entity lifecycle messages from .27 forward
+      {…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  21 /tmp/lifecycle.json
+     {"level":"info","message":"Migration started","migrationId":"5c9e6662-
+     7714-4fb2-ab30-092b255ece43","timestamp":"2026-05-27T12:43:58.229Z"}
+     … +426 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+
+● Bash(jq -c '{ts: .timestamp, msg: .message, ent: .entityType, total: .total,
+      succ: .successful}' /tmp/lifecycle.json | sed -n '11,22p')
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  {
+       "ts": "2026-05-27T21:06:06.338Z",
+       "msg": "Entity migration completed",
+     … +74 lines (ctrl+o to expand)
+
+● Bash(# Find missing lifecycle pieces - applications and contact-activities
+      starts
+      {…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  {
+       "ts": "2026-05-27T14:48:46.066Z",
+       "msg": "Starting entity migration",
+     … +11 lines (ctrl+o to expand)
+
+● Bash(# Find applications completion event - try alternate spellings
+      {…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  (No output)
+
+● Bash(# Last applications log entry and last contact-activities entry before
+      contact-activities completed
+      {…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  "2026-05-27T18:14:29.019Z"
+     "2026-05-27T18:14:59.168Z"
+     "2026-05-27T18:14:59.174Z"
+     … +26 lines (ctrl+o to expand)
+
+● Bash(zcat migration-2026-05-27.log.gz | jq -c
+      'select(.migrationId=="5c9e6662-7714-4fb2-ab30-092b255ece43" and
+      .entityType=="applications" and .level=="progress")' 2…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  {
+       "batchElapsedMs": 1652,
+       "elapsedMs": 5179,
+     … +54 lines (ctrl+o to expand)
+
+● Bash(# See timestamps spanned by each compressed migration log
+      for f in migration-2026-05-27.log.gz migration-2026-05-28.log.{1..16}.gz;
+      do…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  migration-2026-05-27.log.gz  first=2026-05-27T12:43:23.737Z  last=2026
+     -05-27T18:14:59.949Z
+     migration-2026-05-28.log.1.gz  first=2026-05-27T19:56:01.724Z  last=20
+     … +21 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+
+● Bash(zcat migration-2026-05-28.log.16.gz | jq -c
+      'select(.migrationId=="5c9e6662-7714-4fb2-ab30-092b255ece43" and
+      (.timestamp >= "2026-05-27T22:00:00" and .timestamp…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  {"category":"API_ERROR","entityId":"walkin:subhamchaudhary247@gmail.co
+     m","entityType":"checkins","level":"error","message":"Migration error
+     logged Request failed with status code 409","migrationId":"5c9e6662-77
+     … +426 lines (ctrl+o to expand)
+
+● Bash(zcat migration-2026-05-28.log.16.gz | jq -c
+      'select(.migrationId=="5c9e6662-7714-4fb2-ab30-092b255ece43" and
+      .message=="Migration failed") | {ts: .timestamp, er…)  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  {"ts":"2026-05-27T22:08:35.617Z","err":"QueryFailedError: null value i
+     n column \"applyims_contact_id\" of relation \"temp_mapped_walkin_cont
+     acts\" violates not-null constraint"}
+     … +426 lines (ctrl+o to expand)
+
+● Bash(# Get final per-entity progress (last progress event = best estimate of
+      cumulative state if successful is per-batch)
+      # Looking at the schema again: in progress…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  === Per-entity sum of batch successes (deep dive) ===
+     7727 /tmp/progress.jsonl
+     Entities seen:
+     … +9 lines (ctrl+o to expand)
+
+● Bash(# Per-entity summary: time bounds, sum of batch successes, sum of batch
+      fails, final totalCount
+      echo "Entity | first_ts | last_ts | sum_succ | sum_fail | total…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  Entity | first_ts | last_ts | sum_succ | sum_fail | total | last_proce
+     ssed | last_pct
+     users                  2026-05-27T12:43:59.538Z -> 2026-05-27T12:43:59
+     … +16 lines (ctrl+o to expand)
+
+● Bash(# Per-entity batch timeline: identify where success rate dropped to zero
+      echo "=== applications: success rate per progress event (every 25th to
+      keep output boun…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  === applications: success rate per progress event (every 25th to keep
+     output bounded) ===
+     511 /tmp/_apps.txt
+     … +19 lines (ctrl+o to expand)
+
+● Bash(# Find when applications batch success rate first hit 0 — use awk to
+      inspect the column
+      awk -F'\t' '{…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  first_zero_succ_batch_index=1  ts="2026-05-27T14:48:51.245Z\tbatch_suc
+     c=255\tbatch_fail=0\tproc=500\tpct=0.18"
+     --- success rate over time (every 50th batch) ---
+     … +17 lines (ctrl+o to expand)
+
+● Bash(# Find first batch with 0 successes (correctly)
+      awk -F'\t' '…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  First 0-success batch: idx=1 line=2026-05-27T14:48:51.245Z\tbatch_succ
+     =255\tbatch_fail=0\tproc=500\tpct=0.18
+     Last positive-success batch:
+     … +23 lines (ctrl+o to expand)
+
+  Read 2 files (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+
+● Bash(# Aggregate errors from error logs filtered to this migration
+      # First understand the error log format…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  {
+       "entityType": "contact-activities",
+       "error": "Error: Cannot resolve activitiesTypeId for 56465",
+     … +16 lines (ctrl+o to expand)
+
+● Bash(# Stream all errors for this migration through jq, filter, normalize,
+      write to a single tsv
+      echo "Building error catalog..."…)  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  Building error catalog...
+     2506442 /tmp/errors.jsonl
+     --- by category ---
+     … +17 lines (ctrl+o to expand)
+
+● Bash(# Better error catalog: only "Migration error logged ..." entries (the
+      canonical ones), templated
+      echo "=== Error catalog (top 40 templated messages by count) =…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  === Error catalog (top 40 templated messages by count) ===
+     1168502 TRANSFORMATION_ERROR       contact-activities      Cannot resolve activitie
+     sTypeId for <id>
+     … +64 lines (ctrl+o to expand)
+
+
+● Bash(echo "=== Templated error catalog (emails collapsed) ==="
+      jq -r 'select(.category) | "\(.category)\t\(.entityType)\t\(.message |
+      sub("Migration error logged ";…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  === Templated error catalog (emails collapsed) ===
+     1168502 TRANSFORMATION_ERROR       contact-activities      Cannot resolve activitie
+     sTypeId for <id>
+     … +36 lines (ctrl+o to expand)
+
+
+● Bash(# Get tail of catalog
+      echo "=== Bottom of catalog ==="…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  === Bottom of catalog ===
+          14 TRANSFORMATION_ERROR       applications    Cannot resolve userId <id>
+          12 TRANSFORMATION_ERROR       applications    Cannot resolve productId <id>
+     … +16 lines (ctrl+o to expand)
+
+
+
+  Listed 2 directories (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+
+● Bash(cd /home/bikesh/Documents/heubort/agentcis-applyims-etl-phase-2 && grep
+      -rn "Cannot resolve activitiesTypeId\|Cannor resolve dealId\|Cannot
+      resolve client ID\|i…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  src/transformers/application.transformer.ts:74:      throw new Error(`
+     Cannor resolve dealId for application ${source.id}`);
+     src/transformers/contact.transformer.ts:73:      throw new Error(`Inva
+     … +35 lines (ctrl+o to expand)
+
+  Searched for 8 patterns, read 4 files, listed 1 directory (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+
+● Bash(wc -l /home/bikesh/Documents/heubort/agentcis-applyims-etl-phase-2/src/or
+      chestrators/migration.orchestrator.ts
+      /home/bikesh/Documents/heubort/agentcis-applyims-…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿    762 /home/bikesh/Documents/heubort/agentcis-applyims-etl-phase-2/src
+     /orchestrators/migration.orchestrator.ts
+       649 /home/bikesh/Documents/heubort/agentcis-applyims-etl-phase-2/dis
+     … +72 lines (ctrl+o to expand)
+
+● Bash(cd /home/bikesh/Documents/heubort/agentcis-applyims-etl-phase-2/logs && \
+      # Check all errors are captured (none in newer logs we might miss)…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  error-2026-05-28.log.7: 80985
+     error-2026-05-28.log.gz: 388413
+     error-2026-05-27.log.gz: 77192
+● Bash(\
+      # Include error-2026-05-28.log.gz too (the active uncompressed file's
+      older rotation)…)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿  2894855 /tmp/errors_full.jsonl
+     --- categories ---
+     1431167 NONE
+     … +11 lines (ctrl+o to expand)
+
+● Bash(jq -r 'select(.category and .entityType=="notes") | .message'
+      /tmp/errors_full.jsonl \
+        | sed -E "s/[0-9]+/<id>/g" \…)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿   131460 Migration error logged Cannot resolve applicationId for agentc
+     is application <id>
+        2769 Migration error logged Cannot resolve createdById for added_by
+     … +30 lines (ctrl+o to expand)
+
+● Bash(echo "=== FULL templated catalog ==="
+      jq -r 'select(.category) | "\(.category)\t\(.entityType)\t\(.message |
+      sub("Migration error logged "; ""))"' /tmp/errors_f…)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿  === FULL templated catalog ===
+     1224858 TRANSFORMATION_ERROR       contact-activities      Cannot resolve activitie
+     sTypeId for <id>
+     … +46 lines (ctrl+o to expand)
+
+
+  Searched for 1 pattern, read 1 file (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+
+● Writing the analysis report.
+
+● Write(2026-05-28-log-analysis-5c9e6662.md)
+  ⎿  PreToolUse:Write hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/secret-scan.sh: not found
+  ⎿  Wrote 283 lines to 2026-05-28-log-analysis-5c9e6662.md
+        ab30-092b255ece43`r Log Analysis — Migration `5c9e6662-7714-4fb2-
+      3 Source: `./logs/migration-2026-05-{27,28}.log*` and `./logs/error
+        -2026-05-{27,28}.log*`
+      5 Project: agentcis → applyims ETL (Phase 2), staging environment.
+      6 ## Summary
+      8 - Single long-running migration that **started 2026-05-27 12:43:5
+         was resumed twice on 2026-05-28 (10:56 and 11:08), with the last
+         logged activity at 11:22:23. The active uncompressed log (`migra
+         reached a clean "Migration completed" event for this id.un never
+      9 - **Crash root cause:** during the checkins phase's walk
+     … +619 lines (ctrl+o to expand)
+
+● Analysis complete. Report written to 2026-05-28-log-analysis-5c9e6662.md in
+  the repo root.
+
+  Top-line findings:
+
+  - Migration started 2026-05-27T12:43:58, crashed at 22:08:35 on a NOT NULL
+  constraint violation in temp_mapped_walkin_contacts.applyims_contact_id —
+  caused by the walk-in pre-flight pushing {email, applyimsContactId: 
+  response.id} into a buffer when response.id was undefined.
+  - Critical hygiene problem: the walk-in pre-flight code lives in
+  dist/orchestrators/migration.orchestrator.js:494-510 but not in src/ — the
+  running build has diverged from the TypeScript source. Any source-level fix is
+   invisible to the running orchestrator until dist/ is rebuilt.
+  - ~1.46M unique errors. 92% of them are downstream cascades from one upstream
+  root: applications phase completed at only ~38% transform success, breaking
+  contact-activities (1.22M), notes (131K), and attachments (3.9K).
+  - A previously-undocumented notes entity ran in a 1h41m log-rotation gap with
+  no lifecycle events — only the error stream betrays it ran.
+  - Resumes on 2026-05-28 (10:56 and 11:08) completed checkins but cut off
+  mid-attachments; no clean "migration completed" record exists for this id.
+
+  Per-entity totals, the full templated error catalog, per-batch timelines, and
+  11 numbered issue blocks with source-file references and ranked fixes are all
+  in the report.
+
+✻ Brewed for 25m 33s
+
+❯ what are the root cause of errors.                                            
+
+● The 1.46M errors trace back to 6 distinct root causes. In order of blast
+  radius:
+
+  1. Applications phase under-completed (~38% transform success)
+
+  The single biggest upstream cause. Drives ~92% of all error volume via
+  cascades:
+  - Cannor resolve dealId for application <id> (21,224 in applications) — 21K
+  source applications reference a dealId that isn't in temp_mapped_deals or
+  deals.json, even though deals migrated 234,816/234,816. Likely the deal
+  extractor's filter is narrower than the application FK requirement
+  (soft-deleted deals excluded but their applications retained).
+  - 296 × timeout of 30000ms exceeded on /v1/applications/bulk — load-related,
+  compounds the success rate dip.
+  - 3 × Cannot read properties of null (reading 'toISOString')-style "Invalid
+  time value" — nullable date column unconditionally .toISOString()'d.
+
+  Cascades from this single cause:
+  - contact-activities: 1,224,858 × Cannot resolve activitiesTypeId for <id>
+  (variable misnamed — actually applicationId; 9,116 distinct missing app IDs)
+  - notes: 131,460 × Cannot resolve applicationId for agentcis application <id>
+  - attachments: 3,968 × Cannot resolve client ID for application <id>
+
+  2. No idempotency on contacts (re-run signature)
+
+  - 29,484 × duplicate key value violates unique constraint 
+  "IDX_LOWERCASE_EMAIL" — target DB already held those emails from a prior run.
+  bulkCreateContacts treats duplicates as hard failures instead of looking up
+  the existing UUID and writing the mapping.
+
+  Cascades:
+  - 3,409 contact-activities + 2,375 office-visits + 1,628 notes + 428
+  applications missing contactId
+  - 2,468 office-visits FK violations on contact_visits.FK_…fae
+
+  3. 5 user IDs missing from extraction
+
+  - 26,510 × Cannot resolve userId <id> in office-visits — top 5 IDs (562, 745,
+  537, 503, 714) account for ~85% of the volume. These IDs are not in users.json
+   or temp_mapped_users despite users migrating 60/60, so they were filtered out
+   of extraction at source (soft-deleted? non-staff?). Same root drives 419 in
+  contact-activities, 18 in applications.
+
+  4. Walk-in pre-flight bug → crash
+
+  - apiClient.createContact() returned a response where response.data.data.id
+  was undefined for at least one walk-in contact. The pre-flight pushed {email, 
+  applyimsContactId: undefined} into the buffer, then
+  storeWalkInContactMappingsBatch upserted it, and Postgres rejected with code 
+  23502 on applyims_contact_id NOT NULL. Aborted the whole run at 22:08:35.
+  - Source: dist/orchestrators/migration.orchestrator.js:494-510 (this code is
+  NOT in src/ — see #6).
+
+  5. Source data quality holes
+
+  - 3,739 × Invalid email: null (contacts) — null emails in
+  agentcis_v2.contacts.
+  - 517 × Cannot resolve userId null (office-visits) — null userId in source.
+  - 3,274 × Unsupported attachmentableType (email/partner/task/product) — these
+  are designed skips logged at ERROR level, polluting the rollup.
+  - 26 × Both FirstName and LastName are required.
+
+  6. src/dist divergence (meta-cause)
+
+  - dist/orchestrators/migration.orchestrator.js contains the walk-in
+  pre-flight; src/orchestrators/migration.orchestrator.ts does not. The running
+  binary diverged from the TypeScript source. Any fix to #4 written in src/ will
+   not take effect until dist/ is rebuilt. This is why grepping src/ for the
+  failure path returns nothing.
+
+  ---
+  If you only fix one thing: root cause #1 (applications). It alone produces
+  ~1.39M of the 1.46M errors. Investigate why 21K applications have unmapped
+  dealIds despite deals at 100%, and fix the null date guard in the applications
+   transformer — those two together should unblock contact-activities, notes,
+  and attachments downstream.
+
+✻ Worked for 34s
+
+❯ are missing user also causing any issue?                                      
+
+● Let me check which user IDs miss across all entities, not just office-visits.
+
+● Bash(\
+      echo "=== Top user IDs missing in office-visits ==="…)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿  === Top user IDs missing in office-visits ===
+        9145 562
+        6375 745
+     … +38 lines (ctrl+o to expand)
+
+● Bash(echo "=== Distinct missing user IDs per entity ==="
+      for ent in office-visits notes contact-activities applications; do…)
+  ⎿  PreToolUse:Bash hook error                                            ⎿  Failed with non-blocking status code: /bin/sh: 1: 
+  ⎿  Running in the background (↓ to manage)
+● Bash(wait; cat
+      /tmp/claude-1000/-home-bikesh-Documents-heubort-agentcis-applyims-etl-phas
+      e-2/b2dbded3-8625-4689-9202-13328d2f06d7/tasks/bf6j5m37w.output)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  === Distinct missing user IDs per entity ===
+     office-visits: 60 distinct missing user IDs, 26510 total error rows
+     notes: 44 distinct missing user IDs, 2769 total error rows
+     … +4 lines (ctrl+o to expand)
+
+● Bash({
+        jq -r 'select((.entityType=="office-visits" or
+      .entityType=="contact-activities" or .entityType=="applications") and
+      (.message|test("Cannot resolve userId […)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  Running in the background (↓ to manage)
+
+● Background command "Quantify missing-user impact across entities" completed (exit code 0)
+
+● Bash(wait; cat
+      /tmp/claude-1000/-home-bikesh-Documents-heubort-agentcis-applyims-etl-phas
+      e-2/b2dbded3-8625-4689-9202-13328d2f06d7/tasks/b7q4l8e2v.output)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  Distinct missing user IDs (union): 92
+     Total record drops attributable to missing users: 29716
+
+     User IDs that miss in multiple entities (>1):
+
+● Yes — missing users cause ~29,716 record drops across 4 entities, more than
+  the 5 IDs I initially highlighted suggested. 92 distinct user IDs are missing
+  from temp_mapped_users / users.json.
+
+  Breakdown
+
+  ┌───────────────────────────┬────────┬────────────┬──────────────────────┐
+  │                           │        │ Distinct   │                      │
+  │          Entity           │ Errors │  missing   │    Top offenders     │
+  │                           │        │    UIDs    │                      │
+  ├───────────────────────────┼────────┼────────────┼──────────────────────┤
+  │                           │        │            │ 562 (9,145), 745     │
+  │ office-visits             │ 26,510 │         60 │ (6,375), 537         │
+  │                           │        │            │ (3,390), 503         │
+  │                           │        │            │ (2,395), 714 (1,955) │
+  ├───────────────────────────┼────────┼────────────┼──────────────────────┤
+  │ notes (Cannot resolve     │        │            │ 678 (1,172), 1142    │
+  │ createdById for added_by  │  2,769 │         44 │ (483), 1815 (277),   │
+  │ <id>)                     │        │            │ 1283 (186), 1301     │
+  │                           │        │            │ (137)                │
+  ├───────────────────────────┼────────┼────────────┼──────────────────────┤
+  │                           │        │            │ 1169 (174), 477      │
+  │ contact-activities        │    419 │         22 │ (54), 1201 (51),     │
+  │                           │        │            │ 1122 (37)            │
+  ├───────────────────────────┼────────┼────────────┼──────────────────────┤
+  │ applications              │     18 │          4 │ 632, 645, 1857, 636  │
+  ├───────────────────────────┼────────┼────────────┼──────────────────────┤
+  │ Total                     │ 29,716 │   92 union │ —                    │
+  └───────────────────────────┴────────┴────────────┴──────────────────────┘
+
+  Two things to notice
+
+  1. notes.added_by is also a user FK. The 2,769 Cannot resolve createdById for 
+  added_by <id> errors in notes are the same root cause as the office-visits
+  Cannot resolve userId — I should have grouped them together in the original
+  analysis. The notes transformer just labels the field differently (createdById
+   ← added_by ← agentcis user id).
+  2. The missing-user populations differ per entity. Only a small overlap
+  between sets — the office-visits top 5 (562/745/537/503/714) barely appear in
+  notes' top, and notes' top (678/1142/1815/1283/1301) barely appear in
+  office-visits' top. This suggests users are missing for context-specific 
+  reasons, not because a single batch of users was filtered out wholesale.
+  Hypotheses worth probing:
+    - Some IDs are "office staff" referenced by office-visits but not by note
+  authors.
+    - Some IDs are deactivated/deleted users whose historical records still
+  reference them.
+    - Some IDs may live in a separate source table not joined by the user
+  extractor.
+
+  Separately: 517 × Cannot resolve userId null in office-visits
+
+  This is not a missing-mapping issue — the source row has a NULL userId. Same
+  as the historical "office visits with null users get dropped" pattern.
+  Different fix: choose a fallback policy (default migration-admin user, or skip
+   with WARN).
+
+  Total drops attributable to user-mapping gaps
+
+  ~29,716 records = ~3.4% of office-visits + ~2% of notes + tiny tails on
+  contact-activities and applications. Modest in absolute terms compared to the
+  1.36M applications-driven cascade, but bigger than I called out — I'll update
+  the report's recommendation #7 from "the 5 missing userIds" to "the 92 missing
+   userIds, grouped into 60+44+22+4 by entity" if you'd like.
+
+✻ Cogitated for 6m 30s
+
+● Background command "Count distinct missing UIDs and find IDs missing in
+multiple entities" completed (exit code 0)
+
+● Background task completed — already incorporated those results in the previous
+   response. Awaiting your next question.
+
+✻ Churned for 2s
+
+❯ users having this id   28, 106, 129, 148, 158, 165, 184, 205, 211, 220, 227,  
+  230, 234, 248, 291, 308, 332, 362, 363, 366,                                  
+    385, 386, 390, 415, 416, 421, 422, 424, 440, 463, 670, 728, 790, 803, 823,  
+  917, 937, 959, 960,                                                           
+    1003, 1024, 1025, 1029, 1030, 1040, 1174, 1175, 1231, 1277, 1360, 1376,     
+  1379, 1395, 1545, 1549,                                                       
+    1562, 1600, 1602, 1683, 1707,                                               
+   are migrated during migration. These users are then stored in temp mapped    
+  users and won't cause much issue. Are these users considered missing?         
+
+● Let me intersect your migrated list against the missing-user IDs.
+
+● Bash(cat > /tmp/migrated_uids.txt <<'EOF'
+      28…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  Migrated user count: 60
+     Missing user count (from earlier analysis): 92
+     … +21 lines (ctrl+o to expand)
+
+● Bash(# comm needs lexicographic sort, not numeric. Use sort without -n
+      sort /tmp/migrated_uids.txt -o /tmp/migrated_uids.sorted…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  === Migrated IDs that ALSO appear in 'missing user' errors ===
+
+     === Count of overlap ===
+     0
+
+● No — zero overlap. All 60 user IDs you listed as migrated are clean. None of
+  them appear in any Cannot resolve userId or Cannot resolve createdById error
+  for this migration.
+
+  The 92 missing user IDs are a disjoint set from your migrated 60.
+  Verification:
+
+  $ comm -12 <(sort migrated_60) <(sort missing_92)
+  # (no output — empty intersection)
+
+  Examples of the actual missing IDs (none of which are in your list): 132, 140,
+   503, 537, 562, 632, 678, 701, 714, 745, 1008, 1122, 1140, 1142, 1169, 1283, 
+  1815, …
+
+  So the picture is:
+  - 60 users migrated successfully → in temp_mapped_users → resolve fine
+  everywhere they're referenced.
+  - 92 other agentcis user IDs are referenced by office-visits / notes /
+  contact-activities / applications but were never extracted in the users phase.
+   Total extraction count was 60 (per the lifecycle event users total=60 
+  successful=60), so the user extractor's source query is excluding these 92.
+
+  The real question for the next run isn't "did the migration drop users it
+  loaded" — it's "why didn't the user extractor pick up these 92 IDs in the 
+  first place?" Likely candidates (based on which IDs miss in which entities):
+
+  - Users 562/745/537/503/714 are heavily referenced by office-visits as
+  host/assignee → likely office staff (receptionists, branch managers) that the
+  extractor's filter excluded.
+  - Users 678/1142/1815/1283 are heavily referenced by notes as authors → likely
+   former employees / soft-deleted accounts whose notes still reference them.
+
+  A SQL probe against the source would settle it:
+
+  SELECT id, email, status, deleted_at, role
+  FROM agentcis_v2.users
+  WHERE id IN (562, 745, 537, 503, 714, 678, 1142, 1815, 1283, 1301, …);
+
+  If they show as soft-deleted/deactivated, the fix is to broaden the user
+  extractor's WHERE clause. If they don't exist at all, the FK references in the
+   source data are themselves dangling.
+
+✻ Baked for 46s
+
+❯ show the whole query                                                          
+
+● Bash(paste -sd, /tmp/missing_uids.sorted | tr ',' '\n' | sort -n | paste -sd,
+      -)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  132,140,174,241,285,310,320,341,373,435,451,465,468,470,471,477,498,50
+     3,504,516,525,528,535,537,542,549,562,582,586,595,596,599,609,613,618,
+     628,632,636,639,645,668,678,686,690,691,701,713,714,729,734,745,761,85
+     … +3 lines (ctrl+o to expand)
+
+● Full SQL probe for all 92 missing user IDs:
+
+  SELECT
+    id,
+    email,
+    first_name,
+    last_name,
+    status,
+    deleted_at,
+    is_active,
+    role_id,
+    created_at,
+    updated_at
+  FROM agentcis_v2.users
+  WHERE id IN (
+    132, 140, 174, 241, 285, 310, 320, 341, 373, 435,
+    451, 465, 468, 470, 471, 477, 498, 503, 504, 516,
+    525, 528, 535, 537, 542, 549, 562, 582, 586, 595,
+    596, 599, 609, 613, 618, 628, 632, 636, 639, 645,
+    668, 678, 686, 690, 691, 701, 713, 714, 729, 734,
+    745, 761, 856, 881, 891, 898, 939, 975, 1008, 1033,
+    1065, 1084, 1110, 1122, 1140, 1142, 1160, 1169, 1190, 1201,
+    1204, 1234, 1237, 1283, 1301, 1318, 1334, 1394, 1403, 1418,
+    1441, 1501, 1550, 1583, 1593, 1615, 1670, 1677, 1708, 1789,
+    1815, 1857
+  )
+  ORDER BY id;
+
+  Adjust the column names to match your actual agentcis_v2.users schema (some of
+   these columns — is_active, deleted_at, role_id, status — may or may not exist
+   depending on phase 2 schema). If only some columns exist, run with SELECT *
+  first to see the full row, then narrow down.
+
+  To find which IDs do NOT exist at all in the source table (i.e. truly dangling
+   FK references vs. soft-deleted), follow up with:
+
+  WITH expected(id) AS (
+    VALUES (132),(140),(174),(241),(285),(310),(320),(341),(373),(435),
+           (451),(465),(468),(470),(471),(477),(498),(503),(504),(516),
+           (525),(528),(535),(537),(542),(549),(562),(582),(586),(595),
+           (596),(599),(609),(613),(618),(628),(632),(636),(639),(645),
+           (668),(678),(686),(690),(691),(701),(713),(714),(729),(734),
+           (745),(761),(856),(881),(891),(898),(939),(975),(1008),(1033),
+
+  (1065),(1084),(1110),(1122),(1140),(1142),(1160),(1169),(1190),(1201),
+
+  (1204),(1234),(1237),(1283),(1301),(1318),(1334),(1394),(1403),(1418),
+
+  (1441),(1501),(1550),(1583),(1593),(1615),(1670),(1677),(1708),(1789),
+           (1815),(1857)
+  )
+  SELECT e.id AS missing_from_users_table
+  FROM expected e
+  LEFT JOIN agentcis_v2.users u ON u.id = e.id
+  WHERE u.id IS NULL;
+
+  Note: the VALUES form above is Postgres syntax. For MySQL (which agentcis_v2
+  is), use a temp table or a LEFT JOIN against a UNION ALL subquery, e.g.:
+
+  SELECT e.id AS missing_from_users_table
+  FROM (
+    SELECT 132 AS id UNION ALL SELECT 140 UNION ALL SELECT 174 UNION ALL
+    SELECT 241 UNION ALL SELECT 285 UNION ALL SELECT 310 UNION ALL SELECT 320
+  UNION ALL
+    SELECT 341 UNION ALL SELECT 373 UNION ALL SELECT 435 UNION ALL SELECT 451
+  UNION ALL
+    SELECT 465 UNION ALL SELECT 468 UNION ALL SELECT 470 UNION ALL SELECT 471
+  UNION ALL
+    SELECT 477 UNION ALL SELECT 498 UNION ALL SELECT 503 UNION ALL SELECT 504
+  UNION ALL
+    SELECT 516 UNION ALL SELECT 525 UNION ALL SELECT 528 UNION ALL SELECT 535
+  UNION ALL
+    SELECT 537 UNION ALL SELECT 542 UNION ALL SELECT 549 UNION ALL SELECT 562
+  UNION ALL
+    SELECT 582 UNION ALL SELECT 586 UNION ALL SELECT 595 UNION ALL SELECT 596
+  UNION ALL
+    SELECT 599 UNION ALL SELECT 609 UNION ALL SELECT 613 UNION ALL SELECT 618
+  UNION ALL
+    SELECT 628 UNION ALL SELECT 632 UNION ALL SELECT 636 UNION ALL SELECT 639
+  UNION ALL
+    SELECT 645 UNION ALL SELECT 668 UNION ALL SELECT 678 UNION ALL SELECT 686
+  UNION ALL
+    SELECT 690 UNION ALL SELECT 691 UNION ALL SELECT 701 UNION ALL SELECT 713
+  UNION ALL
+    SELECT 714 UNION ALL SELECT 729 UNION ALL SELECT 734 UNION ALL SELECT 745
+  UNION ALL
+    SELECT 761 UNION ALL SELECT 856 UNION ALL SELECT 881 UNION ALL SELECT 891
+  UNION ALL
+    SELECT 898 UNION ALL SELECT 939 UNION ALL SELECT 975 UNION ALL SELECT 1008
+  UNION ALL
+    SELECT 1033 UNION ALL SELECT 1065 UNION ALL SELECT 1084 UNION ALL SELECT
+  1110 UNION ALL
+    SELECT 1122 UNION ALL SELECT 1140 UNION ALL SELECT 1142 UNION ALL SELECT
+  1160 UNION ALL
+    SELECT 1169 UNION ALL SELECT 1190 UNION ALL SELECT 1201 UNION ALL SELECT
+  1204 UNION ALL
+    SELECT 1234 UNION ALL SELECT 1237 UNION ALL SELECT 1283 UNION ALL SELECT
+  1301 UNION ALL
+    SELECT 1318 UNION ALL SELECT 1334 UNION ALL SELECT 1394 UNION ALL SELECT
+  1403 UNION ALL
+    SELECT 1418 UNION ALL SELECT 1441 UNION ALL SELECT 1501 UNION ALL SELECT
+  1550 UNION ALL
+    SELECT 1583 UNION ALL SELECT 1593 UNION ALL SELECT 1615 UNION ALL SELECT
+  1670 UNION ALL
+    SELECT 1677 UNION ALL SELECT 1708 UNION ALL SELECT 1789 UNION ALL SELECT
+  1815 UNION ALL
+    SELECT 1857
+  ) e
+  LEFT JOIN agentcis_v2.users u ON u.id = e.id
+  WHERE u.id IS NULL;
+
+  Three outcomes the result narrows down to:
+  1. All 92 exist in users but have a status/flag the extractor filters out →
+  broaden the user extractor's WHERE clause.
+  2. Some 92 are missing entirely → those are dangling FK references in the
+  source (data-quality issue, not extractor bug).
+  3. Mix of both → likely the real case; handle each subset differently.
+
+✻ Baked for 32s
+
+❯ which users are shown to be cannot resolved during migration                  
+
+● Bash(# Build a per-user-ID breakdown: which entities reference each missing
+      user, and how many times
+      {…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  130 /tmp/user_breakdown.tsv
+
+     Total missing user IDs: 93 (minus header)
+     … +94 lines (ctrl+o to expand)
+
+● Here are all 92 missing user IDs, broken down by which entity referenced them
+  and how many times:
+
+  userId  office-visits  contact-activities  applications  notes   TOTAL
+   132              0                  1            0          0       1
+   140             56                  0            0          1      57
+   174              2                  0            0          0       2
+   241              0                  0            0          2       2
+   285              1                  1            0          0       2
+   310              0                  4            0          2       6
+   320              0                 16            0          8      24
+   341              0                  6            0          2       8
+   373              2                  0            0          0       2
+   435              0                  2            0          0       2
+   451              1                  0            0          0       1
+   465              0                 15            0          0      15
+   468             10                  0            0          0      10
+   470            109                  0            0         30     139
+   471              1                  0            0          1       2
+   477             11                 54            0         22      87
+   498              1                  0            0          2       3
+   503           2395                  0            0          6    2401
+   504            185                  0            0          0     185
+   516              2                  0            0          0       2
+   525              1                  0            0          0       1
+   528              2                  0            0          0       2
+   535             30                  0            0          0      30
+   537           3390                  0            0          1    3391
+   542              0                  1            0          0       1
+   549             47                  0            0         64     111
+   562           9145                  0            0          1    9146
+   582            138                  0            0          0     138
+   586              6                  0            0          0       6
+   595              1                  0            0          0       1
+   596              2                  0            0          0       2
+   599              7                  0            0          0       7
+   609             10                  0            0          2      12
+   613              3                  0            0          0       3
+   618              0                  3            0          0       3
+   628             35                  0            0          0      35
+   632              5                 25            8         10      48
+   636              0                  2            1          0       3
+   639              1                  0            0          0       1
+   645              1                  2            5          3      11
+   668              2                  1            0          0       3
+   678              0                  0            0       1172    1172
+   686              6                  0            0          0       6
+   690              2                  0            0         76      78
+   691              4                  0            0          4       8
+   701           1198                  0            0          0    1198
+   713              1                  0            0          0       1
+   714           1955                  0            0          6    1961
+   729              0                  2            0          4       6
+   734            125                  0            0          0     125
+   745           6375                  0            0         84    6459
+   761              5                  0            0          0       5
+   856              2                  0            0          0       2
+   881              1                  0            0          0       1
+   891             14                  0            0          0      14
+   898              1                  0            0          0       1
+   939              3                  0            0          0       3
+   975             32                  0            0          0      32
+  1008             24                  0            0          0      24
+  1033              2                  0            0          0       2
+  1065             25                  0            0          0      25
+  1084              1                  5            0          0       6
+  1110             31                  0            0          0      31
+  1122            196                 37            0          4     237
+  1140            673                  0            0          0     673
+  1142              0                  0            0        483     483
+  1160              1                  0            0          0       1
+  1169              0                174            0          1     175
+  1190              0                  0            0         31      31
+  1201              0                 51            0         11      62
+  1204              0                  0            0          2       2
+  1234              0                  2            0          0       2
+  1237              0                  0            0          1       1
+  1283              0                  4            0        186     190
+  1301              0                  0            0        137     137
+  1318              6                  0            0          0       6
+  1334             53                  0            0          0      53
+  1394              0                  0            0         34      34
+  1403             43                  0            0          0      43
+  1418              0                  0            0         12      12
+  1441             62                  0            0         65     127
+  1501             23                  0            0          0      23
+  1550              0                  0            0          1       1
+  1583              0                  0            0          1       1
+  1593             44                  0            0          1      45
+  1615              0                  0            0         11      11
+  1670              0                  0            0          3       3
+  1677              0                  0            0          1       1
+  1708              0                  0            0          2       2
+  1789              0                  0            0          1       1
+  1815              0                  0            0        277     277
+  1857              0                 11            4          1      16
+
+  Reading the table
+
+  - Heavy hitters (>1000 references): 562 (9,146), 745 (6,459), 537 (3,391), 503
+   (2,401), 714 (1,961), 701 (1,198), 678 (1,172). These 7 IDs account for
+  25,728 of the 29,716 missing-user errors (87%).
+  - Office-staff signature: 562 / 745 / 537 / 503 / 714 / 701 / 1140 / 504 / 582
+   / 734 / 1334 are referenced almost exclusively by office-visits → likely
+  receptionists/branch staff who host walk-ins.
+  - Note-author signature: 678 / 1142 / 1815 / 1283 / 549 / 690 are referenced
+  predominantly via notes' added_by → likely former employees whose notes
+  survive their account.
+  - Cross-entity offenders: 477 (87 across office-visits + contact-activities +
+  notes), 1122 (237), 1441 (127), 632 (48), 470 (139) — these IDs touch multiple
+   workflows, so they're probably current/recent staff that should clearly be in
+   the extractor's set.
+
+  Sanity check vs. your 60 migrated IDs
+
+  Zero overlap — none of {28, 106, 129, … 1707} appear above. Confirms the
+  extractor is not "losing" users that were migrated; it never pulled these 92
+  in the first place.
+✻ Brewed for 1m 53s
+
+❯ what about it's impact on clients or contacts migration                       
+
+● Let me check whether the contacts transformer touches user IDs at all.
+
+  Searched for 2 patterns, read 2 files (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+
+● Yes — contacts ARE affected by the missing 92 user IDs, but silently. They
+  never show up in error logs because of how the contact transformer handles
+  unresolvable user IDs.
+
+  What happens in the contact transformer 
+  (src/transformers/contact.transformer.ts:23-26, 42-44)
+
+  const assigneeId = await this.idResolver.resolveUserId(source.assignedTo);
+  // returns null on miss
+  const archivedBy = await this.idResolver.resolveUserId(source.archivedBy);
+  // returns null on miss
+  const createdBy = await this.idResolver.resolveUserId(source.userId);
+  // returns null on miss
+  …
+  const followerIds = source.followers?.map((f) => f.userId) ?? [];
+  const resolvedFollowers = await this.idResolver.resolveUserIds(followerIds);
+  // silently DROPS nulls
+  const followers = resolvedFollowers.map((userId) => ({ id: userId }));
+  …
+  createdBy: createdBy!,    // ← non-null assertion, but at runtime can be null
+  assigneeId,               // ← left null
+  archivedBy,               // ← left null
+  followers,                // ← list silently shorter than source
+
+  Compare to the throwing transformers:
+
+  ┌────────────────────────────────────┬────────────────────────────────────┐
+  │            Transformer             │      Behavior on missing user      │
+  ├────────────────────────────────────┼────────────────────────────────────┤
+  │                                    │ Returns null, contact migrates     │
+  │ contact.transformer.ts:24-26       │ with NULL user fields — no error   │
+  │                                    │ logged                             │
+  ├────────────────────────────────────┼────────────────────────────────────┤
+  │ office-visit.transformer.ts:40     │ Throws Cannot resolve userId <id>  │
+  │                                    │ → record dropped, logged           │
+  ├────────────────────────────────────┼────────────────────────────────────┤
+  │ contact-activity.transformer.ts:36 │ Throws Cannot resolve userId <id>  │
+  │                                    │ → record dropped, logged           │
+  ├────────────────────────────────────┼────────────────────────────────────┤
+  │ application.transformer.ts:59      │ Throws Cannot resolve userId <id>  │
+  │                                    │ → record dropped, logged           │
+  ├────────────────────────────────────┼────────────────────────────────────┤
+  │                                    │ Throws Cannot resolve createdById  │
+  │ note.transformer.ts:22             │ for added_by <id> → record         │
+  │                                    │ dropped, logged                    │
+  ├────────────────────────────────────┼────────────────────────────────────┤
+  │ id-resolver.ts:170                 │ Filters nulls silently — followers │
+  │ resolveUserIds()                   │  list shrinks without warning      │
+  └────────────────────────────────────┴────────────────────────────────────┘
+
+  Concrete impact on contacts migration
+
+  1. NULL createdBy written to ApplyIMS — the createdBy! non-null assertion
+  lies; at runtime it can be null. ApplyIMS accepted these (no API errors
+  mention createdBy constraint), but the contacts in the target now have NULL
+  creators where they should reference the 92 missing users.
+  2. NULL assigneeId — contacts that were owned/assigned to any of the 92
+  missing user IDs will appear unassigned in ApplyIMS.
+  3. NULL archivedBy — archived contacts that were archived by a missing user
+  lose that audit trail.
+  4. Truncated followers lists — resolveUserIds() filters out nulls without
+  logging. A contact whose source has 5 followers, 2 of which are in the
+  missing-92 set, will arrive in ApplyIMS with 3 followers — silently.
+
+  How to size the actual blast radius
+
+  The error logs show nothing for this case (the silent path is the whole
+  point), so you have to query the source. For the MySQL source:
+
+  -- How many contacts have a NULL createdBy after migration because their 
+  source userId is in the missing set
+  SELECT COUNT(*) AS contacts_with_missing_creator
+  FROM agentcis_v2.clients
+  WHERE user_id IN (
+    132,140,174,241,285,310,320,341,373,435,451,465,468,470,471,477,498,503,504,
+  516,
+    525,528,535,537,542,549,562,582,586,595,596,599,609,613,618,628,632,636,639,
+  645,
+    668,678,686,690,691,701,713,714,729,734,745,761,856,881,891,898,939,975,1008
+  ,1033,
+    1065,1084,1110,1122,1140,1142,1160,1169,1190,1201,1204,1234,1237,1283,1301,1
+  318,
+    1334,1394,1403,1418,1441,1501,1550,1583,1593,1615,1670,1677,1708,1789,1815,1
+  857
+  );
+
+  -- Same query for assignedTo
+  SELECT COUNT(*) AS contacts_with_missing_assignee
+  FROM agentcis_v2.clients
+  WHERE assigned_to IN ( …same list… );
+
+  -- Same for archivedBy
+  SELECT COUNT(*) AS contacts_with_missing_archiver
+  FROM agentcis_v2.clients
+  WHERE archived_by IN ( …same list… );
+
+  -- Follower references
+  SELECT COUNT(*) AS dropped_follower_links
+  FROM agentcis_v2.client_followers   -- adjust table name if different
+  WHERE user_id IN ( …same list… );
+
+  Indirect impact
+
+  Contacts that did migrate (temp_mapped_contacts populated) but with degraded
+  fields still let downstream phases resolve contactId — so this doesn't cascade
+   into the contact-activities/applications/office-visits Cannot resolve 
+  contactId errors I called out earlier. Those cascades trace to the
+  duplicate-key idempotency gap, not to missing users.
+
+  But there is one indirect data-quality cascade worth flagging: office-visits 
+  and notes that DID migrate (referencing one of the now-degraded contacts) will
+   be associated with a contact whose assigneeId/createdBy is null. So in
+  ApplyIMS the office-visit may appear linked to an unowned contact.
+
+  Recommendation
+
+  - Either change the contact transformer to throw on unresolvable critical user
+   fields (so the error log captures the loss), or
+  - Substitute a known fallback user (the migrationAdminUserId from config —
+  same pattern the walk-in pre-flight already uses) so the contact migrates with
+   explicit attribution rather than null.
+
+  Either way: fix the missing-92-users problem first (extractor filter), and the
+   contact data-quality issue resolves itself.
+
+✻ Crunched for 1m 7s
+
+❯ so, presence of user won't prevent contact from being migrated                
+
+● Correct. Missing users do not block contacts from migrating.
+
+  The contact transformer treats user fields as nullable:
+
+  - assigneeId, archivedBy — left null if the user ID can't be resolved
+  - createdBy — the source code uses createdBy! (non-null assertion), but at
+  runtime it can be null and ApplyIMS accepted these
+  - followers — unresolvable followers are silently filtered out of the list
+
+  The only contact-level conditions that actually drop a contact are:
+
+  1. Invalid email: null (3,739 records)
+  2. Both FirstName and LastName are required (26 records)
+  3. Cannot resolve BranchId <id> (none observed in this run)
+  4. API-side duplicate key on email (29,484 records)
+  5. API-side duplicate key on contact_follower_uniq_idx (103 records)
+
+  None of those are user-related. So the 88.7% contact success rate is
+  independent of the missing-92-users problem.
+
+  The cost is silent data quality degradation in the contacts that did migrate:
+  NULL createdBy/assigneeId/archivedBy and shorter followers lists — not lost
+  records.
+
+✻ Churned for 6s
+
+❯ what are the impact of missing or unresolved contacts on applications         
+
+  Read 1 file (ctrl+o to expand)
+
+● Direct, concrete impact: 428 applications were dropped because their clientId 
+  could not be resolved to a migrated contact (per
+  src/transformers/application.transformer.ts:49-51).
+
+  const contactId = await this.idResolver.resolveContactId(source.clientId);
+  …
+  if (!contactId) {
+    throw new Error(`Cannot resolve contactId ${source.clientId}`);   // ← line 
+  50
+  }
+
+  Unlike contacts (which silently null-coalesce user fields), applications 
+  hard-fail on missing contactId — the record is dropped, logged as
+  TRANSFORMATION_ERROR, and never reaches the API.
+
+  Why only 428, despite 44K contact "failures"?
+
+  The applications transformer checks resolutions in a strict order. Contact is
+  first, dealId is last:
+
+  ┌───────┬─────────────────────┬─────────────────────────┐
+  │ Order │        Check        │ Error count in this run │
+  ├───────┼─────────────────────┼─────────────────────────┤
+  │     1 │ contactId           │                     428 │
+  ├───────┼─────────────────────┼─────────────────────────┤
+  │     2 │ branchId            │                       0 │
+  ├───────┼─────────────────────┼─────────────────────────┤
+  │     3 │ productId           │                      12 │
+  ├───────┼─────────────────────┼─────────────────────────┤
+  │     4 │ createdBy (userId)  │                      18 │
+  ├───────┼─────────────────────┼─────────────────────────┤
+  │     5 │ workflowId          │                       1 │
+  ├───────┼─────────────────────┼─────────────────────────┤
+  │     6 │ workflowStagesId    │                       0 │
+  ├───────┼─────────────────────┼─────────────────────────┤
+  │     7 │ institutionBranchId │                       0 │
+  ├───────┼─────────────────────┼─────────────────────────┤
+  │     8 │ institutionId       │                       0 │
+  ├───────┼─────────────────────┼─────────────────────────┤
+  │     9 │ dealId              │                  21,224 │
+  └───────┴─────────────────────┴─────────────────────────┘
+
+  Because JavaScript short-circuits on the first throw, if an application's
+  contact were unmapped, the error logged would be Cannot resolve contactId —
+  never reaching the dealId check. The fact that 21,224 applications got all the
+   way to the dealId check tells us their contact resolution succeeded.
+
+  Where the 428 came from
+
+  IdResolver.resolveContactId() checks the JSON mapper file
+  (src/mapper/contacts.json) first, then temp_mapped_contacts. So an
+  application's contactId resolves successfully if the contact is in EITHER
+  source. This is why:
+
+  - The 29,484 contacts that hit IDX_LOWERCASE_EMAIL duplicates this run still
+  resolve OK in most cases — they were already in contacts.json from a prior
+  run.
+  - The 3,739 contacts dropped for Invalid email: null and 26 for missing names
+  — those source rows likely had never been migrated, so any application
+  referencing them through clients.id could not resolve. Those, plus a small
+  tail of contacts that exist in agentcis but were never picked up by the
+  contact extractor at all, are the 428.
+
+  Indirect impact: applications that DID migrate but reference contacts with 
+  degraded data
+
+  This is the silent half of the story. An application can migrate successfully
+  (contactId resolved → API accepted) but link to a contact whose user fields
+  are null because of the missing-92-users problem. The link is valid; the data
+  on the linked contact is degraded. ApplyIMS users browsing those applications
+  will see contacts with no creator, no assignee, no archiver, and shorter
+  follower lists.
+
+  Sizing the indirect impact
+
+  The error log can't tell you this — you need a source-side query:
+
+  -- How many applications point to contacts whose source row has a missing-92 
+  user reference?
+  SELECT COUNT(DISTINCT a.id) AS apps_with_user_degraded_contact
+  FROM agentcis_v2.applications a
+  JOIN agentcis_v2.clients c ON c.id = a.client_id
+  WHERE c.user_id      IN (132,140,…,1857)   -- the 92 missing IDs
+     OR c.assigned_to  IN (132,140,…,1857)
+     OR c.archived_by  IN (132,140,…,1857);
+
+  Summary
+
+  - Hard fail (dropped): 428 applications — contactId could not resolve at all
+  (clients.id not in contacts.json or temp_mapped_contacts).
+  - Soft impact (migrated, degraded link): unknown without the SQL probe above —
+   applications linked to migrated contacts whose user fields are null because
+  the contact transformer silently null-coalesces.
+  - Not impacted: the 21,224 dealId failures, the 296 timeouts, the 18 createdBy
+   failures. Those have nothing to do with contact migration.
+
+✻ Worked for 55s
+
+❯ the clients  are related to applications in agentcis table, right?            
+
+  Searched for 1 pattern, read 1 file (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+
+● Yes. The relationship in the agentcis source schema is:
+
+  applications.client_id (int) → clients.id (int)
+
+  Every application row in agentcis_v2.applications carries a client_id column
+  that references the primary key of agentcis_v2.clients. The ETL flow:
+
+  1. Extractor (src/extractors/application.extractor.ts) pulls the application
+  row, including client_id.
+  2. Transformer (src/transformers/application.transformer.ts:31) calls
+  this.idResolver.resolveContactId(source.clientId) — i.e. it takes the source
+  clientId and looks for the ApplyIMS contact UUID that was created when that
+  client was migrated through the contacts entity earlier in the run.
+  3. The resolution lookup chain is: contacts.json mapper file →
+  temp_mapped_contacts table (keyed by agentcis_client_id → 
+  applyims_contact_id).
+  4. If neither source contains a mapping for that client_id, the throw at line
+  50 fires — Cannot resolve contactId <clientId> — and the application is
+  dropped.
+
+  So in agentcis: clients is the source-of-truth table, and "contact" is just
+  the destination-system name in ApplyIMS. The Phase 2 ETL renames clients →
+  contacts during migration. Confusingly, the application transformer's source
+  field is clientId but the resolver method is resolveContactId — same
+  underlying entity, different naming on each side of the boundary.
+
+  Related references in this codebase:
+  - applications.client_id (int) → clients.id (int) (agentcis source FK)
+  - temp_mapped_contacts.agentcis_client_id → 
+  temp_mapped_contacts.applyims_contact_id (uuid) (ETL tracking)
+  - applyims.contact.id (uuid) (target, used as application.contactId)
+
+  The same source client_id also gets referenced by notes.notable_id (when
+  notable_type='Client'), office-visits.attendee_email → clients.email, and
+  contact-activities.client_id — which is why the contact mapping is the single
+  most load-bearing junction in the run.
+
+✻ Sautéed for 21s
+
+❯ also look into the application and client entities for this                   
+
+  Read 2 files (ctrl+o to expand)
+
+● Confirmed by inspecting both entity definitions:
+
+  agentcis_v2.applications → agentcis_v2.clients relationship
+
+  Application side (src/entities/agentcis/applications.entity.ts:28-29):
+
+  @Column({ name: 'client_id', type: 'int' })
+  clientId: number;
+
+  client_id is a plain non-nullable int column. Note: it's declared as a raw
+  @Column, not a @ManyToOne relation — so TypeORM doesn't enforce the FK at the
+  ORM level, and there's no client: Clients navigation property on the
+  Applications entity. (Compare to products on line 11-13, which IS a @ManyToOne
+   with eager fetching.)
+
+  The application transformer at application.transformer.ts:31 reads this
+  directly:
+
+  const contactId = await this.idResolver.resolveContactId(source.clientId);
+
+  Client side (src/entities/agentcis/clients.entity.ts:13-16):
+
+  @Entity('clients')
+  export class Clients {
+    @PrimaryGeneratedColumn()
+    id: number;
+    …
+  }
+
+  clients.id is the primary key. There is no reverse @OneToMany applications
+  declared on the Clients entity either — the relation exists only as a raw
+  integer column, not as an ORM relation. (Clients does declare @OneToMany 
+  followers to client_followers, but not to applications.)
+
+  Implications for migration
+
+  1. No referential integrity guarantee in TypeORM. Because
+  applications.client_id is a raw @Column (not @ManyToOne), TypeORM won't
+  validate that the client exists at extraction time. If the source DB has a
+  dangling client_id (client deleted but applications retained), the extractor
+  happily emits the row, and the transformer's resolveContactId call is where it
+   surfaces as Cannot resolve contactId <clientId>.
+  2. client_id is int and non-nullable — every application MUST reference a
+  client. There is no NULL path. So if the application transformer fails to
+  resolve, it's never because of a null source value; it's always because the
+  target mapping is missing.
+  3. clients is also referenced by other user fields it carries forward:
+    - clients.user_id → who created the client (FK to users)
+    - clients.assigned_to → who owns the client (FK to users)
+    - clients.archived_by → who archived (FK to users)
+    - clients.branch_id → which branch (FK to branches)
+
+  These are all contact-level fields, not propagated to applications. So missing
+   users degrade the contact record but don't transitively degrade the
+  application record beyond the contactId link itself.
+  4. The application also carries its own user/branch refs that are independent
+  of clients:
+    - applications.creator_id → user (resolveUserId(source.creatorId), line 33)
+    - applications.added_by_branch_id → branch (line 32)
+    - applications.vendor_branch_id → institution branch (line 38-40)
+    - applications.product_id → product (line 36)
+    - applications.service_id → workflow (line 34)
+    - applications.current_stage → workflow stage (line 35)
+    - applications.referrer_id → agent (line 37)
+    - applications.super_agent_id → present but not currently resolved for any
+  FK lookup
+
+  So an application can hard-fail on any of 9 different resolution checks in
+  application.transformer.ts:49-75, only one of which is the client→contact
+  link.
+
+  Why client_id isn't a @ManyToOne
+
+  A few possibilities:
+  - The extractor uses a cursor query on applications.id; pulling in client
+  relations would slow extraction.
+  - Eager-loading clients per application would explode the query's row count (a
+   contact with 30 applications would be repeated 30×).
+  - The transformer doesn't need the client row, just the id → it looks up the
+  migrated UUID directly.
+
+  The same pattern (raw @Column instead of @ManyToOne) repeats for every FK used
+   only for ID resolution: creator_id, service_id, vendor_branch_id,
+  current_stage, added_by_branch_id. Only product_id and referrer_id are
+  @ManyToOne — because the transformer actually reads fields off those rows
+  (product type, referrer agent type), not just their IDs.
+
+✻ Sautéed for 34s
+
+❯ now look at how deal is created from clients                                  
+
+● Bash(cd /home/bikesh/Documents/heubort/agentcis-applyims-etl-phase-2 && ls
+      src/extractors/deal* src/transformers/deal* src/entities/agentcis/*deal*
+      src/entities/appl…)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  (eval):1: no matches found: src/entities/agentcis/*deal*
+     ---
+     src/extractors/deal.extractor.ts
+     … +12 lines (ctrl+o to expand)
+
+  Searched for 2 patterns, read 4 files (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+● Now I have the full picture. Here is how deals get created from clients in
+  this ETL:
+
+  Deals are synthetic — there is no deals table in agentcis
+
+  The agentcis source schema has no deals entity. Deals are an ApplyIMS-only 
+  concept that this ETL derives from applications data. Confirms why there is no
+   src/entities/agentcis/deal.entity.ts — only temp-mapped-deals.entity.ts (ETL
+  staging) and applyims/deal.entity.ts (target).
+
+  The lifecycle: 3 stages
+
+  contacts phase completes
+    └─> populateDealStaging() runs as a post-hook   (orchestrator.ts:178-180)
+          └─> writes rows into temp_mapped_deals
+                └─> deals phase reads temp_mapped_deals and POSTs to ApplyIMS
+  (deal.extractor.ts:19)
+                      └─> deal.transformer.ts maps the staging row to the API
+  payload
+
+  Stage 1 — Deal staging after contacts (migration.orchestrator.ts:523-618)
+
+  Triggered immediately after EntityType.CONTACTS completes (:178-180). The
+  function:
+
+  1. Reads the migrated client IDs from temp_mapped_contacts (:527-537). Only
+  clients that successfully migrated as contacts in this run are considered.
+  2. Runs a complex MySQL query against agentcis (:539-574) that joins
+  applications and clients and groups them into "6-month buckets":
+
+  -- conceptual shape
+  SELECT
+    client_id,
+    added_by_branch_id,
+    user_id,
+    MIN(created_at)                                         AS startDate,
+    DATE_ADD(MIN(first_app_date), INTERVAL (bucket+1)*6 MONTH) AS endDate,
+    bucket,
+    COUNT(*)                                                AS total,
+    GROUP_CONCAT(id)                                        AS applicationIds,
+    MIN(service_id)                                         AS serviceId
+  FROM (
+    SELECT
+      app.*,
+      c.user_id,
+      MIN(app.created_at) OVER (PARTITION BY app.client_id,
+  app.added_by_branch_id) AS first_app_date,
+      FLOOR(TIMESTAMPDIFF(MONTH, MIN(app.created_at) OVER (PARTITION BY
+  app.client_id, app.added_by_branch_id), app.created_at) / 6) AS bucket
+    FROM applications app
+    INNER JOIN clients c ON c.id = app.client_id
+    WHERE app.client_id IN (:migratedClientIds)
+  ) t
+  GROUP BY client_id, added_by_branch_id, bucket, user_id
+  ORDER BY client_id, bucket
+
+  So one deal = one (client × branch × 6-month-bucket-of-applications). A client
+   with applications spread over 2 years at the same branch produces 4 deals; a
+  client with applications at 2 branches in the same 6-month window produces 2
+  deals. The deal's "name" is generated from the bucket's date range (Agentcis -
+   Jan 2023 - Jul 2023, etc.) at :620-626.
+
+  3. Resolves IDs per deal group (:579-595):
+    - contactId via idResolver.resolveContactId(app.clientId) → required, deal
+  skipped if missing (:589-595).
+    - branchId via resolveBranchId(app.addedByBranchId) → optional.
+    - userId via resolveUserId(app.userId) (the user_id from the clients table —
+   same field that drives the contact's createdBy) → optional, null if missing
+  or unresolvable.
+    - serviceId via resolveServiceId(Number(app.serviceId)) → optional.
+  4. Generates a UUID for dealId (:597) and writes one temp_mapped_deals row per
+   application in the bucket (:600-613). All applications in the same bucket
+  share the same dealId — that's the FK that the application transformer later
+  resolves via resolveDealId(source.id) (application.transformer.ts:44).
+  5. Upserts the staging rows via mappingRepository.storeDealStagingBatch()
+  (:616).
+
+  Stage 2 — Deal extraction (deal.extractor.ts)
+
+  Unlike every other extractor, this one does not touch agentcis MySQL. It reads
+   from temp_mapped_deals filtered by migration_id:
+
+  this.dataSource           // ← ETL DB, not agentcis
+    .getRepository(TempMappedDeal)
+    .createQueryBuilder('deal')
+    .where('deal.migration_id = :migrationId', { migrationId: this.migrationId
+  })
+
+  So a deal row is uniquely identified during this run by (migrationId, id).
+
+  Stage 3 — Deal transformer (deal.transformer.ts:5-33)
+
+  Trivial — maps fields directly from TempMappedDeal to ApplyIMSDeal. It throws
+  if contactId, branchId, or serviceId is null. The user field becomes the
+  deal's sole assignee:
+
+  assignees: mappedDeal?.userId ? [{ id: mappedDeal.userId }] : [],
+
+  Implications for the run we analyzed
+
+  1. 234,816 deal rows ≈ 234,816 application rows. Because Stage 1 writes one
+  staging row per application (sharing dealId within a bucket), the count
+  matches application count, not distinct deals. The "100% success" on deals is
+  misleading — it's really "100% of staging rows were accepted by the API," but
+  many of those rows are the same deal re-posted with different applicationIds.
+  2. (contactId, applicationId) is unique (temp-mapped-deals.entity.ts:4).
+  That's how resolveDealId(applicationId) later finds the right deal per
+  application.
+  3. The 21,224 Cannor resolve dealId for application <id> errors mean those
+  21,224 applications were never written into temp_mapped_deals during the 
+  contacts post-hook. Two causes possible from this code:
+
+  3. a. Their client_id was not in temp_mapped_contacts — meaning the client
+  either failed contact migration or was never extracted at all. The WHERE 
+  app.client_id IN (:migratedClientIds) filter at :566 excludes them.
+
+  3. b. Their client_id was in the staging set but 
+  resolveContactId(app.clientId) returned null in Stage 1's inner loop, hitting
+  the continue at :594. The orchestrator logs Skipping deal staging - contactId 
+  not found (WARN level, in migration log not error log).
+
+  So the 21K dealId failures in applications trace back to the same 
+  idempotency/contact-mapping problem I identified earlier — not a "deals phase
+  failure." If a contact was rejected by IDX_LOWERCASE_EMAIL duplicate (29K such
+   cases this run), the orchestrator's temp_mapped_contacts doesn't contain that
+   client_id → the deal-staging join filters out all its applications → those
+  applications later fail at dealId resolution.
+
+  This means the dealId failures and the application failures are the same root 
+  cause as the contact idempotency gap — not a separate "deals were broken"
+  issue. The earlier report should be updated: the applications phase failure is
+   largely a 2nd-order effect of contacts not being idempotent, plus the 428
+  explicit Cannot resolve contactId errors (which are 1st-order effects of the
+  same root cause).
+
+  Confidence on this revision: HIGH — directly traced through code from
+  orchestrator.ts:566 (the filter) → :589 (the skip) → application's
+  resolveDealId(source.id) miss. The earlier hypothesis that the deal
+  extractor's filter was "narrower than the application FK requirement" is wrong
+   — the filter is temp_mapped_contacts, and the missing contacts are the
+  missing dealId roots.
+
+✻ Churned for 1m 20s
+
+❯ so what will be the relation of unresolved contact on applications            
+
+● Combining everything I've found, here is the precise relationship between
+  unresolved contacts and applications. The key insight from the deal-staging
+  code is that contact resolution affects applications through two independent 
+  paths, not one.
+
+  The two paths
+
+                                    ┌─────────────────────────────────────┐
+                                    │  contact failed/missing in THIS run │
+                                    └──────────────┬──────────────────────┘
+                                                   │
+
+  ┌────────────────────────────────┼─────────────────────────────────┐
+                  │
+       │
+                  ▼
+       ▼
+     PATH A (1st-order):                              PATH B (2nd-order via deal
+   staging):
+     application.transformer.ts:31                    orchestrator.ts:527-537
+     resolveContactId(source.clientId)                Selects only
+  temp_mapped_contacts
+     Looks in contacts.json + temp_mapped_contacts    WHERE migrationId = THIS
+  run
+                                                      Then SQL filter:
+     IF null → throw                                  WHERE app.client_id IN
+  (migratedClientIds)
+     "Cannot resolve contactId <id>"
+                                                      Excluded applications
+  never enter
+     Result: 428 errors                               temp_mapped_deals.
+
+                                                      Later,
+  application.transformer.ts:44
+                                                      resolveDealId(source.id) →
+   null
+                                                      → throw "Cannor resolve
+  dealId"
+
+                                                      Result: 21,224 errors
+
+  What this means concretely
+
+  Per source application, the outcome depends on which "contact state" the
+  linked client is in:
+
+  Client state during this run: Migrated successfully this run (in
+    temp_mapped_contacts)
+  resolveContactId(clientId) returns: UUID from temp_mapped_contacts
+  In temp_mapped_deals?: Yes — staged in populateDealStaging
+  Application outcome: Application can succeed (other 8 resolutions permitting)
+  ────────────────────────────────────────
+  Client state during this run: In contacts.json from a prior run, but rejected 
+    this run (e.g. the 29,484 IDX_LOWERCASE_EMAIL duplicates)
+  resolveContactId(clientId) returns: UUID from contacts.json ✓
+  In temp_mapped_deals?: No — migratedClientIds only contains THIS run's
+    temp_mapped_contacts
+  Application outcome: Cannor resolve dealId — application dropped at line 73 of
+
+    application transformer
+  ────────────────────────────────────────
+  Client state during this run: Never migrated anywhere (failed first time,
+  never
+     recovered)
+  resolveContactId(clientId) returns: null
+  In temp_mapped_deals?: No
+  Application outcome: Cannot resolve contactId — application dropped at line 50
+
+  Why the error counts split 428 vs 21,224
+
+  - 428 Cannot resolve contactId = applications whose client was never migrated
+  to ApplyIMS at all. These are the truly orphaned references — clients that
+  failed contact migration on every attempt (or were never extracted), so no
+  UUID exists in either contacts.json or temp_mapped_contacts.
+  - 21,224 Cannor resolve dealId = applications whose client exists in ApplyIMS
+  (from a prior run) but did not migrate in THIS run. The contactId resolves
+  fine via the JSON mapper, the application transformer gets past line 50, then
+  fails at line 73 because populateDealStaging filtered those applications out
+  of deal staging using only this run's temp_mapped_contacts.
+
+  Together: 21,652 applications were dropped because of contact-resolution 
+  issues — 99.7% of which were 2nd-order effects through deal staging, only 0.3%
+   direct 1st-order misses.
+
+  The single underlying bug
+
+  Both paths feed off the same root: populateDealStaging uses 
+  temp_mapped_contacts WHERE migrationId = <this run> instead of "all contacts 
+  ever migrated." This is the structural reason a re-run produces 21K dealId
+  failures even when the contacts themselves are present in target.
+
+  Two ways to fix:
+
+  1. In migration.orchestrator.ts:527-530, remove the migrationId filter — or
+  replace with a query that takes the union of temp_mapped_contacts (all rows) +
+   contacts present in contacts.json. Then re-runs will include applications for
+   previously-migrated contacts in deal staging.
+  2. In the contacts loader (real fix), make duplicate-key recovery idempotent:
+  on IDX_LOWERCASE_EMAIL 409, look up the existing UUID and insert it into THIS
+  run's temp_mapped_contacts. Then the existing deal-staging code works
+  unchanged.
+
+  Option 2 is the more general fix — it also unblocks the 26K Cannot resolve 
+  userId in office-visits when those references' user mappings are loaded from
+  prior runs but missing in this run's temp tables.
+
+  Revised summary of the applications failure mode
+
+  Of the ~62% applications drop in this run:
+
+  - ~10% (21,224 / ~173K failed) trace to contact resolution gaps (via deal 
+  staging).
+  - ~0.2% (428) trace to contacts that were never migrated.
+  - ~7% (12 productId, 18 userId, 0 branch/workflow/etc) trace to other missing
+  FK mappings.
+  - The remainder of the ~62% drop is the harder-to-categorize bucket (transform
+   output null from checkApplicationId returning an existing id, API timeouts,
+  FK violations on insert, batches where success rate was 0/0/0).
+
+  This sharpens the original Issue #4 in the report: the applications phase
+  isn't broken on its own — it's the downstream that pays for the contacts
+  idempotency gap.
+
+✻ Crunched for 58s
+
+❯ there was also a previous migration conducted using different service where   
+  user in @src/mapper/users.json and applications in                            
+  @src/mapper/applications.json where migrated. The checkApplicationId was      
+  meant to look through those applications and skipped. Is there a problem in   
+  the way checkApplicationId was handled?                                       
+
+● Let me read the relevant code before answering.
+
+  Searched for 3 patterns, read 4 files, listed 1 directory (ctrl+o to expand)
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+  ⎿  PreToolUse:Bash hook error  ⎿  Failed with non-blocking status code: /bin/sh: 1: /usr/local/etc/claude-code/hooks/audit-log.sh: not found
+
+● Looking at the code, checkApplicationId itself is doing exactly what it claims
+   to do, but there are two real problems with how it interacts with the rest of
+   the pipeline. Before I commit to a final answer, I want to make sure I'm
+  interpreting the question correctly.
+
+  What checkApplicationId actually does
+
+  id-resolver.ts:151-153:
+
+  async checkApplicationId(agentcisApplicationId: number): Promise<string |
+  null> {
+    return this.silentResolve('applications', agentcisApplicationId);
+  }
+
+  It runs the same FallbackStrategy chain as resolveApplicationId — JSON first
+  (mapper/applications.json, 22,791 rows), then temp_mapped_applications — but
+  silently (no WARN log on miss). The application transformer uses it at line
+  26-29:
+
+  const existingApplicationId = await
+  this.idResolver.checkApplicationId(source.id);
+  if (existingApplicationId) {
+    return null;     // ← skipped, orchestrator increments skippedCount
+  }
+
+  When this returns null, orchestrator.ts:273-274 correctly counts the row as
+  skippedCount++ rather than successful or failed. So the skip mechanism itself
+  is internally consistent.
+
+  Two real problems I can see
+
+  Problem A — populateDealStaging doesn't honor the skip.
+  orchestrator.ts:539-574 enumerates all source applications joined to
+  migratedClientIds, with no filter against applications.json or
+  temp_mapped_applications. So for any source application that's already in
+  applications.json AND whose client happens to be in this run's
+  temp_mapped_contacts, the orchestrator writes a fresh temp_mapped_deals row
+  for it (with a brand-new generated dealId), then the deals phase POSTs that as
+   a brand-new deal to ApplyIMS. The applications phase later correctly skips
+  that application via checkApplicationId, so the new deal ends up with fewer
+  (or none) of its bucketed applications attached. Net effect: duplicate /
+  orphan deals in ApplyIMS, plus fragmented deal history for clients with mixed
+  (JSON + new) applications.
+
+  Problem B — No visibility into the skip count. silentResolve means there is no
+   log line per skip, and the per-entity progress events only report successful
+  + failed (not skipped). The orchestrator does track skippedCount internally
+  and reports it in the final entityResults summary (orchestrator.ts:196), but
+  during the run the operator can't tell whether a successful=0/total=500 batch
+  was "everything in the batch was already migrated" (benign skip) or
+  "everything failed" (a real problem).
+
+  One thing I want to verify before going further
+
+  You phrased the question as "is there a problem in the way checkApplicationId
+  was handled" — that wording fits two different concerns:
+
+  Interpretation: A. "Does checkApplicationId correctly identify and skip
+    prior-migrated applications?"
+  What I'd dig into: Test the JSON file's agentcis_id keys against the source
+    applications table; verify the FallbackStrategy ordering and the applyims_id
+
+    field name match the JSON shape (they do — confirmed).
+  ────────────────────────────────────────
+  Interpretation: B. "Given that applications are skipped, is downstream
+  behavior
+     consistent?"
+  What I'd dig into: This is Problem A above — populateDealStaging + the silent
+    skip count. This is where I think the real bug is.
+  ────────────────────────────────────────
+  Interpretation: C. "Is checkApplicationId the underlying cause of the 21K
+    Cannor resolve dealId errors?"
+  What I'd dig into: Most of the 21K are not from JSON-skipped applications
+    (those never reach the dealId check). They come from applications whose
+    client is in contacts.json but not in this run's temp_mapped_contacts — a
+    different root cause.
+
+  Could you confirm which of A / B / C you're zeroing in on? I want to avoid
+  building out the wrong half of the answer. If it's B I can pull the actual
+  count of "JSON-app + new-contact" overlap from the source DB to quantify how
+  many duplicate deals the current run likely created; if it's C the path
+  forward is what I already proposed (broaden populateDealStaging's contact
+  filter); and if it's A I'd run a verification SQL probe.
+
+✻ Baked for 3m 20s
+
+❯ B                                                                             
+
+● Tracing every downstream consequence of an application being skipped by
+  checkApplicationId.
+
+  What is supposed to happen vs. what actually happens
+
+  The transformer skip at application.transformer.ts:28 (return null) propagates
+   correctly through these consumers:
+
+  ┌────────────────────────────────────┬──────────────────────────┬─────────┐
+  │        Downstream consumer         │ Behavior on JSON-skipped │ Verdict │
+  │                                    │            app           │         │
+  ├────────────────────────────────────┼──────────────────────────┼─────────┤
+  │ orchestrator.ts:273-274            │ Increments skippedCount, │ ✓       │
+  │ (skippedCount)                     │  no API call made        │ correct │
+  ├────────────────────────────────────┼──────────────────────────┼─────────┤
+  │                                    │ No new row written (no   │ ✓       │
+  │ temp_mapped_applications           │ batch sent → no          │ correct │
+  │                                    │ storeApplicationMapping) │         │
+  ├────────────────────────────────────┼──────────────────────────┼─────────┤
+  │                                    │ Fallback hits            │         │
+  │ notes.transformer.ts:50            │ applications.json →      │ ✓       │
+  │ (resolveApplicationId)             │ returns prior UUID →     │ correct │
+  │                                    │ note links to prior app  │         │
+  ├────────────────────────────────────┼──────────────────────────┼─────────┤
+  │ contact-activity.transformer.ts:32 │ Same as above —          │ ✓       │
+  │  (resolveApplicationId)            │ JSON-resident UUID is    │ correct │
+  │                                    │ returned                 │         │
+  ├────────────────────────────────────┼──────────────────────────┼─────────┤
+  │ attachment.transformer.ts:96       │                          │ ✓       │
+  │ (resolveApplicationId via the      │ JSON works the same way  │ correct │
+  │ getClientIdByApplication path)     │                          │         │
+  └────────────────────────────────────┴──────────────────────────┴─────────┘
+
+  So far, so good. The mapper chain (JsonFileStrategy → DatabaseStrategy
+  fallback) makes a JSON-mapped UUID indistinguishable from a
+  temp_mapped_applications UUID for read-only consumers.
+
+  Where it breaks: populateDealStaging
+
+  orchestrator.ts:539-574 enumerates source applications by joining applications
+   to clients and filtering only on client_id IN migratedClientIds (this-run's
+  temp_mapped_contacts):
+
+  FROM applications app
+  INNER JOIN clients c ON c.id = app.client_id
+  WHERE app.client_id IN (:migratedClientIds)
+
+  It does not check whether the application is already in applications.json or
+  temp_mapped_applications. So:
+
+  1. Every JSON-migrated application whose client is also in this run's 
+  temp_mapped_contacts gets included in a fresh 6-month bucket, sharing a
+  generated dealId with the other (new) apps in the same bucket
+  (orchestrator.ts:597-613).
+  2. storeDealStagingBatch upserts a row per applicationId with the new dealId
+  (mapping.repository.ts:298-301, conflict on ('contactId', 'applicationId')).
+  3. The deals phase POSTs these rows. With 234,816 rows in temp_mapped_deals
+  for this run sharing some number of unique dealIds, ApplyIMS gets one new deal
+   per unique dealId (assuming bulkCreateDeals upserts by id).
+  4. The applications phase then runs. For the JSON-resident apps in those
+  buckets, checkApplicationId returns the prior UUID → transformer returns null
+  → no POST. The application keeps its prior dealId (whatever it was in the
+  prior migration, call it D1). It is not re-pointed at the newly created D2.
+
+  Concrete blast-radius outcomes
+
+  For a hypothetical bucket containing 5 source apps where 3 are in
+  applications.json and 2 are new:
+
+  populateDealStaging:     generates dealId = D2
+                           writes 5 rows into temp_mapped_deals (same D2,
+  different appIds)
+
+  deals phase:             POSTs 5 entries with id=D2 → ApplyIMS upserts → 1
+  deal D2 exists
+
+  applications phase:
+     3 JSON apps:          checkApplicationId hits → skip → no POST → still link
+   to prior D1
+     2 new apps:           transform → resolveDealId returns D2 → POST with
+  dealId=D2
+
+  ApplyIMS end state:
+     Deal D1 (prior):      has the 3 prior apps
+     Deal D2 (new):        has the 2 new apps    ← "fragmented" deal
+
+  If a bucket is 100% JSON apps (zero new apps in the same bucket window), D2 is
+   created in ApplyIMS and has zero applications linked to it — a pure orphan
+  deal.
+
+  Other inconsistencies the skip introduces
+
+  Downstream concern: Skipped app's source fields changed since prior migration
+    (status moved Open→Discontinue, intake date updated, etc.)
+  What happens: Never propagated. Skip means no UPDATE. Stale data in ApplyIMS.
+  ────────────────────────────────────────
+  Downstream concern: Deal's assignees and serviceId (computed from this run's
+    clients.user_id / MIN(app.service_id) in the bucket)
+  What happens: May differ from the prior deal D1's assignees if those columns
+    changed; D2 reflects current source state, D1 reflects prior.
+  ────────────────────────────────────────
+  Downstream concern: Operator visibility
+  What happens: silentResolve produces no log; no per-batch "skipped" metric in
+    progress events. Only the final entityResults shows skipped. During the run,
+
+    a batch reading successful=0, failed=0 could be "everything skipped" or
+    "everything dropped silently."
+  ────────────────────────────────────────
+  Downstream concern: temp_mapped_deals.application_id for a JSON-skipped app
+  What happens: Points to D2 even though the app is not in D2 in ApplyIMS. If
+    anything later does resolveDealId(jsonAppId), it gets D2 — wrong, because
+  the
+     app actually lives under D1. (In this codebase nothing downstream of
+    applications calls resolveDealId, so this is latent — only a bug if a future
+
+    entity calls it.)
+
+  Rough size of the new-deal pollution this run
+
+  Best-effort estimate without DB access:
+
+  - 22,791 apps in applications.json.
+  - ~88.7% of clients made it into this-run temp_mapped_contacts (matching
+  contacts' 348,469/392,663 success rate). Assuming app-to-client distribution
+  roughly tracks client population, ≈ 20,200 JSON-apps were enumerated by 
+  populateDealStaging.
+  - A typical client with prior apps probably has 1-3 apps per 6-month bucket.
+  So those 20,200 apps would fold into perhaps 6,000-12,000 buckets.
+  - Each of those buckets emits one fresh dealId. So ApplyIMS likely received ≈
+  6K-12K new deals that overlap (in client × time-window) with deals that
+  already existed from the prior migration. The portion of those that are fully 
+  orphaned (bucket contains only JSON apps with no new apps) depends on how
+  skewed the new-app set is toward different clients than the JSON-app set.
+
+  A SQL probe to size it exactly:
+
+  -- Buckets where ALL apps in the bucket are already in applications.json
+  -- (these produce fully orphan deals in ApplyIMS)
+  WITH buckets AS (
+    SELECT
+      app.client_id,
+      app.added_by_branch_id,
+      FLOOR(TIMESTAMPDIFF(MONTH,
+        MIN(app.created_at) OVER (PARTITION BY app.client_id,
+  app.added_by_branch_id),
+        app.created_at) / 6) AS bucket,
+      app.id,
+      CASE WHEN app.id IN (<comma-sep list from applications.json>) THEN 1 ELSE
+  0 END AS is_json
+    FROM agentcis_v2.applications app
+    WHERE app.client_id IN (
+      SELECT agentcis_contact_id
+      FROM etl_tracking.temp_mapped_contacts
+      WHERE migration_id = '5c9e6662-7714-4fb2-ab30-092b255ece43'
+    )
+  )
+  SELECT
+    COUNT(DISTINCT (client_id, added_by_branch_id, bucket)) AS total_buckets,
+    COUNT(DISTINCT (client_id, added_by_branch_id, bucket))
+      FILTER (WHERE NOT EXISTS (
+        SELECT 1 FROM buckets b2
+        WHERE b2.client_id = buckets.client_id
+          AND b2.added_by_branch_id = buckets.added_by_branch_id
+          AND b2.bucket = buckets.bucket
+          AND b2.is_json = 0
+      )) AS fully_orphan_buckets,
+    COUNT(DISTINCT (client_id, added_by_branch_id, bucket))
+      FILTER (WHERE EXISTS (
+        SELECT 1 FROM buckets b2 WHERE same... AND b2.is_json=1
+      ) AND EXISTS (
+        SELECT 1 FROM buckets b2 WHERE same... AND b2.is_json=0
+      )) AS fragmented_buckets
+  FROM buckets;
+
+  (MySQL-flavored variant needed; sketch only.)
+
+  Two fixes
+
+  Fix 1 (narrow, surgical) — add a JSON-aware exclusion to populateDealStaging's
+   SQL. Load the applications.json agentcis_id set on orchestrator startup; pass
+   to the query as AND app.id NOT IN (:priorMigratedAppIds). Buckets become
+  smaller (only contain apps that will actually be POSTed this run); fewer
+  redundant dealIds get generated; no orphan deals.
+
+  This is correct for "JSON apps already belong to a prior deal we don't touch,"
+   but it does not re-associate prior apps with the new deal even if your
+  business intent is "all apps in this 6-month window should share one deal."
+  That requires Fix 2.
+
+  Fix 2 (broader) — re-associate JSON apps with the new deal. During
+  populateDealStaging, for buckets that include JSON apps, instead of generating
+   a fresh dealId, look up the prior deal via the JSON app's existing dealId
+  (which would require applications.json to include deal_id, or a separate
+  deals.json). Then either reuse that dealId for the bucket, or PATCH the new
+  apps to point to the prior deal.
+
+  This is a much bigger change — the JSON mapper format doesn't currently carry
+  deal_id, the ApplyIMS API may not expose deal-update endpoints, and the
+  bucketing logic may not align with the prior migration's deal grouping.
+  Probably out of scope for a hotfix.
+
+  Recommendation for this codebase: Fix 1 is the right immediate change. Combine
+   it with adding a per-batch skipped field to the progress event (it already
+  exists in the final summary at orchestrator.ts:196, just needs to be added to
+  the periodic progress emit) so operators can distinguish "0/500 success
+  because all skipped" from "0/500 success because all failed."
+
+  Confidence
+
+  - HIGH that populateDealStaging is the locus of the side-effect bug; verified
+  by reading orchestrator.ts:539-574 and confirming no
+  JSON/temp-mapped-applications filter.
+  - HIGH that JSON-skipped apps retain their prior dealId (because no UPDATE
+  call is made for skipped apps, anywhere).
+  - MEDIUM on the 6K-12K orphan/redundant deals estimate — the math depends on
+  bucketing granularity which I haven't measured against actual source data.
+  - HIGH that the silent-skip + no-per-batch-skipped-metric is a real visibility
+   gap.
+
+✻ Cogitated for 1m 52s
