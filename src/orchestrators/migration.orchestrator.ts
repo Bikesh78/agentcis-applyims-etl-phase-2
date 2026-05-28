@@ -1,3 +1,6 @@
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DataSource } from 'typeorm';
 import { BaseExtractor, ExtractorConfig } from '../extractors/base.extractor.js';
 import { ContactExtractor } from '../extractors/contact.extractor.js';
@@ -262,6 +265,8 @@ export class MigrationOrchestrator {
       if (this.isCancelled) break;
 
       const transformed: TargetEntity[] = [];
+      let batchTransformSkipped = 0;
+      let batchTransformFailed = 0;
       const transformResults = await Promise.allSettled(
         batch.map((item) => handlers.transformer.transform(item))
       );
@@ -271,6 +276,7 @@ export class MigrationOrchestrator {
         if (result.status === 'fulfilled' && result.value !== null) {
           transformed.push(result.value);
         } else if (result.status === 'fulfilled' && result.value === null) {
+          batchTransformSkipped++;
           skippedCount++;
         } else if (result.status === 'rejected') {
           const error =
@@ -289,17 +295,36 @@ export class MigrationOrchestrator {
             ErrorCategory.TRANSFORMATION_ERROR,
             { payload: batch[i] }
           );
+          batchTransformFailed++;
           skippedCount++;
         }
       }
 
       if (transformed.length === 0) {
         processedCount += batch.length;
-        this.logger.warn('All transforms failed for batch, skipping', {
-          migrationId,
-          entityType,
-          batchSize: batch.length,
-        });
+        if (batchTransformFailed === 0) {
+          this.logger.info('All items in batch skipped (transformer returned null)', {
+            migrationId,
+            entityType,
+            batchSize: batch.length,
+            transformSkipped: batchTransformSkipped,
+          });
+        } else if (batchTransformSkipped === 0) {
+          this.logger.warn('All transforms failed for batch', {
+            migrationId,
+            entityType,
+            batchSize: batch.length,
+            transformFailed: batchTransformFailed,
+          });
+        } else {
+          this.logger.warn('All items in batch skipped or failed', {
+            migrationId,
+            entityType,
+            batchSize: batch.length,
+            transformSkipped: batchTransformSkipped,
+            transformFailed: batchTransformFailed,
+          });
+        }
         continue;
       }
 
@@ -362,6 +387,8 @@ export class MigrationOrchestrator {
         batchElapsedMs,
         successful: result.successful,
         failed: result.failed,
+        skipped: batchTransformSkipped + result.skipped,
+        transformFailed: batchTransformFailed,
       });
     }
 
@@ -536,6 +563,12 @@ export class MigrationOrchestrator {
 
     const migratedClientIds = migratedContacts.map((c) => c.agentcisContactId);
 
+    const priorMigratedAppIds = await this.loadPriorMigratedApplicationIds();
+    this.logger.info('Excluding prior-migrated applications from deal staging', {
+      migrationId,
+      excludedCount: priorMigratedAppIds.length,
+    });
+
     const applications: StagingDealApplications[] = await this.agentcisDb
       .createQueryBuilder()
       .select([
@@ -550,7 +583,7 @@ export class MigrationOrchestrator {
         'MIN(t.service_id) AS "serviceId"',
       ])
       .from((subQuery) => {
-        return subQuery
+        const qb = subQuery
           .select('app.*')
           .addSelect('c.user_id', 'user_id')
           .addSelect(
@@ -564,6 +597,14 @@ export class MigrationOrchestrator {
           .from(Applications, 'app')
           .innerJoin(Clients, 'c', 'c.id = app.client_id')
           .where('app.client_id IN (:...clientIds)', { clientIds: migratedClientIds });
+
+        if (priorMigratedAppIds.length > 0) {
+          qb.andWhere('app.id NOT IN (:...priorAppIds)', {
+            priorAppIds: priorMigratedAppIds,
+          });
+        }
+
+        return qb;
       }, 't')
       .groupBy('t.client_id')
       .addGroupBy('t.added_by_branch_id')
@@ -623,6 +664,30 @@ export class MigrationOrchestrator {
     const startYear = startDate.getFullYear();
     const endYear = endDate.getFullYear();
     return `Agentcis - ${startMonth} ${startYear} - ${endMonth} ${endYear}`;
+  }
+
+  private priorMigratedAppIdsCache: number[] | null = null;
+
+  private async loadPriorMigratedApplicationIds(): Promise<number[]> {
+    if (this.priorMigratedAppIdsCache !== null) {
+      return this.priorMigratedAppIdsCache;
+    }
+    try {
+      const here = path.dirname(fileURLToPath(import.meta.url));
+      const jsonPath = path.resolve(here, '../mapper/applications.json');
+      const raw = await readFile(jsonPath, 'utf-8');
+      const rows: Array<{ agentcis_id: number }> = JSON.parse(raw);
+      this.priorMigratedAppIdsCache = rows
+        .map((r) => r.agentcis_id)
+        .filter((id): id is number => typeof id === 'number');
+      return this.priorMigratedAppIdsCache;
+    } catch (err) {
+      this.logger.warn('Failed to load prior application ids from applications.json', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+      this.priorMigratedAppIdsCache = [];
+      return this.priorMigratedAppIdsCache;
+    }
   }
 
   private createIdResolver(): IdResolver {
