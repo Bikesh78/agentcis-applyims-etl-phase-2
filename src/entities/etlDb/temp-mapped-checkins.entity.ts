@@ -10,7 +10,7 @@ export class TempMappedCheckin {
   agentcisCheckinUuid: string;
 
   @Index()
-  @Column({ type: 'varchar', length: 36, name: 'applyims_office_visit_id' })
+  @Column({ type: 'varchar', length: 36, name: 'applyims_contact_visit_id' })
   applyimsOfficeVisitId: string;
 
   @Index()

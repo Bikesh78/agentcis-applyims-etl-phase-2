@@ -208,17 +208,21 @@ export class MappingRepository {
   }
 
   async storeCheckinMapping(migrationId: string, data: CheckinMappingData): Promise<void> {
-    await this.etlDb.getRepository(TempMappedCheckin).upsert(
-      {
-        agentcisCheckinUuid: data.agentcisId,
-        applyimsOfficeVisitId: data.applyimsId,
-        migrationId: migrationId,
-      },
-      {
-        conflictPaths: ['agentcisCheckinUuid'],
-        skipUpdateIfNoValuesChanged: true,
-      }
-    );
+    try {
+      await this.etlDb.getRepository(TempMappedCheckin).upsert(
+        {
+          agentcisCheckinUuid: data.agentcisId,
+          applyimsOfficeVisitId: data.applyimsId,
+          migrationId: migrationId,
+        },
+        {
+          conflictPaths: ['agentcisCheckinUuid'],
+          skipUpdateIfNoValuesChanged: true,
+        }
+      );
+    } catch (error) {
+      console.log('mapping error', error);
+    }
   }
 
   async storeUserMapping(migrationId: string, data: UserMappingData): Promise<void> {

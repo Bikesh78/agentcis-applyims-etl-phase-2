@@ -50,6 +50,7 @@ export class BatchProcessor {
 
     try {
       const response = await apiMethod.call(this.apiClient, items);
+      console.log('response', response);
 
       const successCount = response.successful?.length ?? 0;
       const failedCount = response.failed?.length ?? 0;
