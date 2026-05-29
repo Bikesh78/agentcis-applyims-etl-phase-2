@@ -3,6 +3,8 @@ import { IdResolver } from './utils/id-resolver.js';
 import { isUuid } from './utils/validators.js';
 import { AgentcisNoteWithRelations } from '../extractors/note.extractor.js';
 import { ApplyIMSNote } from '../entities/applyims/note.entity.js';
+import { getConfig } from '../configs/index.js';
+import { logger } from '../utils/logger.js';
 
 export class NoteTransformer extends BaseTransformer<AgentcisNoteWithRelations, ApplyIMSNote> {
   constructor(idResolver: IdResolver) {
@@ -17,9 +19,14 @@ export class NoteTransformer extends BaseTransformer<AgentcisNoteWithRelations, 
       return null;
     }
 
-    const createdById = await this.idResolver.resolveUserId(source.addedBy);
+    let createdById = await this.idResolver.resolveUserId(source.addedBy);
     if (!createdById) {
-      throw new Error(`Cannot resolve createdById for added_by ${source.addedBy}`);
+      logger.warn('Unresolved userId — falling back to migration admin user', {
+        entityType: 'notes',
+        sourceId: source.id,
+        agentcisUserId: source.addedBy,
+      });
+      createdById = getConfig().migrationAdminUserId;
     }
 
     const description = source.title

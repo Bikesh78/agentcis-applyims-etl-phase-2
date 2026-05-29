@@ -9,6 +9,8 @@ import {
   AgentcisDescription,
   ApplyIMSActivitiesJsonField,
 } from '../types/activities-type.js';
+import { getConfig } from '../configs/index.js';
+import { logger } from '../utils/logger.js';
 
 export class ContactActivityTransformer extends BaseTransformer<
   ApplicationActivityWithRelations,
@@ -24,22 +26,29 @@ export class ContactActivityTransformer extends BaseTransformer<
   ): Promise<ApplyIMSContactActivity | null> {
     const clientId = source.applicationStage.application.clientId;
     const applicationId = source.applicationStage.application.id;
-    const userId = await this.idResolver.resolveUserId(source.userId);
+    let userId = await this.idResolver.resolveUserId(source.userId);
     const contactId = await this.idResolver.resolveContactId(clientId);
-    const activitiesTypeId = await this.idResolver.resolveApplicationId(applicationId);
+    const applicationIdMapped = await this.idResolver.resolveApplicationId(applicationId);
     const appIdentifier = await this.idResolver.resolveAppIdentifier(applicationId);
     const description: AgentcisDescription = source.description
       ? JSON.parse(source.description)
       : null;
 
     if (!userId) {
-      throw new Error(`Cannot resolve userId ${source.userId}`);
+      logger.warn('Unresolved userId — falling back to migration admin user', {
+        entityType: 'contact-activities',
+        sourceId: source.id,
+        agentcisUserId: source.userId,
+      });
+      userId = getConfig().migrationAdminUserId;
     }
     if (!contactId) {
       throw new Error(`Cannot resolve contactId ${clientId}`);
     }
-    if (!activitiesTypeId) {
-      throw new Error(`Cannot resolve activitiesTypeId for ${applicationId}`);
+    if (!applicationIdMapped) {
+      throw new Error(
+        `Cannot resolve applicationId ${applicationId} for contact-activity ${source.id}`
+      );
     }
     if (!appIdentifier) {
       throw new Error(`Cannot resolve appIdentifier for ${applicationId}`);
@@ -47,7 +56,7 @@ export class ContactActivityTransformer extends BaseTransformer<
 
     const { activitiesType, activitiesAction, data } = await this.mapActivityType(
       source,
-      activitiesTypeId,
+      applicationIdMapped,
       contactId,
       description,
       appIdentifier
@@ -55,7 +64,7 @@ export class ContactActivityTransformer extends BaseTransformer<
 
     return {
       id,
-      activitiesTypeId,
+      activitiesTypeId: applicationIdMapped,
       activitiesType,
       activitiesAction,
       data,

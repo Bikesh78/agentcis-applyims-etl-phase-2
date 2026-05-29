@@ -10,6 +10,8 @@ import {
   ApplyimsStatusRemarks,
 } from '../entities/applyims/application.entity.js';
 import { Referrers } from '../entities/agentcis/referrers.entity.js';
+import { getConfig } from '../configs/index.js';
+import { logger } from '../utils/logger.js';
 
 export class ApplicationTransformer extends BaseTransformer<Applications, ApplyIMSApplication> {
   constructor(
@@ -30,7 +32,7 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
 
     const contactId = await this.idResolver.resolveContactId(source.clientId);
     const branchId = await this.idResolver.resolveBranchId(source.addedByBranchId);
-    const createdBy = await this.idResolver.resolveUserId(source.creatorId);
+    let createdBy = await this.idResolver.resolveUserId(source.creatorId);
     const workflowId = await this.idResolver.resolveWorkflowId(source.serviceId);
     const workflowStagesId = await this.idResolver.resolveWorkflowStagesId(source.currentStage);
     const productId = await this.idResolver.resolveProductId(source.products.id);
@@ -56,7 +58,12 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
       throw new Error(`Cannot resolve productId ${source.products.id}`);
     }
     if (!createdBy) {
-      throw new Error(`Cannot resolve userId ${source.creatorId}`);
+      logger.warn('Unresolved userId — falling back to migration admin user', {
+        entityType: 'applications',
+        sourceId: source.id,
+        agentcisUserId: source.creatorId,
+      });
+      createdBy = getConfig().migrationAdminUserId;
     }
     if (!workflowId) {
       throw new Error(`Cannot resolve workflowId ${source.serviceId}`);
@@ -71,7 +78,7 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
       throw new Error(`Cannot resolve institutionId ${source.products.vendorId}`);
     }
     if (!dealId) {
-      throw new Error(`Cannor resolve dealId for application ${source.id}`);
+      throw new Error(`Cannot resolve dealId for application ${source.id}`);
     }
 
     const intakes = source.appliedIntakeDate

@@ -23,7 +23,7 @@ export class OfficeVisitTransformer extends BaseTransformer<
       ? await this.idResolver.resolveUserId(source.assigneeId)
       : null;
     const branchId = await this.idResolver.resolveBranchId(source.officeId);
-    const createdBy = await this.idResolver.resolveUserId(source.userId);
+    let createdBy = await this.idResolver.resolveUserId(source.userId);
 
     const sessionStart =
       source.officeVisitAssignees.find((item) => Boolean(item.attendedOn))?.attendedOn || null;
@@ -36,11 +36,16 @@ export class OfficeVisitTransformer extends BaseTransformer<
     if (!branchId) {
       throw new Error(`Cannot resolve branchId from officeId ${source.officeId}`);
     }
-    if (!createdBy) {
-      throw new Error(`Cannot resolve userId ${source.userId}`);
-    }
-
     const config = getConfig();
+
+    if (!createdBy) {
+      logger.warn('Unresolved userId — falling back to migration admin user', {
+        entityType: 'office-visits',
+        sourceId: source.id,
+        agentcisUserId: source.userId,
+      });
+      createdBy = config.migrationAdminUserId;
+    }
 
     return {
       id,

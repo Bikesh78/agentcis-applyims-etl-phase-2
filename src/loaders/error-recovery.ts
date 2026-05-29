@@ -7,6 +7,19 @@ export enum ErrorCategory {
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   API_ERROR = 'API_ERROR',
   TRANSFORMATION_ERROR = 'TRANSFORMATION_ERROR',
+  SKIP_BY_DESIGN = 'SKIP_BY_DESIGN',
+}
+
+/**
+ * Thrown by a transformer to signal that a record is intentionally skipped
+ * (e.g. an unsupported source type), so the orchestrator logs it as
+ * SKIP_BY_DESIGN rather than counting it as a transformation failure.
+ */
+export class SkipByDesignError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SkipByDesignError';
+  }
 }
 
 export class ErrorRecoveryManager {

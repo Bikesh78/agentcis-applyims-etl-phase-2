@@ -5,6 +5,7 @@ import { AgentcisFirstPointOfContact, Clients } from '../entities/agentcis/clien
 import { ApplyIMSContact } from '../entities/applyims/contact.entity.js';
 import { isUuid } from './utils/validators.js';
 import { COUNTRIES_MAPS } from 'constants/country-map.js';
+import { logger } from '../utils/logger.js';
 
 export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact> {
   constructor(
@@ -29,6 +30,15 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
       throw new Error(`Cannot resolve BranchId ${source.branchId}`);
     }
 
+    const email = this.fieldMapper.cleanEmail(source.email);
+    if (!email) {
+      logger.warn('Skipping contact with no email', {
+        entityType: 'contacts',
+        sourceId: source.id,
+      });
+      return null;
+    }
+
     let firstName = this.fieldMapper.cleanName(source.firstName);
     let lastName = this.fieldMapper.cleanName(source.lastName);
 
@@ -50,7 +60,7 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
       agentcisInternalId: source.id,
       firstName: firstName!,
       lastName: lastName!,
-      email: this.fieldMapper.cleanEmail(source.email)!,
+      email,
       createdBy: createdBy!,
       phone: this.fieldMapper.cleanPhone(source.phone, source.phoneNumberCountryCode),
       dateOfBirth: this.fieldMapper.formatDate(source.dob),

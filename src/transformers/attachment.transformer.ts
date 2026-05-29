@@ -6,6 +6,7 @@ import { FieldMapper } from './utils/field-mappers.js';
 import { Attachment, AttachmentableType } from '../entities/agentcis/attachments.entity.js';
 import { ApplyIMSMedia, SubjectType } from '../entities/applyims/media.entity.js';
 import { MappingRepository } from '../repositories/mapping.repository.js';
+import { SkipByDesignError } from '../loaders/error-recovery.js';
 
 export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSMedia> {
   constructor(
@@ -26,7 +27,7 @@ export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSM
     const supportedTypes: AttachmentableType[] = ['application_stage', 'client'];
 
     if (!supportedTypes.includes(source.attachmentableType)) {
-      throw new Error(`Unsupported attachmentableType: ${source.attachmentableType}`);
+      throw new SkipByDesignError(`Unsupported attachmentableType: ${source.attachmentableType}`);
     }
 
     const subjectId = await this.resolveSubjectId(

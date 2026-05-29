@@ -34,7 +34,11 @@ import { ProductTypeResolver } from '../transformers/utils/product-type-resolver
 import { FieldMapper } from '../transformers/utils/field-mappers.js';
 import { BatchProcessor, ProcessResult } from '../loaders/batch-processor.js';
 import { CheckpointService } from '../services/checkpoint.service.js';
-import { ErrorRecoveryManager, ErrorCategory } from '../loaders/error-recovery.js';
+import {
+  ErrorRecoveryManager,
+  ErrorCategory,
+  SkipByDesignError,
+} from '../loaders/error-recovery.js';
 import { ApplyIMSApiClient, BulkResponse } from '../loaders/api-client.js';
 import { Logger } from '../utils/logger.js';
 import { MigrationJob, MigrationStatus } from '../entities/etlDb/migration-jobs.entity.js';
@@ -169,6 +173,14 @@ export class MigrationOrchestrator {
         const entityStartTime = Date.now();
         const result = await this.migrateEntity(config, entityType, entityStartTime);
         const entityElapsedMs = Date.now() - entityStartTime;
+        if (result.successful > result.total) {
+          this.logger.warn('Entity completion counter anomaly: successful exceeds total', {
+            migrationId,
+            entityType,
+            successful: result.successful,
+            total: result.total,
+          });
+        }
         this.logger.info('Entity migration completed', {
           migrationId,
           entityType,
@@ -281,22 +293,41 @@ export class MigrationOrchestrator {
         } else if (result.status === 'rejected') {
           const error =
             result.reason instanceof Error ? result.reason : new Error(String(result.reason));
-          this.logger.error('Transform error for item', {
-            migrationId,
-            entityType,
-            itemId: String(batch[i]?.id ?? 'unknown'),
-            error: String(error),
-          });
-          await this.errorRecoveryManager.logError(
-            migrationId,
-            entityType,
-            String(batch[i]?.id ?? 'unknown'),
-            error,
-            ErrorCategory.TRANSFORMATION_ERROR,
-            { payload: batch[i] }
-          );
-          batchTransformFailed++;
-          skippedCount++;
+          if (error instanceof SkipByDesignError) {
+            this.logger.warn('Transform skipped by design', {
+              migrationId,
+              entityType,
+              itemId: String(batch[i]?.id ?? 'unknown'),
+              reason: error.message,
+            });
+            await this.errorRecoveryManager.logError(
+              migrationId,
+              entityType,
+              String(batch[i]?.id ?? 'unknown'),
+              error,
+              ErrorCategory.SKIP_BY_DESIGN,
+              { payload: batch[i] }
+            );
+            batchTransformSkipped++;
+            skippedCount++;
+          } else {
+            this.logger.error('Transform error for item', {
+              migrationId,
+              entityType,
+              itemId: String(batch[i]?.id ?? 'unknown'),
+              error: String(error),
+            });
+            await this.errorRecoveryManager.logError(
+              migrationId,
+              entityType,
+              String(batch[i]?.id ?? 'unknown'),
+              error,
+              ErrorCategory.TRANSFORMATION_ERROR,
+              { payload: batch[i] }
+            );
+            batchTransformFailed++;
+            skippedCount++;
+          }
         }
       }
 
@@ -561,7 +592,16 @@ export class MigrationOrchestrator {
       return;
     }
 
-    const migratedClientIds = migratedContacts.map((c) => c.agentcisContactId);
+    const priorMigratedContactIds = await this.loadPriorMigratedContactIds();
+    const migratedClientIds = Array.from(
+      new Set([...migratedContacts.map((c) => c.agentcisContactId), ...priorMigratedContactIds])
+    );
+    this.logger.info('Deal staging client scope', {
+      migrationId,
+      thisRunContacts: migratedContacts.length,
+      priorMigratedContacts: priorMigratedContactIds.length,
+      totalClientIds: migratedClientIds.length,
+    });
 
     const priorMigratedAppIds = await this.loadPriorMigratedApplicationIds();
     this.logger.info('Excluding prior-migrated applications from deal staging', {
@@ -687,6 +727,30 @@ export class MigrationOrchestrator {
       });
       this.priorMigratedAppIdsCache = [];
       return this.priorMigratedAppIdsCache;
+    }
+  }
+
+  private priorMigratedContactIdsCache: number[] | null = null;
+
+  private async loadPriorMigratedContactIds(): Promise<number[]> {
+    if (this.priorMigratedContactIdsCache !== null) {
+      return this.priorMigratedContactIdsCache;
+    }
+    try {
+      const here = path.dirname(fileURLToPath(import.meta.url));
+      const jsonPath = path.resolve(here, '../mapper/contacts.json');
+      const raw = await readFile(jsonPath, 'utf-8');
+      const rows: Array<{ agentcis_id: number }> = JSON.parse(raw);
+      this.priorMigratedContactIdsCache = rows
+        .map((r) => r.agentcis_id)
+        .filter((id): id is number => typeof id === 'number');
+      return this.priorMigratedContactIdsCache;
+    } catch (err) {
+      this.logger.warn('Failed to load prior contact ids from contacts.json', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+      this.priorMigratedContactIdsCache = [];
+      return this.priorMigratedContactIdsCache;
     }
   }
 
