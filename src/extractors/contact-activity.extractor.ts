@@ -51,6 +51,25 @@ export class ContactActivityExtractor extends BaseExtractor<ApplicationActivityW
     return results as unknown as ApplicationActivityWithRelations[];
   }
 
+  async extractByIds(ids: number[]): Promise<ApplicationActivityWithRelations[]> {
+    const results = await this.dataSource
+      .getRepository(ApplicationActivities)
+      .createQueryBuilder('applicationActivities')
+      .leftJoinAndSelect('applicationActivities.applicationStage', 'applicationStage')
+      .leftJoinAndSelect('applicationStage.application', 'application')
+      .select([
+        'applicationActivities',
+        'applicationStage.id',
+        'applicationStage.stageId',
+        'application.clientId',
+        'application.id',
+      ])
+      .where('applicationActivities.id IN (:...ids)', { ids })
+      .getMany();
+
+    return results as unknown as ApplicationActivityWithRelations[];
+  }
+
   async getTotalCount(): Promise<number> {
     return await this.dataSource
       .getRepository(ApplicationActivities)

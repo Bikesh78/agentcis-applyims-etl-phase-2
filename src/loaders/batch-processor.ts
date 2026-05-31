@@ -18,6 +18,7 @@ export interface ProcessResult {
 }
 
 const DUPLICATE_EMAIL_CODE = 'DUPLICATE_EMAIL';
+const DUPLICATE_EMAIL_MESSAGE_REGEX = /IDX_LOWERCASE_EMAIL|unique_email|duplicate key.*email/i;
 
 export class BatchProcessor {
   constructor(
@@ -33,8 +34,10 @@ export class BatchProcessor {
     entityType: EntityType,
     apiMethod: (batch: T[]) => Promise<BulkResponse>,
     migrationId: string,
-    batchSize?: number
+    batchSize?: number,
+    mappingMigrationId?: string
   ): Promise<ProcessResult> {
+    const effectiveMappingId = mappingMigrationId ?? migrationId;
     const results: ProcessResult = {
       successful: 0,
       failed: 0,
@@ -50,7 +53,7 @@ export class BatchProcessor {
 
     try {
       const response = await apiMethod.call(this.apiClient, items);
-      console.log('response', response);
+      // console.log('response', response);
 
       const successCount = response.successful?.length ?? 0;
       const failedCount = response.failed?.length ?? 0;
@@ -66,7 +69,7 @@ export class BatchProcessor {
                 }
               : { agentcisId: success.internalId, applyimsId: success.id };
 
-          await this.mappingRepository.storeMapping(migrationId, {
+          await this.mappingRepository.storeMapping(effectiveMappingId, {
             entityType,
             data,
           } as StoreMappingInput);
@@ -80,40 +83,34 @@ export class BatchProcessor {
 
       if (response.failed && response.failed.length > 0) {
         for (const failedRecord of response.failed) {
-          const isDuplicateEmail = failedRecord.code === DUPLICATE_EMAIL_CODE;
+          const recovered = await this.tryRecoverDuplicateEmailContact(
+            failedRecord,
+            entityType,
+            items,
+            effectiveMappingId
+          );
 
-          if (isDuplicateEmail && entityType === 'contacts' && failedRecord.existingContact) {
-            const existingContact = failedRecord.existingContact as ExistingContactInfo;
-            this.logger.warn(`Duplicate email contact - using existing ApplyIMS contact`, {
-              agentcisId: failedRecord.internalId,
-              applyimsId: existingContact.id,
-              email: existingContact.email,
-            });
+          const entityId =
+            failedRecord.internalId != null
+              ? String(failedRecord.internalId)
+              : String(
+                  failedRecord.payload?.agentcisApplicationId ??
+                    failedRecord.payload?.agentcisInternalId ??
+                    'undefined'
+                );
 
-            try {
-              await this.mappingRepository.storeMapping(migrationId, {
-                entityType,
-                data: { agentcisId: failedRecord.internalId, applyimsId: existingContact.id },
-              } as StoreMappingInput);
-            } catch (err) {
-              this.logger.error(`Failed to store mapping for duplicate email contact`, {
-                error: String(err),
-                agentcisId: failedRecord.internalId,
-                applyimsId: existingContact.id,
-              });
-            }
-
+          if (recovered) {
             results.successful += 1;
             results.errors.push({
               entityType,
-              entityId: failedRecord.internalId,
+              entityId,
               error: failedRecord.error,
               code: failedRecord.code,
             });
           } else {
             results.errors.push({
               entityType,
-              entityId: failedRecord.internalId,
+              entityId,
               error: failedRecord.error,
               code: failedRecord.code || 'RECORD_FAILURE',
             });
@@ -122,7 +119,7 @@ export class BatchProcessor {
             await this.errorRecoveryManager.logError(
               migrationId,
               entityType,
-              String(failedRecord.internalId),
+              entityId,
               error,
               ErrorCategory.API_ERROR,
               { failedRecord }
@@ -225,21 +222,14 @@ export class BatchProcessor {
 
       if (response.failed && response.failed.length > 0) {
         for (const failedRecord of response.failed) {
-          const isDuplicateEmail = failedRecord.code === DUPLICATE_EMAIL_CODE;
+          const recovered = await this.tryRecoverDuplicateEmailContact(
+            failedRecord,
+            entityType,
+            chunk,
+            migrationId
+          );
 
-          if (isDuplicateEmail && entityType === 'contacts' && failedRecord.existingContact) {
-            const existingContact = failedRecord.existingContact as ExistingContactInfo;
-            this.logger.warn(`Duplicate email contact - using existing ApplyIMS contact`, {
-              agentcisId: failedRecord.internalId,
-              applyimsId: existingContact.id,
-              email: existingContact.email,
-            });
-
-            await this.mappingRepository.storeMapping(migrationId, {
-              entityType,
-              data: { agentcisId: failedRecord.internalId, applyimsId: existingContact.id },
-            } as StoreMappingInput);
-
+          if (recovered) {
             result.successful += 1;
             result.errors.push({
               entityType,
@@ -271,6 +261,81 @@ export class BatchProcessor {
     }
 
     return result;
+  }
+
+  private async tryRecoverDuplicateEmailContact(
+    failedRecord: BulkResponse['failed'][number],
+    entityType: EntityType | string,
+    sentItems: ReadonlyArray<unknown>,
+    migrationId: string
+  ): Promise<boolean> {
+    if (entityType !== 'contacts') return false;
+
+    const looksLikeDuplicateEmail =
+      failedRecord.code === DUPLICATE_EMAIL_CODE ||
+      (typeof failedRecord.error === 'string' &&
+        DUPLICATE_EMAIL_MESSAGE_REGEX.test(failedRecord.error));
+    if (!looksLikeDuplicateEmail) return false;
+
+    let existingContact: ExistingContactInfo | undefined = failedRecord.existingContact as
+      | ExistingContactInfo
+      | undefined;
+
+    if (!existingContact) {
+      const internalIdStr = String(failedRecord.internalId);
+      const original = sentItems.find((it) => {
+        const rec = it as { agentcisInternalId?: number | string; agentcisClientId?: string };
+        return (
+          String(rec.agentcisInternalId ?? '') === internalIdStr ||
+          rec.agentcisClientId === internalIdStr
+        );
+      }) as { email?: string } | undefined;
+
+      if (!original?.email) {
+        this.logger.warn(
+          'Duplicate email failure but no email on original item — skipping recovery',
+          {
+            agentcisId: failedRecord.internalId,
+          }
+        );
+        return false;
+      }
+
+      const looked = await this.apiClient.getContactByEmail(original.email);
+      if (!looked) {
+        this.logger.warn(
+          'Duplicate email failure but lookup found no existing contact — skipping recovery',
+          {
+            agentcisId: failedRecord.internalId,
+            email: original.email,
+          }
+        );
+        return false;
+      }
+      existingContact = looked;
+    }
+
+    this.logger.info('Recovered duplicate-email contact via lookup', {
+      agentcisId: failedRecord.internalId,
+      applyimsId: existingContact.id,
+      email: existingContact.email,
+    });
+
+    try {
+      await this.mappingRepository.storeMapping(migrationId, {
+        entityType: EntityType.CONTACTS,
+        data: { agentcisId: failedRecord.internalId, applyimsId: existingContact.id },
+      } as StoreMappingInput);
+    } catch (err) {
+      this.logger.error('Failed to store recovered duplicate-email mapping', {
+        agentcisId: failedRecord.internalId,
+        applyimsId: existingContact.id,
+        error: err instanceof Error ? err.message : String(err),
+      });
+      return false;
+    }
+
+    return true;
   }
 
   private async handleError(

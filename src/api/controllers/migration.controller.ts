@@ -4,7 +4,7 @@ import { MigrationOrchestrator } from '../../orchestrators/migration.orchestrato
 import { CheckpointService } from '../../services/checkpoint.service.js';
 import { logger } from '../../utils/logger.js';
 import { MigrationConfig } from 'configs/migration.config.js';
-import { EntityType } from '../../constants/entity-types.js';
+import { EntityType, SUPPORTED_ENTITIES } from '../../constants/entity-types.js';
 
 interface MigrationRequest {
   entities: EntityType[];
@@ -238,6 +238,58 @@ export class MigrationController {
         status: 'error',
         message,
       });
+    }
+  }
+
+  async retryMigration(req: Request, res: Response): Promise<void> {
+    try {
+      const originalMigrationId = req.params.id as string;
+
+      const { error, value } = Joi.object({
+        entityTypes: Joi.array()
+          .items(
+            Joi.string()
+              .valid(...SUPPORTED_ENTITIES)
+              .insensitive()
+          )
+          .min(1)
+          .required(),
+      }).validate(req.body);
+
+      if (error) {
+        res.status(400).json({ status: 'error', message: error.details[0].message });
+        return;
+      }
+
+      const job = await this.checkpointService.getMigrationJob(originalMigrationId);
+      if (!job) {
+        res.status(404).json({
+          status: 'error',
+          message: `Migration not found: ${originalMigrationId}`,
+        });
+        return;
+      }
+
+      const normalizedEntityTypes = (value.entityTypes as string[]).map((e) =>
+        e.toLowerCase()
+      ) as EntityType[];
+
+      const retryMigrationId = await this.orchestrator!.retryFailedEntities(
+        originalMigrationId,
+        normalizedEntityTypes
+      );
+
+      res.status(202).json({
+        status: 'retrying',
+        retryMigrationId,
+        originalMigrationId,
+        entityTypes: value.entityTypes,
+        message: `Retry started. Track errors via retryMigrationId.`,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Internal server error';
+      logger.error('Retry migration error', { error: message });
+      res.status(500).json({ status: 'error', message });
     }
   }
 

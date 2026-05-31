@@ -16,6 +16,7 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
   }
 
   protected async transformImpl(source: Clients, id: string): Promise<ApplyIMSContact | null> {
+    // console.log('source', source)
     const existingContactId = await this.idResolver.checkContactId(source.id);
     if (existingContactId) {
       return null;
@@ -49,9 +50,11 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
       throw new Error('Both FirstName and LastName are required');
     }
 
-    const followerIds = source.followers?.map((f) => f.userId) ?? [];
+    const followerIds = [...new Set(source.followers?.map((f) => f.userId) ?? [])];
     const resolvedFollowers = await this.idResolver.resolveUserIds(followerIds);
-    const followers = resolvedFollowers.map((userId) => ({ id: userId }));
+    const followers = [
+      ...new Map(resolvedFollowers.map((userId) => [userId, { id: userId }])).values(),
+    ];
 
     return {
       ...source,
@@ -74,6 +77,9 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
       gender: null,
       nationality: null,
       country: source.country ? COUNTRIES_MAPS[source.country] : null,
+      countryOfPassport: source.countryOfPassport
+        ? (COUNTRIES_MAPS[Number(source.countryOfPassport)] ?? source.countryOfPassport)
+        : null,
       followers,
     };
   }

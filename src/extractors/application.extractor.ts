@@ -26,6 +26,18 @@ export class ApplicationExtractor extends BaseExtractor<Applications> {
     return await qb.getMany();
   }
 
+  async extractByIds(ids: number[]): Promise<Applications[]> {
+    return this.dataSource
+      .getRepository(Applications)
+      .createQueryBuilder('applications')
+      .leftJoinAndSelect('applications.products', 'products')
+      .leftJoinAndSelect('applications.referrers', 'referrers')
+      .leftJoinAndSelect('applications.groupProductFees', 'groupProductFees.application')
+      .leftJoinAndSelect('applications.applicationAssignees', 'applicationAssignees')
+      .where('applications.id IN (:...ids)', { ids })
+      .getMany();
+  }
+
   async getTotalCount(): Promise<number> {
     return await this.dataSource
       .getRepository(Applications)

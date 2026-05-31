@@ -2,6 +2,7 @@ import { EntityType } from '../constants/entity-types.js';
 
 export interface MigrationConfig {
   migrationId: string;
+  originalMigrationId?: string;
   entities: EntityType[];
   dateRange: {
     start: Date;

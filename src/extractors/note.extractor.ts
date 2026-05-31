@@ -80,6 +80,47 @@ export class NoteExtractor extends BaseExtractor<AgentcisNoteWithRelations> {
     }));
   }
 
+  async extractByIds(ids: number[]): Promise<AgentcisNoteWithRelations[]> {
+    const rows = await this.dataSource.query(
+      `
+      SELECT
+        n.id,
+        n.title,
+        n.description,
+        n.added_by        AS addedBy,
+        n.notable_id      AS notableId,
+        n.notable_type    AS notableType,
+        n.namespace,
+        n.created_at      AS createdAt,
+        n.updated_at      AS updatedAt,
+        CASE WHEN n.notable_type = 'application_stage'
+          THEN ast.application_id
+          ELSE NULL
+        END               AS agentcisApplicationId
+      FROM notes n
+      LEFT JOIN application_stages ast
+        ON n.notable_type = 'application_stage' AND n.notable_id = ast.id
+      WHERE n.id IN (?)
+      ORDER BY n.id ASC
+      `,
+      [ids]
+    );
+
+    return rows.map((row: Record<string, unknown>) => ({
+      id: Number(row['id']),
+      title: (row['title'] as string | null) ?? null,
+      description: (row['description'] as string) ?? '',
+      addedBy: Number(row['addedBy']),
+      notableId: Number(row['notableId']),
+      notableType: (row['notableType'] as string | null) ?? null,
+      namespace: (row['namespace'] as string | null) ?? null,
+      createdAt: new Date(row['createdAt'] as string),
+      updatedAt: new Date(row['updatedAt'] as string),
+      agentcisApplicationId:
+        row['agentcisApplicationId'] != null ? Number(row['agentcisApplicationId']) : null,
+    }));
+  }
+
   async getTotalCount(): Promise<number> {
     const result = await this.dataSource.query(
       `

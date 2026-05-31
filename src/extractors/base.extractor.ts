@@ -7,6 +7,7 @@ export interface ExtractorConfig {
   endDate: Date;
   checkpointId?: string;
   lastProcessedId?: number | null;
+  targetIds?: number[];
 }
 
 export abstract class BaseExtractor<T extends { id: number | string }> {
@@ -30,9 +31,28 @@ export abstract class BaseExtractor<T extends { id: number | string }> {
   abstract extractBatch(lastProcessedId: number | null, limit: number): Promise<T[]>;
   abstract getTotalCount(): Promise<number>;
 
+  async extractByIds(_ids: number[]): Promise<T[]> {
+    throw new Error(`extractByIds not implemented for ${this.entityType}`);
+  }
+
   async *extractAll(): AsyncGenerator<T[], void, unknown> {
+    const { batchSize } = this.config;
+
+    if (this.config.targetIds?.length) {
+      const { targetIds } = this.config;
+      this.logger.info(`Starting targeted extraction for ${this.entityType}`, {
+        count: targetIds.length,
+        batchSize,
+      });
+      for (let i = 0; i < targetIds.length; i += batchSize) {
+        const batch = await this.extractByIds(targetIds.slice(i, i + batchSize));
+        if (batch.length > 0) yield batch;
+      }
+      this.logger.info(`Targeted extraction completed for ${this.entityType}`);
+      return;
+    }
+
     const total = await this.getTotalCount();
-    const batchSize = this.config.batchSize;
     const resumeId = this.getResumeId();
 
     this.logger.info(`Starting extraction for ${this.entityType}`, {

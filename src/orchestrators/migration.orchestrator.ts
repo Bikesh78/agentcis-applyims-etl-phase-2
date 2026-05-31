@@ -45,6 +45,7 @@ import { MigrationJob, MigrationStatus } from '../entities/etlDb/migration-jobs.
 import { MigrationConfig } from '../configs/migration.config.js';
 import {
   EntityType,
+  ENTITY_API_METHOD_MAP,
   ENTITY_DEPENDENCY_ORDER,
   SUPPORTED_ENTITIES,
 } from '../constants/entity-types.js';
@@ -231,27 +232,31 @@ export class MigrationOrchestrator {
   private async migrateEntity(
     config: MigrationConfig,
     entityType: EntityType,
-    entityStartTime: number
+    entityStartTime: number,
+    extractorConfigOverride?: ExtractorConfig
   ): Promise<EntityMigrationResult> {
     const { migrationId } = config;
     this.logger.info('Starting entity migration', { migrationId, entityType });
 
-    let lastProcessedId: number | null = null;
-
-    if (config.resumeFrom?.checkpointId) {
-      const checkpoint = await this.checkpointService.getCheckpoint(migrationId, entityType);
-      if (checkpoint && checkpoint.lastProcessedId && !checkpoint.completedAt) {
-        lastProcessedId = parseInt(checkpoint.lastProcessedId, 10);
+    let extractorConfig: ExtractorConfig;
+    if (extractorConfigOverride) {
+      extractorConfig = extractorConfigOverride;
+    } else {
+      let lastProcessedId: number | null = null;
+      if (config.resumeFrom?.checkpointId) {
+        const checkpoint = await this.checkpointService.getCheckpoint(migrationId, entityType);
+        if (checkpoint && checkpoint.lastProcessedId && !checkpoint.completedAt) {
+          lastProcessedId = parseInt(checkpoint.lastProcessedId, 10);
+        }
       }
+      extractorConfig = {
+        batchSize: config.batchSize,
+        startDate: config.dateRange.start,
+        endDate: config.dateRange.end,
+        checkpointId: config.resumeFrom?.checkpointId,
+        lastProcessedId,
+      };
     }
-
-    const extractorConfig: ExtractorConfig = {
-      batchSize: config.batchSize,
-      startDate: config.dateRange.start,
-      endDate: config.dateRange.end,
-      checkpointId: config.resumeFrom?.checkpointId,
-      lastProcessedId,
-    };
 
     const handlers = this.getEntityHandlers(entityType, extractorConfig, migrationId);
 
@@ -583,7 +588,6 @@ export class MigrationOrchestrator {
     this.logger.info('Populating deal staging data', { migrationId });
 
     const migratedContacts = await this.etlDb.getRepository(TempMappedContact).find({
-      where: { migrationId },
       select: ['agentcisContactId'],
     });
 
@@ -604,9 +608,19 @@ export class MigrationOrchestrator {
     });
 
     const priorMigratedAppIds = await this.loadPriorMigratedApplicationIds();
-    this.logger.info('Excluding prior-migrated applications from deal staging', {
+
+    const etlMigratedApps: { agentcis_application_id: number }[] = await this.etlDb.query(
+      `SELECT agentcis_application_id FROM temp_mapped_applications`
+    );
+    const etlMigratedAppIds = etlMigratedApps.map((r) => r.agentcis_application_id);
+
+    const allExcludedAppIds = [...new Set([...priorMigratedAppIds, ...etlMigratedAppIds])];
+
+    this.logger.info('Excluding prior-migrated and ETL-migrated applications from deal staging', {
       migrationId,
-      excludedCount: priorMigratedAppIds.length,
+      priorMigratedCount: priorMigratedAppIds.length,
+      etlMigratedCount: etlMigratedAppIds.length,
+      totalExcluded: allExcludedAppIds.length,
     });
 
     const applications: StagingDealApplications[] = await this.agentcisDb
@@ -638,9 +652,9 @@ export class MigrationOrchestrator {
           .innerJoin(Clients, 'c', 'c.id = app.client_id')
           .where('app.client_id IN (:...clientIds)', { clientIds: migratedClientIds });
 
-        if (priorMigratedAppIds.length > 0) {
+        if (allExcludedAppIds.length > 0) {
           qb.andWhere('app.id NOT IN (:...priorAppIds)', {
-            priorAppIds: priorMigratedAppIds,
+            priorAppIds: allExcludedAppIds,
           });
         }
 
@@ -882,6 +896,265 @@ export class MigrationOrchestrator {
     }
 
     this.logger.info('S3 file copy completed', { migrationId, copied, failed });
+  }
+
+  async retryFailedEntities(
+    originalMigrationId: string,
+    entityTypes: EntityType[]
+  ): Promise<string> {
+    const RETRY_BATCH_SIZE = 250;
+    const retryMigrationId = crypto.randomUUID();
+
+    const jobRepo = this.etlDb.getRepository(MigrationJob);
+    const job = jobRepo.create({
+      id: retryMigrationId,
+      status: MigrationStatus.IN_PROGRESS,
+      config: { originalMigrationId, entityTypes },
+      startedAt: new Date(),
+    });
+    await jobRepo.save(job);
+
+    (async () => {
+      await this.validateCredentials();
+      for (const entityType of entityTypes) {
+        if (entityType === EntityType.DEALS) {
+          const stagingRows: { migration_id: string }[] = await this.etlDb.query(
+            `SELECT td.migration_id
+             FROM temp_mapped_deals td
+             LEFT JOIN migration_jobs mj ON mj.id = td.migration_id
+             WHERE td.migration_id = $1
+                OR mj.config->>'originalMigrationId' = $1
+             GROUP BY td.migration_id
+             ORDER BY MAX(td.id) DESC
+             LIMIT 1`,
+            [originalMigrationId]
+          );
+
+          const dealsMigrationId = stagingRows[0]?.migration_id ?? retryMigrationId;
+
+          this.logger.info('Running deal migration for retry-staged deals', {
+            retryMigrationId,
+            dealsMigrationId,
+          });
+
+          await this.migrateEntity(
+            {
+              migrationId: dealsMigrationId,
+              entities: [EntityType.DEALS],
+              dateRange: { start: new Date(0), end: new Date() },
+              batchSize: RETRY_BATCH_SIZE,
+              parallelism: 1,
+            },
+            EntityType.DEALS,
+            Date.now()
+          );
+          continue;
+        }
+
+        const rows: { entity_id: string; source_data?: any }[] = await this.etlDb.query(
+          `SELECT DISTINCT entity_id, source_data
+           FROM migration_errors
+           WHERE migration_id = $1
+             AND entity_type = $2
+             AND error_code NOT IN ('VALIDATION_ERROR', 'SKIP_BY_DESIGN')`,
+          [originalMigrationId, entityType]
+        );
+
+        // Handle both integer entity_ids and UUID entity_ids (timeout batch errors)
+        const targetIds: number[] = [];
+        for (const row of rows) {
+          const intId = parseInt(row.entity_id, 10);
+          if (!isNaN(intId)) {
+            // Integer ID: use directly (actual agentcis record ID)
+            targetIds.push(intId);
+          } else if (row.source_data?.chunk && Array.isArray(row.source_data.chunk)) {
+            // UUID ID: likely a timeout batch error, extract actual record IDs from chunk
+            for (const record of row.source_data.chunk) {
+              // Map entity types to their ID field names
+              let id: number | undefined;
+              switch (entityType) {
+                case EntityType.APPLICATIONS:
+                  id = record.agentcisApplicationId;
+                  break;
+                case EntityType.NOTES:
+                  id = record.agentcisId;
+                  break;
+                case EntityType.CONTACT_ACTIVITIES:
+                  id = record.agentcisActivityId;
+                  break;
+                case EntityType.ATTACHMENTS:
+                  id = record.agentcisInternalId;
+                  break;
+                default:
+                  id = record.agentcisId ?? record.agentcisApplicationId;
+              }
+              if (id && !isNaN(id)) {
+                targetIds.push(id);
+              }
+            }
+          }
+        }
+        console.log('targetIds', targetIds);
+
+        if (targetIds.length === 0) {
+          this.logger.info('No retryable failures found', { retryMigrationId, entityType });
+        } else {
+          this.logger.info('Retrying failed entity records', {
+            retryMigrationId,
+            originalMigrationId,
+            entityType,
+            count: targetIds.length,
+          });
+
+          const extractorConfig: ExtractorConfig = {
+            batchSize: RETRY_BATCH_SIZE,
+            startDate: new Date(0),
+            endDate: new Date(),
+            targetIds,
+          };
+
+          await this.migrateEntity(
+            {
+              migrationId: retryMigrationId,
+              originalMigrationId,
+              entities: [entityType],
+              dateRange: { start: new Date(0), end: new Date() },
+              batchSize: RETRY_BATCH_SIZE,
+              parallelism: 1,
+            },
+            entityType,
+            Date.now(),
+            extractorConfig
+          );
+        }
+
+        if (entityType === EntityType.ATTACHMENTS) {
+          this.logger.info('Running S3 copy for attachment retry', { retryMigrationId });
+          await this.copyS3FilesForMedias(retryMigrationId);
+        }
+
+        if (entityType === EntityType.CONTACTS) {
+          this.logger.info('Running deal staging after contacts retry', { retryMigrationId });
+          await this.populateDealStaging({
+            migrationId: retryMigrationId,
+            originalMigrationId,
+            entities: [EntityType.CONTACTS],
+            dateRange: { start: new Date(0), end: new Date() },
+            batchSize: 100,
+            parallelism: 1,
+          });
+        }
+
+        // Batch-level chunk retry (timeouts, ENOTFOUND) with stored source_data.chunk
+        const batchErrors: { id: number; source_data: { chunk: any[] } }[] = await this.etlDb.query(
+          `SELECT id, source_data
+             FROM migration_errors
+             WHERE migration_id = $1
+               AND entity_type = $2
+               AND error_code = 'API_ERROR'
+               AND source_data ? 'chunk'`,
+          [originalMigrationId, entityType]
+        );
+
+        if (batchErrors.length > 0) {
+          const totalChunkApps = batchErrors.reduce(
+            (sum, r) => sum + (r.source_data.chunk?.length ?? 0),
+            0
+          );
+          this.logger.info('Retrying batch-level API errors with stored chunks', {
+            retryMigrationId,
+            entityType,
+            batchCount: batchErrors.length,
+            totalChunkApps,
+          });
+
+          const apiMethodName = ENTITY_API_METHOD_MAP[entityType];
+          if (apiMethodName) {
+            const apiMethod = (batch: any[]) => (this.apiClient as any)[apiMethodName](batch);
+            const subBatchSize = RETRY_BATCH_SIZE;
+
+            // Pre-load already-mapped IDs to skip them
+            const alreadyMapped: { agentcis_application_id: number }[] = await this.etlDb.query(
+              `SELECT agentcis_application_id FROM temp_mapped_applications`
+            );
+            const alreadyMappedSet = new Set(alreadyMapped.map((r) => r.agentcis_application_id));
+
+            // Create checkpoint if not yet created for this retry run
+            const existingCp = await this.checkpointService.getCheckpoint(
+              retryMigrationId,
+              entityType
+            );
+            const filteredTotal = batchErrors.reduce(
+              (sum, r) =>
+                sum +
+                (r.source_data.chunk?.filter(
+                  (item: any) => !alreadyMappedSet.has(item.agentcisApplicationId)
+                ).length ?? 0),
+              0
+            );
+            if (!existingCp) {
+              await this.checkpointService.createCheckpoint({
+                migrationId: retryMigrationId,
+                entityType,
+                totalCount: filteredTotal,
+                processedCount: 0,
+                successCount: 0,
+                failedCount: 0,
+                startedAt: new Date(),
+              });
+            }
+
+            // Seed from existing checkpoint so chunk values ADD to targetIds path values
+            let chunkProcessed = existingCp?.processedCount ?? 0;
+            let chunkSuccess = existingCp?.successCount ?? 0;
+            let chunkFailed = existingCp?.failedCount ?? 0;
+
+            for (const errorRow of batchErrors) {
+              const chunk = (errorRow.source_data.chunk ?? []).filter(
+                (item: any) => !alreadyMappedSet.has(item.agentcisApplicationId)
+              );
+              if (chunk.length === 0) continue;
+
+              for (let i = 0; i < chunk.length; i += subBatchSize) {
+                const subBatch = chunk.slice(i, i + subBatchSize);
+                const result = await this.batchProcessor.processBatch(
+                  subBatch as any,
+                  entityType,
+                  apiMethod,
+                  retryMigrationId,
+                  subBatchSize
+                );
+                chunkProcessed += subBatch.length;
+                chunkSuccess += result.successful;
+                chunkFailed += result.failed;
+
+                await this.checkpointService.updateCheckpoint(retryMigrationId, entityType, {
+                  processedCount: chunkProcessed,
+                  successCount: chunkSuccess,
+                  failedCount: chunkFailed,
+                  lastProcessedId: String(errorRow.id),
+                });
+              }
+            }
+
+            this.logger.info('Chunk retry completed', {
+              retryMigrationId,
+              entityType,
+              successCount: chunkSuccess,
+              failedCount: chunkFailed,
+            });
+          }
+        }
+      }
+
+      await this.updateMigrationJob(retryMigrationId, MigrationStatus.COMPLETED);
+      this.logger.info('Retry migration completed', { retryMigrationId, originalMigrationId });
+    })().catch(async (err) => {
+      this.logger.error('Retry migration failed', { retryMigrationId, error: String(err) });
+      await this.updateMigrationJob(retryMigrationId, MigrationStatus.FAILED, String(err));
+    });
+
+    return retryMigrationId;
   }
 
   async cancel(migrationId?: string): Promise<void> {

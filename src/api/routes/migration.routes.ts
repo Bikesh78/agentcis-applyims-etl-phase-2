@@ -95,6 +95,12 @@ router.post('/:id/resume', (req: Request, res: Response) => {
   controller.resumeMigration(req, res);
 });
 
+router.post('/:id/retry', (req: Request, res: Response) => {
+  const { orchestrator, checkpointService } = req.services!;
+  const controller = new MigrationController(orchestrator, checkpointService);
+  controller.retryMigration(req, res);
+});
+
 router.post('/:id/cancel', (req: Request, res: Response) => {
   const { orchestrator, checkpointService } = req.services!;
   const controller = new MigrationController(orchestrator, checkpointService);

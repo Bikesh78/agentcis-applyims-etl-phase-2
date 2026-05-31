@@ -22,6 +22,14 @@ export class AttachmentExtractor extends BaseExtractor<Attachment> {
     return await qb.getMany();
   }
 
+  async extractByIds(ids: number[]): Promise<Attachment[]> {
+    return this.dataSource
+      .getRepository(Attachment)
+      .createQueryBuilder('attachments')
+      .where('attachments.id IN (:...ids)', { ids })
+      .getMany();
+  }
+
   async getTotalCount(): Promise<number> {
     return await this.dataSource
       .getRepository(Attachment)

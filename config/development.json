@@ -17,7 +17,7 @@
   },
   "applyimsApi": {
     "url": "http://localhost:3000",
-    "timeout": 30000,
+    "timeout": 120000,
     "rateLimitRps": 60,
     "domain":"http://localhost",
     "origin":"http://localhost"

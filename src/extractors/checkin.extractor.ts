@@ -173,6 +173,133 @@ export class CheckinExtractor extends BaseExtractor<CheckinWithContext> {
     }));
   }
 
+  async extractByIds(ids: number[]): Promise<CheckinWithContext[]> {
+    if (ids.length === 0) return [];
+    const placeholders = ids.map(() => '?').join(',');
+    const rows: Record<string, unknown>[] = await this.dataSource.query(
+      `
+      WITH ranked AS (
+        SELECT
+          CAST(UNIX_TIMESTAMP(check_in_time) * 1000 AS UNSIGNED) AS id,
+          uuid,
+          attendee_email   AS attendeeEmail,
+          attendee_name    AS attendeeName,
+          host_email       AS hostEmail,
+          office_name      AS officeName,
+          visit_category   AS visitCategory,
+          visit_reason     AS visitReason,
+          check_in_time    AS checkInTime,
+          attended_time    AS attendedTime,
+          completed_time   AS completedTime,
+          ROW_NUMBER() OVER (
+            PARTITION BY uuid
+            ORDER BY
+              CASE WHEN host_email     IS NOT NULL THEN 0 ELSE 1 END,
+              CASE WHEN completed_time IS NOT NULL THEN 0 ELSE 1 END,
+              CASE WHEN attended_time  IS NOT NULL THEN 0 ELSE 1 END,
+              check_in_time DESC
+          ) AS rn
+        FROM checkins
+        WHERE old_id IS NULL
+          AND check_in_time IS NOT NULL
+          AND CAST(UNIX_TIMESTAMP(check_in_time) * 1000 AS UNSIGNED) IN (${placeholders})
+      )
+      SELECT * FROM ranked WHERE rn = 1
+      `,
+      ids
+    );
+
+    if (rows.length === 0) return [];
+
+    const visits = rows.map((r) => ({
+      id: Number(r['id']),
+      uuid: String(r['uuid']),
+      attendeeEmail: (r['attendeeEmail'] as string | null) ?? null,
+      attendeeName: (r['attendeeName'] as string | null) ?? null,
+      hostEmail: (r['hostEmail'] as string | null) ?? null,
+      officeName: (r['officeName'] as string | null) ?? null,
+      visitCategory: (r['visitCategory'] as string | null) ?? null,
+      visitReason: (r['visitReason'] as string | null) ?? null,
+      checkInTime: r['checkInTime'] ? new Date(r['checkInTime'] as string) : null,
+      attendedTime: r['attendedTime'] ? new Date(r['attendedTime'] as string) : null,
+      completedTime: r['completedTime'] ? new Date(r['completedTime'] as string) : null,
+    }));
+
+    const attendeeEmails = [
+      ...new Set(visits.map((v) => v.attendeeEmail).filter((e): e is string => !!e)),
+    ];
+    const hostEmails = [...new Set(visits.map((v) => v.hostEmail).filter((e): e is string => !!e))];
+    const checkinUuids = visits.map((v) => v.uuid);
+
+    const clientIdByEmail = new Map<string, number>();
+    if (attendeeEmails.length > 0) {
+      const clientRows: { id: number | string; email: string }[] = await this.dataSource.query(
+        `SELECT id, email FROM clients WHERE email IN (?)`,
+        [attendeeEmails]
+      );
+      for (const r of clientRows) clientIdByEmail.set(r.email, Number(r.id));
+    }
+
+    const userIdByEmail = new Map<string, number>();
+    if (hostEmails.length > 0) {
+      const userRows: { id: number | string; email: string }[] = await this.dataSource.query(
+        `SELECT id, email FROM users WHERE email IN (?)`,
+        [hostEmails]
+      );
+      for (const r of userRows) userIdByEmail.set(r.email, Number(r.id));
+    }
+
+    const unmatchedEmails = attendeeEmails.filter((e) => !clientIdByEmail.has(e));
+    const walkInUuidByEmail = new Map<string, string>();
+    if (unmatchedEmails.length > 0) {
+      const walkInRows: { email: string; applyimsContactId: string }[] = await this.etlDb.query(
+        `SELECT email, applyims_contact_id AS "applyimsContactId" FROM temp_mapped_walkin_contacts WHERE email = ANY($1)`,
+        [unmatchedEmails]
+      );
+      for (const r of walkInRows) walkInUuidByEmail.set(r.email, r.applyimsContactId);
+    }
+
+    const commentRows: {
+      checkInUuid: string;
+      commentByName: string | null;
+      commentTime: string | null;
+      comment: string;
+    }[] = await this.dataSource.query(
+      `
+      SELECT
+        check_in_uuid    AS checkInUuid,
+        comment_by_name  AS commentByName,
+        comment_time     AS commentTime,
+        comment
+      FROM checkin_comments
+      WHERE check_in_uuid IN (?)
+        AND comment IS NOT NULL
+        AND comment <> ''
+      ORDER BY check_in_uuid ASC, comment_time ASC
+      `,
+      [checkinUuids]
+    );
+
+    const commentsByUuid = new Map<string, CheckinComment[]>();
+    for (const r of commentRows) {
+      const list = commentsByUuid.get(r.checkInUuid) ?? [];
+      list.push({
+        authorName: r.commentByName ?? null,
+        commentTime: r.commentTime ? new Date(r.commentTime) : null,
+        comment: r.comment,
+      });
+      commentsByUuid.set(r.checkInUuid, list);
+    }
+
+    return visits.map((v) => ({
+      ...v,
+      clientId: v.attendeeEmail ? (clientIdByEmail.get(v.attendeeEmail) ?? null) : null,
+      hostUserId: v.hostEmail ? (userIdByEmail.get(v.hostEmail) ?? null) : null,
+      walkInContactUuid: v.attendeeEmail ? (walkInUuidByEmail.get(v.attendeeEmail) ?? null) : null,
+      comments: commentsByUuid.get(v.uuid) ?? [],
+    }));
+  }
+
   async getTotalCount(): Promise<number> {
     const result = await this.dataSource.query(
       `SELECT COUNT(DISTINCT uuid) AS total FROM checkins WHERE old_id IS NULL AND check_in_time IS NOT NULL`

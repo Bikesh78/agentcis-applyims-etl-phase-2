@@ -23,6 +23,15 @@ export class ContactExtractor extends BaseExtractor<Clients> {
     return await qb.getMany();
   }
 
+  async extractByIds(ids: number[]): Promise<Clients[]> {
+    return this.dataSource
+      .getRepository(Clients)
+      .createQueryBuilder('clients')
+      .leftJoinAndSelect('clients.followers', 'followers')
+      .where('clients.id IN (:...ids)', { ids })
+      .getMany();
+  }
+
   async getTotalCount(): Promise<number> {
     return await this.dataSource
       .getRepository(Clients)

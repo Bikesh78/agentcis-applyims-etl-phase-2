@@ -45,6 +45,14 @@ export class UserExtractor extends BaseExtractor<Users> {
     return qb.getMany();
   }
 
+  async extractByIds(ids: number[]): Promise<Users[]> {
+    return this.dataSource
+      .getRepository(Users)
+      .createQueryBuilder('users')
+      .where('users.id IN (:...ids)', { ids })
+      .getMany();
+  }
+
   async getTotalCount(): Promise<number> {
     return this.dataSource
       .getRepository(Users)
