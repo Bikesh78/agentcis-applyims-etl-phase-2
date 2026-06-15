@@ -22,6 +22,8 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
       return null;
     }
 
+    const dialCode = this.fieldMapper.getDialCode(source.phoneNumberCountryCode);
+
     const branchId = await this.idResolver.resolveBranchId(source.branchId);
     const assigneeId = await this.idResolver.resolveUserId(source.assignedTo);
     const archivedBy = await this.idResolver.resolveUserId(source.archivedBy);
@@ -65,7 +67,8 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
       lastName: lastName!,
       email,
       createdBy: createdBy!,
-      phone: this.fieldMapper.cleanPhone(source.phone, source.phoneNumberCountryCode),
+      phone: this.fieldMapper.cleanPhone(source.phone, dialCode),
+      countryCode: dialCode ? `+${dialCode}` : undefined,
       dateOfBirth: this.fieldMapper.formatDate(source.dob),
       source: this.mapSource(source.firstPointOfContact),
       postalCode: null,

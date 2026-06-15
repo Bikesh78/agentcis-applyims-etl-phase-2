@@ -1,7 +1,17 @@
+import { getCountryCallingCode, isSupportedCountry } from 'libphonenumber-js';
+
 export class FieldMapper {
   cleanEmail(email: string | null): string | null {
     if (!email) return null;
     return email.trim().toLowerCase();
+  }
+
+  // ISO alpha-2 (e.g. "NP") -> dial code without "+" (e.g. "977"); null if unknown.
+  getDialCode(isoCode: string | null): string | null {
+    if (!isoCode) return null;
+    const code = isoCode.trim().toUpperCase();
+    if (!isSupportedCountry(code)) return null;
+    return getCountryCallingCode(code);
   }
 
   cleanPhone(phone: string | null, countryCode: string | null): string | null {
