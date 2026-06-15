@@ -295,10 +295,14 @@ export class MappingRepository {
         serviceId: d.serviceId,
       }));
 
-      await this.etlDb.getRepository(TempMappedDeal).upsert(rows, {
-        conflictPaths: ['contactId', 'applicationId'],
-        skipUpdateIfNoValuesChanged: true,
-      });
+      await this.etlDb
+        .getRepository(TempMappedDeal)
+        .createQueryBuilder()
+        .insert()
+        .into(TempMappedDeal)
+        .values(rows)
+        .orIgnore()
+        .execute();
     }
   }
 }
