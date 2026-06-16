@@ -59,7 +59,6 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
     ];
 
     return {
-      ...source,
       id,
       agentcisClientId: `EEVS-` + source.id,
       agentcisInternalId: source.id,
@@ -84,6 +83,15 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
         ? (COUNTRIES_MAPS[Number(source.countryOfPassport)] ?? source.countryOfPassport)
         : null,
       followers,
+      createdAt: source.createdAt,
+      updatedAt: source.updatedAt,
+      street: source.street,
+      city: source.city,
+      state: source.state,
+      zipCode: source.zipCode,
+      preferredIntake: source.preferredIntake,
+      visaExpiryDate: source.visaExpiryDate,
+      visaType: source.visaType,
     };
   }
 
