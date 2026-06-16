@@ -35,9 +35,8 @@ export class FieldMapper {
   formatDate(date: Date | string | null): Date | null {
     if (!date) return null;
     const parsed = new Date(date);
-    if (isNaN(parsed.getTime())) {
-      return null;
-    }
+    if (isNaN(parsed.getTime())) return null;
+    if (parsed.getFullYear() < 1900) return null;
     return parsed;
   }
 

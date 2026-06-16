@@ -614,25 +614,14 @@ export class MigrationOrchestrator {
     );
     const etlMigratedAppIds = etlMigratedApps.map((r) => r.agentcis_application_id);
 
-    const alreadyStagedApps: { application_id: number }[] = await this.etlDb.query(
-      `SELECT DISTINCT application_id FROM temp_mapped_deals`
-    );
-    const alreadyStagedAppIds = alreadyStagedApps.map((r) => r.application_id);
+    const allExcludedAppIds = [...new Set([...priorMigratedAppIds, ...etlMigratedAppIds])];
 
-    const allExcludedAppIds = [
-      ...new Set([...priorMigratedAppIds, ...etlMigratedAppIds, ...alreadyStagedAppIds]),
-    ];
-
-    this.logger.info(
-      'Excluding prior-migrated, ETL-migrated, and already-staged applications from deal staging',
-      {
-        migrationId,
-        priorMigratedCount: priorMigratedAppIds.length,
-        etlMigratedCount: etlMigratedAppIds.length,
-        alreadyStagedCount: alreadyStagedAppIds.length,
-        totalExcluded: allExcludedAppIds.length,
-      }
-    );
+    this.logger.info('Excluding prior-migrated and ETL-migrated applications from deal staging', {
+      migrationId,
+      priorMigratedCount: priorMigratedAppIds.length,
+      etlMigratedCount: etlMigratedAppIds.length,
+      totalExcluded: allExcludedAppIds.length,
+    });
 
     const applications: StagingDealApplications[] = await this.agentcisDb
       .createQueryBuilder()
