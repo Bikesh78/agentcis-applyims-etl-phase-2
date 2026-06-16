@@ -6,6 +6,7 @@ import {
   FallbackStrategy,
   ResolverStrategy,
 } from './resolver-strategy.js';
+import { InstitutionResolver } from './institution-resolver.js';
 
 type EntityType =
   | 'branches'
@@ -44,12 +45,15 @@ const ENTITY_TYPES: EntityType[] = [
 
 export class IdResolver {
   private readonly strategies: Record<EntityType, ResolverStrategy>;
+  private readonly institutionResolver: InstitutionResolver;
 
   constructor(
     strategies: Record<EntityType, ResolverStrategy>,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    institutionResolver?: InstitutionResolver
   ) {
     this.strategies = strategies;
+    this.institutionResolver = institutionResolver ?? new InstitutionResolver(logger);
   }
 
   private static createDefaultResolver(
@@ -203,8 +207,13 @@ export class IdResolver {
     return this.resolve('institutionBranches', institutionBranchesId);
   }
 
-  async resolveInstitutions(institutionId: number): Promise<string | null> {
-    return this.resolve('institutions', institutionId);
+  async resolveInstitutions(
+    vendorId: number,
+    vendorBranchId: number,
+    productId: number,
+    serviceId: number
+  ): Promise<string | null> {
+    return this.institutionResolver.resolve(vendorId, vendorBranchId, productId, serviceId);
   }
 
   async resolveApplicationId(agentcisApplicationId: number): Promise<string | null> {

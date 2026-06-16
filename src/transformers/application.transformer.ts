@@ -40,7 +40,12 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
     const institutionBranchId = await this.idResolver.resolveInstitutionBranchesId(
       source.vendorBranchId
     );
-    const institutionId = await this.idResolver.resolveInstitutions(source.products.vendorId);
+    const institutionId = await this.idResolver.resolveInstitutions(
+      source.products.vendorId,
+      source.vendorBranchId,
+      source.products.id,
+      source.serviceId
+    );
 
     const assigneeIds = source.applicationAssignees?.map((a) => a.assigneeId) ?? [];
     const dealId = await this.idResolver.resolveDealId(source.id);
