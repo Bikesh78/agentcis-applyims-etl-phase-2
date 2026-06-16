@@ -99,6 +99,9 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
     if (!target.email) {
       throw new Error(`Invalid email: ${target.email}`);
     }
+    if (/[\[\]<>(){}\\,;:]/.test(target.email)) {
+      throw new Error(`Invalid email characters: ${target.email}`);
+    }
     if (!isUuid(target.id)) {
       throw new Error(`Invalid UUID: ${target.id}`);
     }
