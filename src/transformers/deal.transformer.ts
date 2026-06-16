@@ -28,7 +28,7 @@ export class DealTransformer {
       },
       enquiryId: null,
       createdAt: mappedDeal.minimumDate as Date,
-      updatedAt: new Date(),
+      updatedAt: mappedDeal.maxDate as Date,
     };
   }
 }
