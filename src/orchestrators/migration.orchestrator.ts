@@ -195,9 +195,9 @@ export class MigrationOrchestrator {
           await this.populateDealStaging(config);
         }
 
-        if (entityType === EntityType.ATTACHMENTS) {
-          await this.copyS3FilesForMedias(config.migrationId);
-        }
+        // if (entityType === EntityType.ATTACHMENTS) {
+        //   await this.copyS3FilesForMedias(config.migrationId);
+        // }
       }
 
       await this.updateMigrationJob(migrationId, MigrationStatus.COMPLETED);
