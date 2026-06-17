@@ -18,8 +18,8 @@ export class ApplicationStages {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-  // @Column({ type: 'int', unsigned: true, name: 'application_id' })
-  // applicationId: number;
+  @Column({ type: 'int', unsigned: true, name: 'application_id' })
+  applicationId: number;
 
   @Column({ type: 'int', unsigned: true, name: 'stage_id' })
   stageId: number;

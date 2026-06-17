@@ -516,7 +516,11 @@ export class MigrationOrchestrator {
       }
       case EntityType.ATTACHMENTS: {
         const extractor = new AttachmentExtractor(this.agentcisDb, config);
-        const transformer = AttachmentTransformer.create(this.createIdResolver(), this.etlDb);
+        const transformer = AttachmentTransformer.create(
+          this.createIdResolver(),
+          this.etlDb,
+          this.agentcisDb
+        );
         return {
           extractor: extractor as unknown as BaseExtractor<SourceEntity>,
           transformer: {

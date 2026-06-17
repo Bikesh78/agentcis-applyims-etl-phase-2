@@ -4,6 +4,7 @@ import { BaseTransformer } from './base.transformer.js';
 import { isUuid } from './utils/validators.js';
 import { FieldMapper } from './utils/field-mappers.js';
 import { Attachment, AttachmentableType } from '../entities/agentcis/attachments.entity.js';
+import { ApplicationStages } from '../entities/agentcis/application-stages.entity.js';
 import { ApplyIMSMedia, SubjectType } from '../entities/applyims/media.entity.js';
 import { MappingRepository } from '../repositories/mapping.repository.js';
 import { SkipByDesignError } from '../loaders/error-recovery.js';
@@ -12,15 +13,20 @@ export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSM
   constructor(
     idResolver: IdResolver,
     private fieldMapper: FieldMapper,
-    private mappingRepo: MappingRepository
+    private mappingRepo: MappingRepository,
+    private agentcisDb: DataSource
   ) {
     super(idResolver);
   }
 
-  static create(idResolver: IdResolver, etlDb: DataSource): AttachmentTransformer {
+  static create(
+    idResolver: IdResolver,
+    etlDb: DataSource,
+    agentcisDb: DataSource
+  ): AttachmentTransformer {
     const fieldMapper = new FieldMapper();
     const mappingRepo = new MappingRepository(etlDb);
-    return new AttachmentTransformer(idResolver, fieldMapper, mappingRepo);
+    return new AttachmentTransformer(idResolver, fieldMapper, mappingRepo, agentcisDb);
   }
 
   protected async transformImpl(source: Attachment, id: string): Promise<ApplyIMSMedia | null> {
@@ -30,13 +36,19 @@ export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSM
       throw new SkipByDesignError(`Unsupported attachmentableType: ${source.attachmentableType}`);
     }
 
+    const applicationId =
+      source.attachmentableType === 'application_stage'
+        ? await this.getApplicationIdFromStage(source.attachmentableId)
+        : null;
+
     const subjectId = await this.resolveSubjectId(
       source.attachmentableType,
-      source.attachmentableId
+      source.attachmentableId,
+      applicationId
     );
     const createdBy = source.uploader ? await this.idResolver.resolveUserId(source.uploader) : null;
 
-    const destinationPath = await this.resolvePath(source);
+    const destinationPath = await this.resolvePath(source, applicationId);
     const bucketFileName = this.getBucketFileName(source.originalName, source.createdAt);
     const destinationS3Key = `${destinationPath}/${bucketFileName}`;
 
@@ -72,13 +84,24 @@ export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSM
     }
   }
 
+  private async getApplicationIdFromStage(stageId: number): Promise<number> {
+    const stage = await this.agentcisDb
+      .getRepository(ApplicationStages)
+      .findOne({ where: { id: stageId }, select: ['applicationId'] });
+    if (!stage) {
+      throw new Error(`Cannot find application_stage ${stageId}`);
+    }
+    return stage.applicationId;
+  }
+
   private async resolveSubjectId(
     attachmentableType: AttachmentableType,
-    attachmentableId: number
+    attachmentableId: number,
+    applicationId: number | null
   ): Promise<string | null> {
     switch (attachmentableType) {
       case 'application_stage':
-        return await this.idResolver.resolveApplicationId(attachmentableId);
+        return await this.idResolver.resolveApplicationId(applicationId!);
       case 'client':
         return await this.idResolver.resolveContactId(attachmentableId);
       default:
@@ -86,17 +109,16 @@ export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSM
     }
   }
 
-  private async resolvePath(source: Attachment): Promise<string> {
+  private async resolvePath(source: Attachment, applicationId: number | null): Promise<string> {
     switch (source.attachmentableType) {
       case 'client':
         return `contact__agentcis_${source.attachmentableId}/Contact-Documents`;
       case 'application_stage': {
-        const agentcisAppId = source.attachmentableId;
-        const clientId = await this.mappingRepo.getClientIdByApplication(agentcisAppId);
+        const clientId = await this.mappingRepo.getClientIdByApplication(applicationId!);
         if (!clientId) {
-          throw new Error(`Cannot resolve client ID for application ${agentcisAppId}`);
+          throw new Error(`Cannot resolve client ID for application ${applicationId}`);
         }
-        return `contacts/contact__agentcis_${clientId}/applications/application__agentcis-${source.attachmentableId}/stage__application/supporting-documents`;
+        return `contacts/contact__agentcis_${clientId}/applications/application__agentcis-${applicationId}/stage__application/supporting-documents`;
       }
       default:
         throw new Error(`Unsupported attachmentableType: ${source.attachmentableType}`);
