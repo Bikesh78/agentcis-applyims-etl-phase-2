@@ -33,19 +33,35 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
     const contactId = await this.idResolver.resolveContactId(source.clientId);
     const branchId = await this.idResolver.resolveBranchId(source.addedByBranchId);
     let createdBy = await this.idResolver.resolveUserId(source.creatorId);
-    const workflowId = await this.idResolver.resolveWorkflowId(source.serviceId);
     const workflowStagesId = await this.idResolver.resolveWorkflowStagesId(source.currentStage);
-    const productId = await this.idResolver.resolveProductId(source.products.id);
     const agentId = await this.idResolver.resolveAgentId(source.referrers?.id);
-    const institutionBranchId = await this.idResolver.resolveInstitutionBranchesId(
-      source.vendorBranchId
-    );
-    const institutionId = await this.idResolver.resolveInstitutions(
+
+    // Resolve institution / branch / product / workflow together from the master mapper
+    // so they share one context-correct row. The same agentcis id maps to different
+    // applyims UUIDs per (vendor, branch, product, service) tuple, so single-key lookups
+    // would fabricate combinations absent from the destination catalogue. Fall back to
+    // the single-key resolvers when the 4-key (or a field) is missing from the mapper.
+    const combination = await this.idResolver.resolveCombination(
       source.products.vendorId,
       source.vendorBranchId,
       source.products.id,
       source.serviceId
     );
+    const workflowId =
+      combination?.workflowId ?? (await this.idResolver.resolveWorkflowId(source.serviceId));
+    const productId =
+      combination?.productId ?? (await this.idResolver.resolveProductId(source.products.id));
+    const institutionBranchId =
+      combination?.institutionBranchId ??
+      (await this.idResolver.resolveInstitutionBranchesId(source.vendorBranchId));
+    const institutionId =
+      combination?.institutionId ??
+      (await this.idResolver.resolveInstitutions(
+        source.products.vendorId,
+        source.vendorBranchId,
+        source.products.id,
+        source.serviceId
+      ));
 
     const assigneeIds = source.applicationAssignees?.map((a) => a.assigneeId) ?? [];
     const dealId = await this.idResolver.resolveDealId(source.id);

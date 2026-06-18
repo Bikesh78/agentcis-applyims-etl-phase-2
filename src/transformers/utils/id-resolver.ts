@@ -7,6 +7,7 @@ import {
   ResolverStrategy,
 } from './resolver-strategy.js';
 import { InstitutionResolver } from './institution-resolver.js';
+import { CombinationResolver, ResolvedCombination } from './combination-resolver.js';
 
 type EntityType =
   | 'branches'
@@ -46,14 +47,17 @@ const ENTITY_TYPES: EntityType[] = [
 export class IdResolver {
   private readonly strategies: Record<EntityType, ResolverStrategy>;
   private readonly institutionResolver: InstitutionResolver;
+  private readonly combinationResolver: CombinationResolver;
 
   constructor(
     strategies: Record<EntityType, ResolverStrategy>,
     private readonly logger: Logger,
-    institutionResolver?: InstitutionResolver
+    institutionResolver?: InstitutionResolver,
+    combinationResolver?: CombinationResolver
   ) {
     this.strategies = strategies;
     this.institutionResolver = institutionResolver ?? new InstitutionResolver(logger);
+    this.combinationResolver = combinationResolver ?? new CombinationResolver(logger);
   }
 
   private static createDefaultResolver(
@@ -214,6 +218,21 @@ export class IdResolver {
     serviceId: number
   ): Promise<string | null> {
     return this.institutionResolver.resolve(vendorId, vendorBranchId, productId, serviceId);
+  }
+
+  /**
+   * Resolves institution / branch / product / workflow together from the master mapper
+   * by the full 4-key, so the application gets the context-correct UUIDs. Returns null
+   * when the 4-key is not present; individual fields may be null when the mapper row
+   * lacks them — callers should fall back to the single-key resolvers in both cases.
+   */
+  async resolveCombination(
+    vendorId: number,
+    vendorBranchId: number,
+    productId: number,
+    serviceId: number
+  ): Promise<ResolvedCombination | null> {
+    return this.combinationResolver.resolve(vendorId, vendorBranchId, productId, serviceId);
   }
 
   async resolveApplicationId(agentcisApplicationId: number): Promise<string | null> {
