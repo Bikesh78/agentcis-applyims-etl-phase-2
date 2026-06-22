@@ -10,6 +10,7 @@ export interface MigrationConfig {
   };
   batchSize: number;
   parallelism: number;
+  concurrency?: number;
   resumeFrom?: {
     checkpointId: string;
   };

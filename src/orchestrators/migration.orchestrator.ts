@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DataSource } from 'typeorm';
+import pLimit from 'p-limit';
 import { BaseExtractor, ExtractorConfig } from '../extractors/base.extractor.js';
 import { ContactExtractor } from '../extractors/contact.extractor.js';
 import { ApplicationExtractor } from '../extractors/application.extractor.js';
@@ -278,6 +279,99 @@ export class MigrationOrchestrator {
     let failedCount = 0;
     let skippedCount = 0;
 
+    const concurrency = config.concurrency ?? 1;
+    const limit = pLimit(concurrency);
+    const batchResults = new Map<
+      number,
+      { result: ProcessResult; batch: SourceEntity[]; transformedLength: number }
+    >();
+    let nextCheckpointBatchIndex = 0;
+    let batchIndex = 0;
+
+    const processBatchAndQueue = async (
+      transformed: TargetEntity[],
+      batch: SourceEntity[],
+      index: number,
+      transformedLength: number
+    ): Promise<void> => {
+      const batchStartTime = Date.now();
+      const result = await this.batchProcessor.processBatch(
+        transformed as ApplyIMSContact[],
+        entityType,
+        handlers.apiMethod as (batch: ApplyIMSContact[]) => Promise<BulkResponse>,
+        migrationId,
+        config.batchSize
+      );
+      const batchElapsedMs = Date.now() - batchStartTime;
+
+      if (entityType === EntityType.ATTACHMENTS) {
+        for (const media of transformed as ApplyIMSMedia[]) {
+          if (media.agentcisInternalId && media.sourceS3Key && media.destinationS3Key) {
+            try {
+              await this.mappingRepository.updateMediaS3Keys(
+                media.agentcisInternalId,
+                media.sourceS3Key,
+                media.destinationS3Key
+              );
+            } catch (err) {
+              this.logger.error('Failed to update S3 keys for media', {
+                migrationId,
+                mediaId: media.agentcisInternalId,
+                error: String(err),
+              });
+            }
+          }
+        }
+      }
+
+      batchResults.set(index, { result, batch, transformedLength });
+
+      while (batchResults.has(nextCheckpointBatchIndex)) {
+        const {
+          result: batchResult,
+          batch: batchData,
+          transformedLength: txLen,
+        } = batchResults.get(nextCheckpointBatchIndex)!;
+        batchResults.delete(nextCheckpointBatchIndex);
+
+        successCount += batchResult.successful;
+        failedCount += batchResult.failed;
+        skippedCount += batchResult.skipped;
+
+        if (txLen < batchData.length) {
+          processedCount += batchData.length;
+        } else {
+          processedCount += txLen;
+        }
+
+        await this.checkpointService.updateCheckpoint(migrationId, entityType, {
+          processedCount,
+          successCount,
+          failedCount,
+          lastProcessedId: String(batchData[batchData.length - 1]?.id ?? ''),
+        });
+
+        const percentage = ((processedCount / totalCount) * 100).toFixed(2);
+        const elapsedMs = Date.now() - entityStartTime;
+        this.logger.progress('Entity progress update', {
+          migrationId,
+          entityType,
+          processedCount,
+          totalCount,
+          percentage,
+          elapsedMs,
+          batchElapsedMs,
+          successful: batchResult.successful,
+          failed: batchResult.failed,
+          skipped: batchResult.skipped,
+        });
+
+        nextCheckpointBatchIndex++;
+      }
+    };
+
+    const promises: Array<Promise<void>> = [];
+
     for await (const batch of handlers.extractor.extractAll()) {
       if (this.isCancelled) break;
 
@@ -361,72 +455,18 @@ export class MigrationOrchestrator {
             transformFailed: batchTransformFailed,
           });
         }
+        skippedCount += batch.length;
         continue;
       }
 
-      if (transformed.length < batch.length) {
-        processedCount += batch.length;
-      } else {
-        processedCount += transformed.length;
-      }
-
-      const batchStartTime = Date.now();
-      const result: ProcessResult = await this.batchProcessor.processBatch(
-        transformed as ApplyIMSContact[],
-        entityType,
-        handlers.apiMethod as (batch: ApplyIMSContact[]) => Promise<BulkResponse>,
-        migrationId,
-        config.batchSize
+      const currentBatchIndex = batchIndex++;
+      const promise = limit(() =>
+        processBatchAndQueue(transformed, batch, currentBatchIndex, transformed.length)
       );
-      const batchElapsedMs = Date.now() - batchStartTime;
-
-      if (entityType === EntityType.ATTACHMENTS) {
-        for (const media of transformed as ApplyIMSMedia[]) {
-          if (media.agentcisInternalId && media.sourceS3Key && media.destinationS3Key) {
-            try {
-              await this.mappingRepository.updateMediaS3Keys(
-                media.agentcisInternalId,
-                media.sourceS3Key,
-                media.destinationS3Key
-              );
-            } catch (err) {
-              this.logger.error('Failed to update S3 keys for media', {
-                migrationId,
-                mediaId: media.agentcisInternalId,
-                error: String(err),
-              });
-            }
-          }
-        }
-      }
-
-      successCount += result.successful;
-      failedCount += result.failed;
-      skippedCount += result.skipped;
-
-      await this.checkpointService.updateCheckpoint(migrationId, entityType, {
-        processedCount,
-        successCount,
-        failedCount,
-        lastProcessedId: String(batch[batch.length - 1]?.id),
-      });
-
-      const percentage = ((processedCount / totalCount) * 100).toFixed(2);
-      const elapsedMs = Date.now() - entityStartTime;
-      this.logger.progress('Entity progress update', {
-        migrationId,
-        entityType,
-        processedCount,
-        totalCount,
-        percentage,
-        elapsedMs,
-        batchElapsedMs,
-        successful: result.successful,
-        failed: result.failed,
-        skipped: batchTransformSkipped + result.skipped,
-        transformFailed: batchTransformFailed,
-      });
+      promises.push(promise);
     }
+
+    await Promise.all(promises);
 
     await this.checkpointService.updateCheckpoint(migrationId, entityType, {
       completedAt: new Date(),
