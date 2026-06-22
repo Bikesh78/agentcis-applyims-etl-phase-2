@@ -181,36 +181,6 @@ export class ApplyIMSApiClient {
     return response.data.data;
   }
 
-  async getContactByEmail(email: string): Promise<ExistingContactInfo | null> {
-    const normalized = email.trim().toLowerCase();
-    try {
-      const response = await this.axiosInstance.get('/v1/contacts', {
-        params: { email: normalized, limit: 1 },
-      });
-      const rows = (response.data?.data ?? response.data) as unknown;
-      const first = Array.isArray(rows)
-        ? rows[0]
-        : Array.isArray((rows as { data?: unknown[] })?.data)
-          ? (rows as { data: unknown[] }).data[0]
-          : null;
-      if (!first || typeof first !== 'object') return null;
-      const row = first as { id?: string; firstName?: string; lastName?: string; email?: string };
-      if (!row.id) return null;
-      return {
-        id: row.id,
-        firstName: row.firstName ?? '',
-        lastName: row.lastName ?? '',
-        email: row.email ?? normalized,
-      };
-    } catch (err) {
-      this.logger.warn('getContactByEmail lookup failed', {
-        email: normalized,
-        error: err instanceof Error ? err.message : String(err),
-      });
-      return null;
-    }
-  }
-
   async bulkCreateContacts(contacts: ApplyIMSContact[]): Promise<BulkResponse> {
     const response = await this.axiosInstance.post('/v1/contacts/bulk', { contacts });
     return response.data.data;

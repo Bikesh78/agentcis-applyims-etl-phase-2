@@ -111,6 +111,21 @@ export class MappingRepository {
     );
   }
 
+  async storeContactMappingIfAbsent(migrationId: string, data: ContactMappingData): Promise<void> {
+    await this.etlDb
+      .getRepository(TempMappedContact)
+      .createQueryBuilder()
+      .insert()
+      .into(TempMappedContact)
+      .values({
+        agentcisContactId: parseInt(data.agentcisId),
+        applyimsContactId: data.applyimsId,
+        migrationId,
+      })
+      .orIgnore() // Postgres ON CONFLICT (agentcis_contact_id) DO NOTHING — never overwrite
+      .execute();
+  }
+
   async storeApplicationMapping(migrationId: string, data: ApplicationMappingData): Promise<void> {
     await this.etlDb.getRepository(TempMappedApplication).upsert(
       {

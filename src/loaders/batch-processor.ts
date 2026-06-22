@@ -1,5 +1,5 @@
 import pLimit from 'p-limit';
-import { ApplyIMSApiClient, BulkResponse, ExistingContactInfo } from './api-client.js';
+import { ApplyIMSApiClient, BulkResponse } from './api-client.js';
 import { MappingRepository, StoreMappingInput } from '../repositories/mapping.repository.js';
 import { EntityType } from '../constants/entity-types.js';
 import { ErrorRecoveryManager, ErrorCategory } from './error-recovery.js';
@@ -81,12 +81,12 @@ export class BatchProcessor {
         }
       }
 
+      let recoveredCount = 0;
       if (response.failed && response.failed.length > 0) {
         for (const failedRecord of response.failed) {
           const recovered = await this.tryRecoverDuplicateEmailContact(
             failedRecord,
             entityType,
-            items,
             effectiveMappingId
           );
 
@@ -100,6 +100,7 @@ export class BatchProcessor {
                 );
 
           if (recovered) {
+            recoveredCount += 1;
             results.successful += 1;
             results.errors.push({
               entityType,
@@ -129,7 +130,7 @@ export class BatchProcessor {
       }
 
       results.successful += successCount;
-      results.failed += failedCount;
+      results.failed += failedCount - recoveredCount;
 
       this.logger.info(`Batch completed for ${entityType}`, {
         successful: successCount,
@@ -220,16 +221,17 @@ export class BatchProcessor {
         } as StoreMappingInput);
       }
 
+      let recoveredCount = 0;
       if (response.failed && response.failed.length > 0) {
         for (const failedRecord of response.failed) {
           const recovered = await this.tryRecoverDuplicateEmailContact(
             failedRecord,
             entityType,
-            chunk,
             migrationId
           );
 
           if (recovered) {
+            recoveredCount += 1;
             result.successful += 1;
             result.errors.push({
               entityType,
@@ -249,7 +251,7 @@ export class BatchProcessor {
       }
 
       result.successful += successCount;
-      result.failed += failedCount;
+      result.failed += failedCount - recoveredCount;
 
       this.logger.info(`Concurrent batch ${batchIndex + 1} completed for ${entityType}`, {
         successful: successCount,
@@ -266,7 +268,6 @@ export class BatchProcessor {
   private async tryRecoverDuplicateEmailContact(
     failedRecord: BulkResponse['failed'][number],
     entityType: EntityType | string,
-    sentItems: ReadonlyArray<unknown>,
     migrationId: string
   ): Promise<boolean> {
     if (entityType !== 'contacts') return false;
@@ -277,55 +278,22 @@ export class BatchProcessor {
         DUPLICATE_EMAIL_MESSAGE_REGEX.test(failedRecord.error));
     if (!looksLikeDuplicateEmail) return false;
 
-    let existingContact: ExistingContactInfo | undefined = failedRecord.existingContact as
-      | ExistingContactInfo
+    const existingContact = failedRecord.existingContact as
+      | { id: string; email: string; firstName: string; lastName: string }
       | undefined;
+    if (!existingContact) return false;
 
-    if (!existingContact) {
-      const internalIdStr = String(failedRecord.internalId);
-      const original = sentItems.find((it) => {
-        const rec = it as { agentcisInternalId?: number | string; agentcisClientId?: string };
-        return (
-          String(rec.agentcisInternalId ?? '') === internalIdStr ||
-          rec.agentcisClientId === internalIdStr
-        );
-      }) as { email?: string } | undefined;
-
-      if (!original?.email) {
-        this.logger.warn(
-          'Duplicate email failure but no email on original item — skipping recovery',
-          {
-            agentcisId: failedRecord.internalId,
-          }
-        );
-        return false;
-      }
-
-      const looked = await this.apiClient.getContactByEmail(original.email);
-      if (!looked) {
-        this.logger.warn(
-          'Duplicate email failure but lookup found no existing contact — skipping recovery',
-          {
-            agentcisId: failedRecord.internalId,
-            email: original.email,
-          }
-        );
-        return false;
-      }
-      existingContact = looked;
-    }
-
-    this.logger.info('Recovered duplicate-email contact via lookup', {
+    this.logger.info('Recovered duplicate-email contact', {
       agentcisId: failedRecord.internalId,
       applyimsId: existingContact.id,
       email: existingContact.email,
     });
 
     try {
-      await this.mappingRepository.storeMapping(migrationId, {
-        entityType: EntityType.CONTACTS,
-        data: { agentcisId: failedRecord.internalId, applyimsId: existingContact.id },
-      } as StoreMappingInput);
+      await this.mappingRepository.storeContactMappingIfAbsent(migrationId, {
+        agentcisId: String(failedRecord.internalId),
+        applyimsId: existingContact.id,
+      });
     } catch (err) {
       this.logger.error('Failed to store recovered duplicate-email mapping', {
         agentcisId: failedRecord.internalId,
