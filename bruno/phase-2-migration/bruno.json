@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "phase-2-migration",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

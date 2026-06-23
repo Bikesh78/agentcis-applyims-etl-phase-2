@@ -1,0 +1,31 @@
+meta {
+  name: Start Migration
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/api/migration/start
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "entities": [
+      //"users"
+      //"agents"
+      //"contacts",
+      //"deals"
+      "applications"
+      
+    ],
+    "dateRange": {
+      "start": "2016-01-01T00:00:00Z",
+      "end": "2026-12-31T23:59:59Z"
+    },
+    "batchSize": 500,
+    "parallelism": 5,
+    "concurrency": 3
+  }
+}

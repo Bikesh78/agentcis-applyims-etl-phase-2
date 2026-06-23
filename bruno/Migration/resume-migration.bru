@@ -1,0 +1,21 @@
+meta {
+  name: Resume Migration
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{BASE_URL}}/api/migration/:migration_id/resume
+}
+
+body:json {
+  {
+    "entities": ["users", "contacts"],
+    "dateRange": {
+      "start": "2025-01-01T00:00:00Z",
+      "end": "2026-12-31T23:59:59Z"
+    },
+    "batchSize": 500,
+    "parallelism": 5
+  }
+}
