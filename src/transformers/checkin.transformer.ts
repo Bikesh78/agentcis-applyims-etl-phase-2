@@ -15,6 +15,10 @@ export class CheckinTransformer extends BaseTransformer<CheckinWithContext, Appl
     super(idResolver);
   }
 
+  protected getSourceId(source: CheckinWithContext): string {
+    return `checkin:${source.uuid}`;
+  }
+
   protected async transformImpl(
     source: CheckinWithContext,
     id: string

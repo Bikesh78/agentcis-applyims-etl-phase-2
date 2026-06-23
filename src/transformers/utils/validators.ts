@@ -6,7 +6,8 @@ export const isEmail = (email: string): boolean => {
 };
 
 export const isUuid = (id: string): boolean => {
-  const uuidSchema = Joi.string().guid({ version: 'uuidv4' });
+  // Accept v4 (API-issued IDs) and v5 (ETL-generated deterministic IDs).
+  const uuidSchema = Joi.string().guid({ version: ['uuidv4', 'uuidv5'] });
   return !uuidSchema.validate(id).error;
 };
 

@@ -29,6 +29,10 @@ export class AttachmentTransformer extends BaseTransformer<Attachment, ApplyIMSM
     return new AttachmentTransformer(idResolver, fieldMapper, mappingRepo, agentcisDb);
   }
 
+  protected getSourceId(source: Attachment): string {
+    return `attachment:${source.id}`;
+  }
+
   protected async transformImpl(source: Attachment, id: string): Promise<ApplyIMSMedia | null> {
     const supportedTypes: AttachmentableType[] = ['application_stage', 'client'];
 

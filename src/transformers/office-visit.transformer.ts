@@ -14,6 +14,10 @@ export class OfficeVisitTransformer extends BaseTransformer<
     super(idResolver);
   }
 
+  protected getSourceId(source: OfficeVisitWithNotes): string {
+    return `office-visit:${source.id}`;
+  }
+
   protected async transformImpl(
     source: OfficeVisitWithNotes,
     id: string

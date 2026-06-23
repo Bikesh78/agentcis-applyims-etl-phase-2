@@ -11,6 +11,10 @@ export class NoteTransformer extends BaseTransformer<AgentcisNoteWithRelations, 
     super(idResolver);
   }
 
+  protected getSourceId(source: AgentcisNoteWithRelations): string {
+    return `note:${source.id}`;
+  }
+
   protected async transformImpl(
     source: AgentcisNoteWithRelations,
     id: string

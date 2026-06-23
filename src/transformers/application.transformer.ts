@@ -21,6 +21,10 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
     super(idResolver);
   }
 
+  protected getSourceId(source: Applications): string {
+    return `application:${source.id}`;
+  }
+
   protected async transformImpl(
     source: Applications,
     id: string

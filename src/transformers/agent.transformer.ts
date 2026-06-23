@@ -13,6 +13,10 @@ export class AgentTransformer extends BaseTransformer<ReferrerBatch, ApplyIMSAge
     super(idResolver);
   }
 
+  protected getSourceId(source: ReferrerBatch): string {
+    return `agent:${source.id}`;
+  }
+
   protected async transformImpl(source: ReferrerBatch): Promise<ApplyIMSAgentPartner | null> {
     const result: ApplyIMSAgentPartner = {
       agentcisId: source.id,

@@ -20,6 +20,10 @@ export class ContactActivityTransformer extends BaseTransformer<
     super(idResolver);
   }
 
+  protected getSourceId(source: ApplicationActivityWithRelations): string {
+    return `contact-activity:${source.id}`;
+  }
+
   protected async transformImpl(
     source: ApplicationActivityWithRelations,
     id: string

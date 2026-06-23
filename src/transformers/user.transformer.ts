@@ -13,6 +13,10 @@ export class UserTransformer extends BaseTransformer<Users, ApplyIMSUser> {
     super(idResolver);
   }
 
+  protected getSourceId(source: Users): string {
+    return `user:${source.id}`;
+  }
+
   protected async transformImpl(source: Users, id: string): Promise<ApplyIMSUser | null> {
     if (source.branchId == null) {
       throw new Error(`User ${source.id} has no branch_id`);

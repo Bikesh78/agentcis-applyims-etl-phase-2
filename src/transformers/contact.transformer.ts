@@ -15,6 +15,10 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
     super(idResolver);
   }
 
+  protected getSourceId(source: Clients): string {
+    return `contact:${source.id}`;
+  }
+
   protected async transformImpl(source: Clients, id: string): Promise<ApplyIMSContact | null> {
     // console.log('source', source)
     const existingContactId = await this.idResolver.checkContactId(source.id);
@@ -99,6 +103,7 @@ export class ContactTransformer extends BaseTransformer<Clients, ApplyIMSContact
     if (!target.email) {
       throw new Error(`Invalid email: ${target.email}`);
     }
+    // eslint-disable-next-line no-useless-escape
     if (/[\[\]<>(){}\\,;:]/.test(target.email)) {
       throw new Error(`Invalid email characters: ${target.email}`);
     }
