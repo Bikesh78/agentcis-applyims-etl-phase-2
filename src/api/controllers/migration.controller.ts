@@ -14,6 +14,7 @@ interface MigrationRequest {
   };
   batchSize: number;
   parallelism: number;
+  concurrency: number;
 }
 
 export const startMigrationSchema = Joi.object<MigrationRequest>({
@@ -24,6 +25,7 @@ export const startMigrationSchema = Joi.object<MigrationRequest>({
   }).required(),
   batchSize: Joi.number().integer().positive().default(500),
   parallelism: Joi.number().integer().positive().default(5),
+  concurrency: Joi.number().integer().min(1).default(1),
 });
 
 interface CustomRequest extends Request {
@@ -55,7 +57,7 @@ export class MigrationController {
         return;
       }
 
-      const { entities, dateRange, batchSize, parallelism } = value;
+      const { entities, dateRange, batchSize, parallelism, concurrency } = value;
       const migrationId = crypto.randomUUID();
 
       const migrationConfig: MigrationConfig = {
@@ -67,6 +69,7 @@ export class MigrationController {
         },
         batchSize,
         parallelism,
+        concurrency,
       };
 
       this.orchestrator!.runMigration(migrationConfig).catch((err) => {
