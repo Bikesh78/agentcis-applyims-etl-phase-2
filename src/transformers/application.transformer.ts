@@ -157,6 +157,9 @@ export class ApplicationTransformer extends BaseTransformer<Applications, ApplyI
     if (!isUuid(target.dealId)) {
       throw new Error(`Invalid DealId: ${target.dealId}`);
     }
+    if (!isUuid(target.productId)) {
+      throw new Error(`Invalid ProductId: ${target.productId}`);
+    }
   }
 
   private getAgentPartner(referrer: Referrers | null, applyimsId: string): AgentPartner {
