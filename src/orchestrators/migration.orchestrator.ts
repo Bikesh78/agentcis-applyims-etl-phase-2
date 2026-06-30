@@ -71,6 +71,8 @@ import { S3CopyService } from '../services/s3-copy.service.js';
 import { S3BucketConfig } from '../configs/s3-bucket.config.js';
 import { TenantConfig } from '../configs/tenant.config.js';
 import { ApplicationActivities } from 'entities/agentcis/application-activities.entity.js';
+import { v5 as uuidv5 } from 'uuid';
+import { MIGRATION_NAMESPACE } from 'constants/uuid-namespace.js';
 
 export interface EntityMigrationResult {
   total: number;
@@ -733,7 +735,10 @@ export class MigrationOrchestrator {
         continue;
       }
 
-      const dealId = crypto.randomUUID();
+      const dealName = this.generateDealName(startDate, endDate);
+      const uuidValue = `deal:${app.clientId}-${dealName}`;
+      const dealId = uuidv5(uuidValue, MIGRATION_NAMESPACE);
+      // const dealId = crypto.randomUUID();
       const applicationIds = (app.applicationIds ?? '').split(',').filter(Boolean);
 
       for (const appId of applicationIds) {
@@ -745,7 +750,7 @@ export class MigrationOrchestrator {
           applicationId: parseInt(appId, 10),
           minimumDate: startDate,
           maxDate: endDate,
-          dealName: this.generateDealName(startDate, endDate),
+          dealName,
           userId,
           serviceId,
         });
