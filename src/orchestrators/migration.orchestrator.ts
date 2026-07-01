@@ -738,7 +738,6 @@ export class MigrationOrchestrator {
       const dealName = this.generateDealName(startDate, endDate);
       const uuidValue = `deal:${app.clientId}-${dealName}`;
       const dealId = uuidv5(uuidValue, MIGRATION_NAMESPACE);
-      // const dealId = crypto.randomUUID();
       const applicationIds = (app.applicationIds ?? '').split(',').filter(Boolean);
 
       for (const appId of applicationIds) {
